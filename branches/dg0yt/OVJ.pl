@@ -64,6 +64,7 @@ my $overrides=undef;	# Overrides
 my @pmvjarray;			# Array mit PMVJ Daten
 my @pmaktarray;		# Array mit aktuellen PM Daten
 
+my $pathsep = ($^O =~ /Win/i) ? '\\' : '/';
 
 $str = "*  OVJ ".$ovjvers." by DL3SDO, ".$ovjdate."  *";
 print "\n".'*'x length($str)."\n";
@@ -315,7 +316,7 @@ sub do_select_fjfile {
 	$fjfile->delete(0,"end");
 	$fjfile->insert(0,$selfile);
 
-	if (!open (INFILE, $inputpath."\\".$selfile))
+	if (!open (INFILE, $inputpath.$pathsep.$selfile))
 	{
 		$meldung->insert('end',"FEHLER: Kann OVFJ Datei ".$selfile." nicht lesen");
 		return;
@@ -496,11 +497,11 @@ sub do_file_general {
 	
 	if ($choice == 2) # lade Generelle Daten Datei falls vorhanden (nehme die letzte)
 	{
-		my @PotGenFiles = glob($configpath."\\OVJ_Generell_*.txt");
+		my @PotGenFiles = glob($configpath.$pathsep."OVJ_Generell_*.txt");
 		if (@PotGenFiles > 0)
 		{
 			$genfilename = pop (@PotGenFiles);
-			$genfilename =~ s/^.*?\\//;
+			$genfilename =~ s/^.*?$pathsep//;
 			$choice = 1;
 		}
 		else
@@ -522,7 +523,7 @@ sub do_file_general {
 	if ($choice == 1)	# Laden
 	{	
 		return if (CheckForSaveGenfile());		# Abbruch durch Benutzer
-		if (-e $configpath."\\".$genfilename)
+		if (-e $configpath.$pathsep.$genfilename)
 		{
 			$meldung->insert('end',"Lade ".$genfilename);
 			return(read_genfile(0));
@@ -535,7 +536,7 @@ sub do_file_general {
 	}
 	else	# Speichern
 	{
-		if (-e $configpath."\\".$genfilename)
+		if (-e $configpath.$pathsep.$genfilename)
 		{
 			$meldung->insert('end',"Speichere ".$genfilename);
 		}
@@ -549,7 +550,7 @@ sub do_file_general {
 
 #Schreiben der Generellen Daten in die Genfile Datei
 sub write_genfile {
-	if (!open (OUTFILE, ">".$configpath."\\".$genfilename))
+	if (!open (OUTFILE, ">".$configpath.$pathsep.$genfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$genfilename." nicht schreiben");
 		return 1;	# Fehler
@@ -610,7 +611,7 @@ sub update_genhash {
 sub read_genfile {
 	my ($choice) = @_;	# 0 = Laden, 1 = Importieren
 
-	if (!open (INFILE, ($choice == 0 ? $configpath."\\" : "").$genfilename))
+	if (!open (INFILE, ($choice == 0 ? $configpath.$pathsep : "").$genfilename))
 	{
 	$meldung->insert('end',"FEHLER: Kann ".$genfilename." nicht lesen");
 	return 1;	# Fehler
@@ -744,7 +745,7 @@ sub CreateEdit_ovfj {
 	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ".$ovfjf_name);
 	$ovfjfilename = $ovfjf_name."_ovj.txt";
 	$ovfjrepfilename = $ovfjf_name."_report_ovj.txt";
-	if (-e $configpath."\\".$ovfjfilename)
+	if (-e $configpath.$pathsep.$ovfjfilename)
 	{
 		read_ovfjfile();
 	}
@@ -777,7 +778,7 @@ sub CreateEdit_ovfj {
 
 #Lesen der Daten aus einer OVFJ Datei
 sub read_ovfjfile {
-	if (!open (INFILE, $configpath."\\".$ovfjfilename))
+	if (!open (INFILE, $configpath.$pathsep.$ovfjfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$ovfjfilename." nicht lesen");
 		return;
@@ -863,7 +864,7 @@ sub update_ovfjhash {
 
 #Schreiben der aktuellen OVFJ Daten
 sub do_write_ovfjfile {
-	if (!open (OUTFILE, ">".$configpath."\\".$ovfjfilename))
+	if (!open (OUTFILE, ">".$configpath.$pathsep.$ovfjfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$ovfjfilename." nicht schreiben");
 		return;
@@ -1480,7 +1481,7 @@ sub do_eval_ovfj {
 		get_overrides();		# Lade die Override-Datei (falls vorhanden)
 	}
 
-	if (!open (OUTFILE, ">".$reportpath."\\".$ovfjrepfilename))
+	if (!open (OUTFILE, ">".$reportpath.$pathsep.$ovfjrepfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$ovfjrepfilename." nicht schreiben");
 		return 1;	# Fehler
@@ -1500,7 +1501,7 @@ sub do_eval_ovfj {
 		return 1;	# Fehler
 	}	
 	
-	if (!open (INFILE, $inputpath."\\".$ovfjhash{"OVFJDatei"}))
+	if (!open (INFILE, $inputpath.$pathsep.$ovfjhash{"OVFJDatei"}))
 	{
 		RepMeld(*OUTFILE,"FEHLER: Kann OVFJ Datei ".$ovfjhash{"OVFJDatei"}." nicht lesen");
 		close (OUTFILE) || die "close: $!";
@@ -1891,19 +1892,19 @@ sub Export {
 	$ExcludeTln = $check_ExcludeTln->{'Value'};
 
 	$rawresultfilename = "OVJ_Ergebnisse_".$genhash{"Distriktskenner"}."_".$year."raw.txt";
-	if (!open (ROUTFILE, ">".$outputpath."\\".$rawresultfilename))
+	if (!open (ROUTFILE, ">".$outputpath.$pathsep.$rawresultfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$rawresultfilename." nicht schreiben");
 		return;
 	}
 	$asciiresultfilename = "OVJ".$genhash{"Distriktskenner"}.$year.".txt";
-	if (!open (AOUTFILE, ">".$outputpath."\\".$asciiresultfilename))
+	if (!open (AOUTFILE, ">".$outputpath.$pathsep.$asciiresultfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$asciiresultfilename." nicht schreiben");
 		return;
 	}
 	$htmlresultfilename = "OVJ_Ergebnisse_".$genhash{"Distriktskenner"}."_".$year.".htm";
-	if (!open (HOUTFILE, ">".$outputpath."\\".$htmlresultfilename))
+	if (!open (HOUTFILE, ">".$outputpath.$pathsep.$htmlresultfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$htmlresultfilename." nicht schreiben");
 		return;
