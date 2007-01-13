@@ -298,7 +298,7 @@ unless (-e $outputpath && -d $outputpath)
 }
 unless (-e $inputpath && -d $inputpath)
 {
-	$meldung->insert('end',"Warnung: Verzeichnis \'".$outputpath."\' nicht vorhanden");
+	$meldung->insert('end',"Warnung: Verzeichnis \'".$inputpath."\' nicht vorhanden");
 }
 
 $fjlistsaved = $fjlistbox->Contents();
