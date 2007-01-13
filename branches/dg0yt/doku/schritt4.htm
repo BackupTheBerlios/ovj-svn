@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<title>Vorgehen Schritt 4</title>
+<link rel="stylesheet" type="text/css" href="ovj.css">
+</head>
+<body>
+<b><a href="index.htm">Startseite</a></b><br><br>
+<a href="schritt3.htm"><img src="navback.png" border="0" alt="NavigationZurueck"></a>
+<h1>Vorgehen Schritt für Schritt</h1>
+<h3>Auswertung</h3>
+Bei der Auswertung gibt es zwei Möglichkeiten:
+<ol>
+<li>Sukzessive Auswertung der Wettbewerbe</li>
+<li>Auswertung aller Wettbewerbe mit sofortigem Export der Auswertung</li>
+</ol>
+<b>Um den oder die Wettbewerbe nacheinander auszuwerten</b> geht man wie folgt vor:<br>
+Zunächst befindet sich keine Auswertung im Speicher. Man öffnet einen OV Wettbewerb und klickt dann auf den Button<br>
+'Auswertung' im Bereich des Wettbewerbs. Die Auswertung findet zunächst nur im Speicher statt, d.h. es werden keine<br>
+Jahresauswertungsdateien erzeugt. Es werden allerdings Report-Dateien im Verzeichnis 'report' erzeugt.<br>
+Um den Wettbewerb erneut auswerten zu können (weil z.B. mit dem Auswertungsmuster experimentiert wird), muss die
+Auswertung im Speicher zunächst gelöscht werden.<br>
+Dazu dient der Button 'Auswertung im Speicher löschen'. Dieser löscht <b>alle</b> Auswertungen im Speicher.<br>
+Um einen weiteren Wettbewerb auszuwerten, wird dieser wiederum geladen und ausgewertet, wie oben beschrieben.<br>
+<br>Zu jedem Zeitpunkt können die Auswertungen im Speicher über den Button 'Auswertung exportieren' exportiert werden.<br>
+Dabei wird über das Feld 'Beim Export Teilnehmer ohne offizielle Veranstaltung im akt. Jahr ausschliessen' festgelegt, <br>
+ob in der Jahresauswertung alle Teilnehmer aufgeführt sind oder nur die Teilnehmer, welche im aktuellen Jahr mindestens<br>
+an einer offiziellen Peilveranstaltung des DARC teilgenommen haben, denn nur in diesem Fall werden ja Punkte aus OV Peilveranstaltungen gutgeschrieben.<br>
+Zur Feststellung der Teilnahme im akt. Jahr wird die akt. PM Datei genommen, diese muß dann natürlich entsprechend aktuell sein,<br>
+um alle offiziellen Wettbewerbe zu berücksichtigen!<br>
+<br>
+<b>Für die Auswertung aller Wettbewerbe mit sofortigem Export der Auswertung</b> gibt es einen eigenen Button:
+<img src="ovliste.png" alt="Liste der OV Wettbewerbe"><br>
+Die Wettbewerbe werden der Reihe nach ausgewertet, entsprechend ihrer Reihenfolge in der Liste der OV Wettbewerbe.<br>
+Die Auswertung im Speicher wird danach sofort exportiert, bleibt aber im Speicher.
+Man kann daher danach das Feld 'Beim Export Teilnehmer ohne offizielle Veranstaltung...' beliebig ändern und durch
+Klicken auf den 'Auswertung exportieren' Button die Auswertung exportieren.<br>
+<br>Die Jahresauswertungsdateien werden im Unterverzeichnis 'output' abgelegt. Dies sind:
+<ul>
+<li>eine Textdatei mit dem Namen 'OVJXYYYY.txt' wobei X für den Distriktskenner und YYYY für das Jahr steht, also z.B. 'OVJP2006.txt'<br>
+Es reicht aus, diese Datei beim ARDF-Diplomsachbearbeiter einzureichen.</li>
+<li>eine HTML-Datei mit dem Namen 'OVJ_Ergebnisse_X_YYYY.htm' wobei X für den Distriktskenner und YYYY für das Jahr steht</li>
+<li>eine Rawdatei mit dem Namen 'OVJ_Ergebnisse_X_YYYYraw.txt' wobei X für den Distriktskenner und YYYY für das Jahr steht</li>
+</ul>
+Im Unterverzeichnis 'report' befinden sich für jeden OV Wettbewerb detaillierte Informationen über die Auswertung:
+<ul>
+<li>welcher Teilnehmer aufgrund welcher Daten in der PM Datei (nicht) gefunden und wie klassifiziert wurde</li>
+<li>Datenunterschiede zwischen OVFJ Daten, PM Vorjahr Datei und aktueller PM Datei</li>
+<li>Namensersetzungen, Verwendung von <a href="override.htm" target="_blank">Override-Daten</a></li>
+<li>die Informationen, welche auch im 'Meldungen'-Fenster ausgegeben werden</li>
+</ul>
+Der Dateinamen wird aus dem Namen des jeweiligen OV Wettbewerbs mit angehängtem '_report_ovj.txt' gebildet.
+</body>
+</html>

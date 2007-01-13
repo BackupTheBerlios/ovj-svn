@@ -1,0 +1,18 @@
+#Override-Datei
+#Ab und zu gibt es ja Änderungen oder falsche Eintraege
+#in Listen (z.B. Rufzeichen-Änderung oder jemand ist doch nicht im DARC)
+#
+#Die Angaben hier haben Vorrang vor jeder Angabe in einer OV Auswertung oder
+#PM Datei
+#Format (muss exakt eingehalten werden):
+#Name,Vorname,Rufzeichen,DOK,Gebjahr,IstInPMVJ|NichtInPMVJ
+#d.h.
+#Name,Vorname,Rufzeichen,DOK,Gebjahr,IstInPMVJ
+#Name,Vorname,Rufzeichen,DOK,Gebjahr,NichtInPMVJ
+#wo keine Änderung, da einfach leer lassen, d.h. ,,
+#zulässig sind --- wenn Rufzeichen oder DOK explizit leer sein sollen !
+#
+Föderl,Annemarie,,C26,,IstInPMVJ
+Roethe,Brigitte,,---,,IstInPMVJ
+Timm,Ulrich,,---,,IstInPMVJ
+Jurtz,Klaus-Dieter,DO1ZI,,,
