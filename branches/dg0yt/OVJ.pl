@@ -84,7 +84,7 @@ $menu_bar->Button(
         -command => \&Leave)->pack(-side => 'right');
 $menu_bar->Label(-text => "OVJ $ovjvers by DL3SDO, $ovjdate")->pack;
     
-my $fr1 = $mw->Frame(-borderwidth => 5, -pady => 2, -relief => 'raised');
+my $fr1 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
 $fr1->pack;
 $fr1->Label(-text => 'Generelle Daten')->pack;
 my $fr11 = $fr1->Frame->pack(-side => 'left');
@@ -156,7 +156,7 @@ $fr143->Button(
         -command => sub{do_get_nickfile()}
     )->pack(-side => 'left');
 
-my $fr2 = $mw->Frame(-borderwidth => 5, -pady => 2, -relief => 'raised');
+my $fr2 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
 $fr2->pack;
 $fr2->Label(-text => 'Liste der OV Wettbewerbe')->pack;
 my $fr21 = $fr2->Frame->pack();
@@ -170,7 +170,7 @@ $fr21b->Button(
         -text => 'Erzeugen aus aktuellem OV Wettbewerb',
         -command => sub{do_edit_ovfj(1)}
     )->pack();
-my $fr22 = $fr2->Frame(-pady => 3)->pack();
+my $fr22 = $fr2->Frame()->pack();
 $fr22->Button(
         -text => 'Alle OV Wettbewerbe auswerten und exportieren',
         -command => sub{do_eval_allovfj()}
@@ -190,7 +190,7 @@ my $exp_eval_button = $fr23->Button(
 $fr23->Label(-text => 'Beim Export Teilnehmer ohne offizielle Veranstaltung im akt. Jahr ausschliessen')->pack(-side => 'left');
 my $check_ExcludeTln = $fr23->Checkbutton()->pack(-side => 'left');
 
-my $fr4 = $mw->Frame(-borderwidth => 5, -pady => 2, -relief => 'raised');
+my $fr4 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
 $fr4->pack;
 $fr4->Label(-text => 'Liste der Auswertungsmuster')->pack;
 my $fr41 = $fr4->Frame->pack(-side => 'left');
@@ -206,7 +206,7 @@ my $copy_pattern_button = $fr42->Button(
         -state => 'disabled'
     )->pack();
 
-my $fr3 = $mw->Frame(-borderwidth => 5, -pady => 2, -relief => 'raised');
+my $fr3 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
 $fr3->pack;
 my $ovfjnamelabel = $fr3->Label(-text => 'OV Wettbewerb:')->pack();
 my $fr30 = $fr3->Frame->pack(-side => 'top');
@@ -271,7 +271,7 @@ my $fr33 = $fr3->Frame->pack();
 $fr33->Label(-text => 'Muster')->pack(-side => 'left');
 my $ovjpattern = $fr33->Entry(-width => 70)->pack(-side => 'right');
 
-my $fr4 = $mw->Frame(-borderwidth => 5, -pady => 3, -relief => 'raised');
+my $fr4 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
 $fr4->pack;
 $fr4->Label(-text => 'Meldungen')->pack;
 my $meldung = $fr4->Scrolled('Listbox',-scrollbars =>'e',-width => 116, -height => 12)->pack();
