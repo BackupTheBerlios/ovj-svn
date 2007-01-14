@@ -1,3 +1,4 @@
+#!/usr/bin/perl -w
 #
 # Script zum Erzeugen der OV Jahresauswertung für
 # OV Peilwettbewerbe
@@ -5,7 +6,6 @@
 # Version: 0.96
 # Datum:   14.1.2007
 #
-#!/usr/bin/perl -w
 #
 # Copyright (C) 2007  Matthias Kuehlewein, DL3SDO
 #
