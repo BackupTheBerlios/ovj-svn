@@ -1,0 +1,13 @@
+#OVFJ Datei
+AusrichtDOK = P12
+Band = 80
+Datum = 19.08.2006
+Verantw_DOK = P12
+Verantw_GebJahr = 1970
+Verantw_Vorname = Matthias
+Auswertungsmuster = Platz? Nachname, Vorname Call Dok Sender Zeit
+Verantw_Name = Kühlewein
+Verantw_CALL = DL3SDO
+AusrichtOV = Tübingen
+TlnManuell = 
+OVFJDatei = Foxoring_P12.txt

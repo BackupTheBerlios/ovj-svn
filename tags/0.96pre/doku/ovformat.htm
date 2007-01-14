@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<title>OVFJ Ergebnislistenformat</title>
+<link rel="stylesheet" type="text/css" href="ovj.css">
+</head>
+<body>
+<b><a href="index.htm">Startseite</a></b><br><br>
+<h1>Format einer Ergebnisliste zur automatischen Auswertung durch OVJ</h1>
+<br>
+Es gibt ein Format für den Kopfteil einer Ergebnisliste für eine OV Fuchsjagd,
+das von OVJ direkt unterstützt wird.<br>
+Dieses Format wird im Distrikt Oberbayern
+von Reinhard Hergert verwendet. Wenn Kopfdaten in diesem Format vorliegen,<br>
+kann damit automatisch der Kopfteil dieser OV Fuchsjagd in der OVJ-Oberfläche ausgefüllt werden.<br>
+Beispiel:
+<pre>
+Organisation:       OV Ermstal
+Dok:                P31
+Datum:              10.09.2006
+Verantwortlich:     Marc Landmann, DL5SEZ, P31
+Helfer:             Matthias Kühlewein, DL3SDO, P12
+Teilnehmerzahl:     19
+Band:               80m
+</pre>
+<br>
+<table border="1">
+<thead>
+<tr>
+<th>
+Schlüsselwort
+</th>
+<th>
+Daten
+</th>
+<th>
+Kommentar
+</th>
+</tr>
+</thead>
+<tbody>
+
+<tr>
+<td>
+Organisation:
+</td>
+<td>
+Ortsverbandsname
+</td>
+<td>
+evtl. vorausgehendes Wort 'OV' mit anschliessenden Leerzeichen wird gelöscht.
+</td>
+</tr>
+
+<tr>
+<td>
+Dok:
+</td>
+<td>
+DOK
+</td>
+<td>
+Groß-/Kleinschreibung bei Schlüsselwort und DOK egal.
+</td>
+</tr>
+
+<tr>
+<td>
+Datum:
+</td>
+<td>
+Datum
+</td>
+<td>
+Datum Format wird teilweise geprüft.
+</td>
+</tr>
+
+<tr>
+<td>
+Verantwortlich:
+</td>
+<td>
+Verantwortlicher Ausrichter
+</td>
+<td>
+Format: Vorname Nachname Rufzeichen DOK Geburtsjahr<br>Dabei ist es egal, ob diese Wörter über Kommas oder ein oder mehrere Leerzeichen getrennt sind.
+</td>
+</tr>
+
+<tr>
+<td>
+Teilnehmerzahl:
+</td>
+<td>
+Anzahl Teilnehmer
+</td>
+<td>
+Normalerweise wird die Anzahl der Teilnehmer bei der Auswertung ermittelt. Sobald jedoch im Feld 'Anz. Teilnehmer manuell' eine Zahl
+steht, wird diese stattdessen verwendet.
+</td>
+</tr>
+
+<tr>
+<td>
+Helfer:
+</td>
+<td>
+Helfer
+</td>
+<td>
+Format: Vorname Nachname Rufzeichen DOK Geburtsjahr<br>Dabei ist es egal, ob diese Wörter über Kommas oder ein oder mehrere Leerzeichen getrennt sind.<br>
+Es können mehrere Helferzeilen vorhanden sein.
+</td>
+</tr>
+
+<tr>
+<td>
+Band:
+</td>
+<td>
+Band
+</td>
+<td>
+ein oder zwei Zahlen
+</td>
+</tr>
+</tbody>
+</table>
+<br>Die Helferdaten werden natürlich nicht in den Kopfteil des OV Wettbewerbs übernommen, sondern bei der Auswertung berücksichtigt.
+<br>Die Suche nach Kopfdaten wird abgebrochen sobald eine Zeile mit '---' beginnt.<br>
+Andere Schlüsselwörter werden ignoriert.<br>
+Bei den Daten für Helfer und Ausrichter können Angaben weggelassen werden, aber immer nur von rechts nach links.<br>
+Z.B. das Geburtsjahr und der DOK, aber z.B. nicht das Rufzeichen, wenn ein DOK angegeben ist, oder der DOK, wenn das Geburtsjahr angegeben ist.<br>
+</body>
+</html>

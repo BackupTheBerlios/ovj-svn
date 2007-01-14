@@ -1,0 +1,23 @@
+#OVJ Toplevel-Datei für 2006
+
+Call = DL3SDO
+Telefon = 0172 7283903
+Jahr = 2006
+Home-BBS = 
+Vorname = Matthias
+PMVorjahr = PM2005.txt
+Exclude_Checkmark = 1
+Distriktskenner = P
+Distrikt = Württemberg
+E-Mail = dl3sdo@darc.de
+DOK = P12
+PMaktJahr = PM2006.txt
+Name = Kühlewein
+Spitznamen = Spitznamen.txt
+
+ovfj_link = OV_P31_Fruehjahr
+ovfj_link = Akafunk_Juni
+ovfj_link = Akafunk_Foxoring_Juli
+ovfj_link = OV_P12_Foxoring_August
+ovfj_link = OV_P31_Herbst
+ovfj_link = Sylvester_Foxoring
