@@ -2,12 +2,12 @@
 # Script zum Erzeugen der OV Jahresauswertung für
 # OV Peilwettbewerbe
 # Autor:   Matthias Kuehlewein, DL3SDO
-# Version: 0.95
-# Datum:   2.1.2007
+# Version: 0.96
+# Datum:   14.1.2007
 #
 #!/usr/bin/perl -w
 #
-# Copyright (C) 2006  Matthias Kuehlewein, DL3SDO
+# Copyright (C) 2007  Matthias Kuehlewein, DL3SDO
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,17 +25,19 @@
 #
 use strict;		# um 'besseren' Code zu erzwingen
 use Tk;
-use Tk::FileSelect;
+#use Tk::FileSelect;
 
-my $ovjdate = "2.1.2007";
-my $ovjvers = "0.95";
+my $ovjdate = "14.1.2007";
+my $ovjvers = "0.96";
 my $patternfilename = "OVFJ_Muster.txt";
 my $overridefilename = "Override.txt";
+my $inifilename = "OVJini.txt";
 my $inputpath = "input";		# Pfad für die Eingangsdaten
 my $outputpath = "output";		# Pfad für die Ergebnisdaten
 my $reportpath = "report";		# Pfad für die Reportdaten
 my $configpath = "config";		# Pfad für die Konfigurationsdaten
-										# (OVJ_Generell_20XX.txt, sowie die OVFJ Dateien (*_ovj.txt))
+										# Generelle Daten, sowie die OVFJ Dateien (*_ovj.txt))
+my $pathsep = ($^O =~ /Win/i) ? '\\' : '/';	# Kai, fuer Linux und Win32 Portabilitaet
 
 my ($genfile,$genfilename,$ovfjfile,$ovfjfilename,$ovfjrepfilename);
 my $year;				# Auswertungsjahr 
@@ -63,8 +65,9 @@ my $patternsaved;		# Auswertungsmuster, die gespeichert wurden. Abgleich der akt
 my $overrides=undef;	# Overrides
 my @pmvjarray;			# Array mit PMVJ Daten
 my @pmaktarray;		# Array mit aktuellen PM Daten
+my %inihash;			# Hash fuer die Inidaten von OVJ
+my $inicomments;		# Kommentare im Inifile
 
-my $pathsep = ($^O =~ /Win/i) ? '\\' : '/';
 
 $str = "*  OVJ ".$ovjvers." by DL3SDO, ".$ovjdate."  *";
 print "\n".'*'x length($str)."\n";
@@ -87,14 +90,16 @@ $menu_bar->Label(-text => "OVJ $ovjvers by DL3SDO, $ovjdate")->pack;
     
 my $fr1 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
 $fr1->pack;
-$fr1->Label(-text => 'Generelle Daten')->pack;
+my $gendatalabel = $fr1->Label(-text => 'Generelle Daten:')->pack;
 my $fr11 = $fr1->Frame->pack(-side => 'left');
 my $fr111 = $fr11->Frame->pack;
-$fr111->Label(-text => 'Jahr')->pack(-side => 'left');
-my $jahr = $fr111->Entry(-width => 4)->pack(-side => 'left');
 $fr111->Button(
         -text => 'Importieren',
         -command => sub{do_file_general(3)}
+    )->pack(-side => 'right',-padx => 1);
+$fr111->Button(
+        -text => 'Speichern als',
+        -command => sub{do_file_general(4)}
     )->pack(-side => 'right',-padx => 1);
 $fr111->Button(
         -text => 'Speichern',
@@ -106,12 +111,15 @@ $fr111->Button(
     )->pack(-side => 'right',-padx => 1);
 
 my $fr112 = $fr11->Frame->pack;
-my $distrikt = $fr112->Entry()->pack(-side => 'right');
 $fr112->Label(-text => 'Distrikt')->pack(-side => 'left');
+my $distrikt = $fr112->Entry()->pack(-side => 'left');
 
 my $fr113 = $fr11->Frame->pack;
-my $distriktskenner = $fr113->Entry(-width => 1)->pack(-side => 'right');
 $fr113->Label(-text => 'Distriktskenner')->pack(-side => 'left');
+my $distriktskenner = $fr113->Entry(-width => 1)->pack(-side => 'left');
+
+$fr113->Label(-text => 'Jahr')->pack(-side => 'left');
+my $jahr = $fr113->Entry(-width => 4)->pack(-side => 'left');
 
 my $fr12 = $fr1->Frame->pack(-side => 'left');
 my $fr121 = $fr12->Frame->pack;
@@ -171,7 +179,7 @@ $fr21b->Button(
         -text => 'Erzeugen aus aktuellem OV Wettbewerb',
         -command => sub{do_edit_ovfj(1)}
     )->pack();
-my $fr22 = $fr2->Frame()->pack();
+my $fr22 = $fr2->Frame->pack();
 $fr22->Button(
         -text => 'Alle OV Wettbewerbe auswerten und exportieren',
         -command => sub{do_eval_allovfj()}
@@ -277,24 +285,37 @@ $fr4->pack;
 $fr4->Label(-text => 'Meldungen')->pack;
 my $meldung = $fr4->Scrolled('Listbox',-scrollbars =>'e',-width => 116, -height => 12)->pack();
 
+read_inifile();		# Lade die Ini Datei
 do_file_general(2);	# Lade Generelle Daten Datei falls vorhanden
 do_read_patterns();	# Lade die Musterdatei (sollte vorhanden sein, ansonsten bleibt die Liste
 							# halt leer
 
 unless (-e $configpath && -d $configpath)
 {
-	mkdir($configpath);
 	$meldung->insert('end',"Erzeuge Verzeichnis \'".$configpath."\'");
+	unless (mkdir($configpath))
+	{
+		$meldung->insert('end',"FEHLER: Konnte Verzeichnis \'".$configpath."\' nicht erstellen".$!);
+		return;
+	}
 }
 unless (-e $reportpath && -d $reportpath)
 {
-	mkdir($reportpath);
 	$meldung->insert('end',"Erzeuge Verzeichnis \'".$reportpath."\'");
+	unless (mkdir($reportpath))
+	{
+		$meldung->insert('end',"FEHLER: Konnte Verzeichnis \'".$reportpath."\' nicht erstellen".$!);
+		return;
+	}
 }
 unless (-e $outputpath && -d $outputpath)
 {
-	mkdir($outputpath);
 	$meldung->insert('end',"Erzeuge Verzeichnis \'".$outputpath."\'");
+	unless (mkdir($outputpath))
+		{
+		$meldung->insert('end',"FEHLER: Konnte Verzeichnis \'".$outputpath."\' nicht erstellen".$!);
+		return;
+	}
 }
 unless (-e $inputpath && -d $inputpath)
 {
@@ -304,19 +325,71 @@ unless (-e $inputpath && -d $inputpath)
 $fjlistsaved = $fjlistbox->Contents();
 MainLoop;
 
+
+#Laden der Ini-Datei
+sub read_inifile {
+	if (!open (INFILE,"<",$inifilename))
+	{
+	$meldung->insert('end',"HINWEIS: Kann ".$inifilename." nicht lesen");
+	return;
+	}
+
+	while (<INFILE>)
+	{
+		if (/^#/ || /^\s/)
+		{
+			$inicomments .= $_;
+			next;
+		}
+		#print $_."\n";
+		if (/^((?:\w|-)+)\s*=\s*(.*?)\s+$/)
+		{
+			$inihash{$1} = $2;
+			#print $1."=".$2;
+		}
+	}
+	close (INFILE) || die "close: $!";
+	return;
+}
+
+#Schreiben der Ini-Datei
+sub write_inifile {
+	my $key;
+	
+	if (!open (OUTFILE,">",$inifilename))
+	{
+	$meldung->insert('end',"FEHLER: Kann ".$inifilename." nicht schreiben");
+	return;
+	}
+	printf OUTFILE $inicomments;
+	foreach $key (keys %inihash) {
+		printf OUTFILE $key." = ".$inihash{$key}."\n";
+	}
+	close (OUTFILE) || die "close: $!";
+	return;
+}
+
 #Auswahl der FJ Datei per Button
 #und Pruefen, ob automatisch OVFJ Kopfdaten ausgefuellt werden koennen
 sub do_select_fjfile {
-	my $FSref = $fr3->FileSelect(-directory => $inputpath);
-	my $selfile = $FSref->Show;
-	return if ($selfile eq "");
+	unless (-e $inputpath.$pathsep.$genfilename && -d $inputpath.$pathsep.$genfilename)
+	{
+		$meldung->insert('end',"FEHLER: Verzeichnis \'".$inputpath.$pathsep.$genfilename."\' nicht vorhanden");
+		return;
+	}
+	#my $FSref = $fr3->FileSelect(-directory => $inputpath.$pathsep.$genfilename);
+	#my $selfile = $FSref->Show;
+	#return if ($selfile eq "");
+	my $types = [['Text Files','.txt'],['All Files','*',]];
+	my $selfile = $fr3->getOpenFile(-initialdir => $inputpath.$pathsep.$genfilename, -filetypes => $types, -title => "FJ Datei auswählen");
+	return if ($selfile eq undef || $selfile eq "");
 	my $tp;
 	my @fi;
 	$selfile =~ s/^.*\///;
 	$fjfile->delete(0,"end");
 	$fjfile->insert(0,$selfile);
 
-	if (!open (INFILE, $inputpath.$pathsep.$selfile))
+	if (!open (INFILE,"<",$inputpath.$pathsep.$genfilename.$pathsep.$selfile))
 	{
 		$meldung->insert('end',"FEHLER: Kann OVFJ Datei ".$selfile." nicht lesen");
 		return;
@@ -385,9 +458,12 @@ sub do_select_fjfile {
 
 #Auswahl der Spitznamen Datei per Button
 sub do_get_nickfile {
-	my $FSref = $fr1->FileSelect(-directory => '.');
-	my $selfile = $FSref->Show;
-	return if ($selfile eq "");
+	#my $FSref = $fr1->FileSelect(-directory => '.');
+	#my $selfile = $FSref->Show;
+	#return if ($selfile eq "");
+	my $types = [['Text Files','.txt'],['All Files','*',]];
+	my $selfile = $fr1->getOpenFile(-initialdir => '.', -filetypes => $types, -title => "Spitznamen Datei auswählen");
+	return if ($selfile eq undef || $selfile eq "");
 	$selfile =~ s/^.*\///;
 	$nickfile->delete(0,"end");
 	$nickfile->insert(0,$selfile);
@@ -395,7 +471,7 @@ sub do_get_nickfile {
 
 #Speichern der Pattern Datei
 sub do_save_patterns {
-	if (!open (OUTFILE, ">".$patternfilename))
+	if (!open (OUTFILE,">",$patternfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$patternfilename." nicht schreiben");
 		return;
@@ -410,7 +486,7 @@ sub do_save_patterns {
 #Lesen der Pattern Datei
 sub do_read_patterns {
 	return unless (-e $patternfilename);
-	if (!open (INFILE, $patternfilename))
+	if (!open (INFILE,"<",$patternfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$patternfilename." nicht öffnen");
 		return;
@@ -444,9 +520,11 @@ sub CheckForUnsavedPatterns {
 #Auswahl der PMVorjahr (0) oder aktuellen (else) PM Datei per Button
 sub do_select_pmfile {
 	my ($choice) = @_;
-	my $FSref = $fr1->FileSelect(-directory => '.');
-	my $selfile = $FSref->Show;
-	return if ($selfile eq "");
+	#my $FSref = $fr1->FileSelect(-directory => '.');
+	#my $selfile = $FSref->Show;
+	my $types = [['Text Files','.txt'],['All Files','*',]];
+	my $selfile = $fr1->getOpenFile(-initialdir => '.', -filetypes => $types, -title => ($choice == 0 ? "PM Vorjahr Datei auswählen" : "aktuelle PM Datei auswählen"));
+	return if ($selfile eq undef || $selfile eq "");
 	$selfile =~ s/^.*\///;
 	if ($choice == 0)
 	{
@@ -484,73 +562,152 @@ sub do_copy_pattern {
 
 #Speichern, Laden bzw. Erzeugen der Generellen Daten Datei
 sub do_file_general {
-	my ($choice) = @_;	# 0 = Speichern, 1 = Laden, 2 = im Verzeichnis vorhandene nehmen, 3 = Importieren
+	my ($choice) = @_;	# 0 = Speichern, 1 = Laden, 2 = Laden der im Inifile angegebenen, 3 = Importieren, 4 = Speichern als
+	my $retstate;
+	#my $tempname;
 	
-	if ($choice == 3)	# Importieren
-	{	
-		return if (CheckForSaveGenfile());		# Abbruch durch Benutzer
-		my $FSref = $fr1->FileSelect(-directory => '.');
-		$genfilename = $FSref->Show;
-		return if ($genfilename eq "");
-		return(read_genfile(1));
-	}
-	
-	if ($choice == 2) # lade Generelle Daten Datei falls vorhanden (nehme die letzte)
-	{
-		my @PotGenFiles = glob($configpath.$pathsep."OVJ_Generell_*.txt");
-		if (@PotGenFiles > 0)
-		{
-			$genfilename = pop (@PotGenFiles);
-			$genfilename =~ s/^.*?$pathsep//;
-			$choice = 1;
-		}
-		else
-		{
-			return 1;	# prinzipiell erfolgreich, trotzdem Rueckgabewert 1
-		}
-	}
-	else
-	{
-		$year = $jahr->get;
-		if ($year !~ /^\d{4}$/)
-		{
-			$meldung->insert('end',"FEHLER: Jahr ist keine gültige Zahl");
-			return 1;	# Fehler
-		}
-		$genfilename = "OVJ_Generell_".$year.".txt";
-	}
-
 	if ($choice == 1)	# Laden
 	{	
-		return if (CheckForSaveGenfile());		# Abbruch durch Benutzer
-		if (-e $configpath.$pathsep.$genfilename)
+		return 1 if (CheckForSaveGenfile());		# Abbruch durch Benutzer
+		return 1 if (CheckForOVFJList());			# Abbruch durch Benutzer
+		my $types = [['Text Files','.txt'],['All Files','*',]];
+		my $filename = $fr1->getOpenFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten laden");
+		return 1 if ($filename eq undef || $filename eq "");
+		#my $FSref = $fr1->FileSelect(-directory => $configpath);
+		#$tempname = $FSref->Show;
+		$filename =~ s/^.*\///;		# Pfadangaben entfernen
+		$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
+		$meldung->insert('end',"Lade ".$filename);
+		$retstate = read_genfile(0,$filename);
+		if ($retstate == 0)	# Erfolgreich geladen
 		{
+			$genfilename = $filename;
+			$gendatalabel->configure(-text => "Generelle Daten: ".$genfilename);
+			$inihash{"LastGenFile"} = $genfilename;
+		}
+		return($retstate);
+	}
+
+	if ($choice == 3)	# Importieren
+	{	
+		return 1 if (CheckForSaveGenfile());		# Abbruch durch Benutzer
+		return 1 if (CheckForOVFJList());			# Abbruch durch Benutzer
+		my $types = [['Text Files','.txt'],['All Files','*',]];
+		my $filename = $fr1->getOpenFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten importieren");
+		return 1 if ($filename eq undef || $filename eq "");
+		#my $FSref = $fr1->FileSelect(-directory => $configpath);
+		#$genfilename = $FSref->Show;
+		$meldung->insert('end',"Importiere ".$filename);
+		$retstate = read_genfile(1,$filename);
+		if ($retstate == 0)	# Erfolgreich geladen
+		{
+			$genfilename = "";	# Beim Importieren wird kein Name festgelegt
+			$gendatalabel->configure(-text => "Generelle Daten: ");
+			$inihash{"LastGenFile"} = $genfilename;
+		}
+		return($retstate);
+	}
+
+	if ($choice == 2)	# Laden der im Inifile angegebenen Datei, wird beim Programmstart ausgeführt
+	{	
+		return 1 unless (exists($inihash{"LastGenFile"}));	# Hashwert existiert nicht, da vermutlich keine Inidatei vorhanden
+
+		if (-e $configpath.$pathsep.$inihash{"LastGenFile"}.$pathsep.$inihash{"LastGenFile"}.".txt")
+		{
+			$genfilename = $inihash{"LastGenFile"};
 			$meldung->insert('end',"Lade ".$genfilename);
-			return(read_genfile(0));
+			$gendatalabel->configure(-text => "Generelle Daten: ".$genfilename);
+			return(read_genfile(0,$genfilename));
 		}
 		else
 		{
-			$meldung->insert('end',"Kann ".$genfilename."nicht laden! Datei existiert nicht");
+			unless (-e $configpath.$pathsep.$inihash{"LastGenFile"} && -d $configpath.$pathsep.$inihash{"LastGenFile"})
+			{
+				$meldung->insert('end',"Kann ".$inihash{"LastGenFile"}." nicht laden da Verzeichnis \'".$inihash{"LastGenFile"}."\' nicht existiert!");
+			}
+			else
+			{
+				$meldung->insert('end',"Kann ".$inihash{"LastGenFile"}." nicht laden! Datei existiert nicht");
+			}
 			return 1;	# Fehler
 		}
 	}
-	else	# Speichern
+
+	if ($choice == 0)	# Speichern
 	{
-		if (-e $configpath.$pathsep.$genfilename)
+		if ($genfilename ne "")
 		{
-			$meldung->insert('end',"Speichere ".$genfilename);
+			if (-e $configpath.$pathsep.$genfilename.$pathsep.$genfilename.".txt")
+			{
+				$meldung->insert('end',"Speichere ".$genfilename);
+			}
+			else
+			{
+				$meldung->insert('end',"Erzeuge ".$genfilename);
+			}
+			return(write_genfile());
 		}
 		else
 		{
-			$meldung->insert('end',"Erzeuge ".$genfilename);
+			$choice = 4;	# gehe zu Speichern als
 		}
+	}
+
+	if ($choice == 4)	# Speichern als
+	{
+		my $types = [['Text Files','.txt'],['All Files','*',]];
+		my $filename = $fr1->getSaveFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten laden");
+		#my $FSref = $fr1->FileSelect(-directory => $configpath);
+		#$tempname = $FSref->Show;
+		return 1 if ($filename eq undef || $filename eq "");
+		$filename =~ s/^.*\///;		# Pfadangaben entfernen
+		$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
+		$genfilename = $filename;
+#		if (-e $configpath.$pathsep.$genfilename.".txt")
+#		{
+#			my $response = $mw->messageBox(-icon => 'question', 
+#													-message => "Datei ".$genfilename.".txt existiert bereits\n\nÜberschreiben?", 
+#													-title => 'Generelle Daten Datei überschreiben?', 
+#													-type => 'YesNo', 
+#													-default => 'Yes');
+#			return 1 if ($response eq "No");
+#			$meldung->insert('end',"Speichere ".$genfilename);
+#		}
+#		else
+#		{
+		if (-e $configpath.$pathsep.$genfilename.$pathsep.$genfilename.".txt")
+		{ $meldung->insert('end',"Überschreibe ".$genfilename); }
+		else { $meldung->insert('end',"Erzeuge ".$genfilename); }
+#		}
+		$gendatalabel->configure(-text => "Generelle Daten: ".$genfilename);
+		$inihash{"LastGenFile"} = $genfilename;
 		return(write_genfile());
 	}
 }
 
 #Schreiben der Generellen Daten in die Genfile Datei
 sub write_genfile {
-	if (!open (OUTFILE, ">".$configpath.$pathsep.$genfilename))
+	unless (-e $configpath.$pathsep.$genfilename && -d $configpath.$pathsep.$genfilename)
+	{
+		$meldung->insert('end',"HINWEIS: Erstelle Verzeichnis \'".$genfilename."\' in \'".$configpath."\'");
+		unless (mkdir($configpath.$pathsep.$genfilename))
+		{
+			$meldung->insert('end',"FEHLER: Konnte Verzeichnis \'".$configpath.$pathsep.$genfilename."\' nicht erstellen".$!);
+			return 1;	# Fehler
+		}
+	}
+
+	unless (-e $inputpath.$pathsep.$genfilename && -d $inputpath.$pathsep.$genfilename)
+	{
+		$meldung->insert('end',"HINWEIS: Erstelle Verzeichnis \'".$genfilename."\' in \'".$inputpath."\'");
+		unless (mkdir($inputpath.$pathsep.$genfilename))
+		{
+			$meldung->insert('end',"FEHLER: Konnte Verzeichnis \'".$inputpath.$pathsep.$genfilename."\' nicht erstellen".$!);
+			return 1;	# Fehler
+		}
+	}
+	
+	if (!open (OUTFILE,">",$configpath.$pathsep.$genfilename.$pathsep.$genfilename.".txt"))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$genfilename." nicht schreiben");
 		return 1;	# Fehler
@@ -598,6 +755,7 @@ sub update_genhash {
 	if ($mode == 0)
 	{
 		%genhash = %genhashtemp;
+		$year = $genhash{"Jahr"};
 		return 0;
 	}
 	while (($key,$value) = each(%genhashtemp))
@@ -609,11 +767,11 @@ sub update_genhash {
 
 #Lesen der Generellen Daten aus der Genfile Datei
 sub read_genfile {
-	my ($choice) = @_;	# 0 = Laden, 1 = Importieren
+	my ($choice,$filename) = @_;	# 0 = Laden, 1 = Importieren
 
-	if (!open (INFILE, ($choice == 0 ? $configpath.$pathsep : "").$genfilename))
+	if (!open (INFILE,"<",($choice == 0 ? $configpath.$pathsep.$filename.$pathsep : "").$filename.($choice == 0 ? ".txt" : "")))
 	{
-	$meldung->insert('end',"FEHLER: Kann ".$genfilename." nicht lesen");
+	$meldung->insert('end',"FEHLER: Kann ".$filename." nicht lesen");
 	return 1;	# Fehler
 	}
 
@@ -668,6 +826,15 @@ sub read_genfile {
 	%genhashsaved = %genhash;
 	$fjlistsaved = $fjlistbox->Contents();
 	update_genhash(0) if ($choice == 1);	# einige Hashwerte löschen
+	do_reset_eval();	# evtl. vorhandene Auswertungen löschen
+	undef %ovfjhash;	# OVFJ Daten löschen
+	undef %ovfjhashsaved;
+	Clear_ovfj();	# und anzeigen
+	$ovfj_eval_button->configure(-state => 'disabled');
+	$ovfj_fileset_button->configure(-state => 'disabled');
+	$ovfj_save_button->configure(-state => 'disabled');
+	$copy_pattern_button->configure(-state => 'disabled');
+	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ");
 	return 0;	# kein Fehler
 }
 
@@ -676,8 +843,8 @@ sub read_genfile {
 sub CheckForSaveGenfile {
 	return 0 if (update_genhash(1)==0);
 	my $response = $mw->messageBox(-icon => 'question', 
-											-message => "Generelle Daten wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
-											-title => 'Generelle Daten speichern?', 
+											-message => "Generelle Daten \'$genfilename\' wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
+											-title => "Generelle Daten \'$genfilename\' speichern?", 
 											-type => 'YesNoCancel', 
 											-default => 'Yes');
 	return 1 if ($response eq "Cancel");
@@ -691,7 +858,7 @@ sub CheckForOVFJList {
 	return 0 if ($fjlistsaved eq $fjlistbox->Contents());
 	my $response = $mw->messageBox(-icon => 'question', 
 											-message => "Liste der OV Wettbewerbe wurde geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
-											-title => 'Generelle Daten speichern?', 
+											-title => "Generelle Daten \'$genfilename\' speichern?", 
 											-type => 'YesNoCancel', 
 											-default => 'Yes');
 	return 1 if ($response eq "Cancel");
@@ -737,20 +904,30 @@ sub CheckForOverwriteOVFJ {
 }
 
 #Anlegen bzw. Editieren einer OVFJ Veranstaltung
-sub CreateEdit_ovfj {
-	my ($ovfjf_name,$choice) = @_;	# Beim Erzeugen: 0 = neu, 1 = aus aktuellem OV Wettbewerb
+sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
+	my ($ovfjf_name,$choice) = @_;	# Beim Erzeugen: 0 = neu, 1 = aus aktuellem OV Wettbewerb, 
+												# 2 = explizites Laden aus Auswertungsschleife heraus
 	
 	return if (CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
 	
 	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ".$ovfjf_name);
 	$ovfjfilename = $ovfjf_name."_ovj.txt";
 	$ovfjrepfilename = $ovfjf_name."_report_ovj.txt";
-	if (-e $configpath.$pathsep.$ovfjfilename)
+	if (-e $configpath.$pathsep.$genfilename.$pathsep.$ovfjfilename)
 	{
-		read_ovfjfile();
+		if (read_ovfjfile()==1)	# Rueckgabe bei Fehler
+		{
+			$meldung->insert('end',"FEHLER: Kann ".$ovfjfilename." nicht lesen");
+			return 1;
+		}
 	}
 	else
 	{
+		if ($choice == 2)	# kann nicht geladen werden
+		{
+			$meldung->insert('end',"FEHLER: Finde ".$ovfjfilename." nicht");
+			return 1;
+		}
 		if ($choice == 0)
 		{
 			Clear_ovfj();
@@ -777,11 +954,11 @@ sub CreateEdit_ovfj {
 }
 
 #Lesen der Daten aus einer OVFJ Datei
-sub read_ovfjfile {
-	if (!open (INFILE, $configpath.$pathsep.$ovfjfilename))
+sub read_ovfjfile { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
+	if (!open (INFILE,"<",$configpath.$pathsep.$genfilename.$pathsep.$ovfjfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$ovfjfilename." nicht lesen");
-		return;
+		return 1;	# Fehler
 	}
 
 	while (<INFILE>)
@@ -797,6 +974,7 @@ sub read_ovfjfile {
 	close (INFILE) || die "close: $!";
 	Show_ovfj();
 	%ovfjhashsaved = %ovfjhash;
+	return 0; # Erfolg
 }
 
 #Anzeige der aktuellen OVFJ Daten
@@ -864,7 +1042,7 @@ sub update_ovfjhash {
 
 #Schreiben der aktuellen OVFJ Daten
 sub do_write_ovfjfile {
-	if (!open (OUTFILE, ">".$configpath.$pathsep.$ovfjfilename))
+	if (!open (OUTFILE,">",$configpath.$pathsep.$genfilename.$pathsep.$ovfjfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$ovfjfilename." nicht schreiben");
 		return;
@@ -900,7 +1078,7 @@ sub get_nicknames {
 		return;
 	}	
 	
-	if (!open (INFILE, $genhash{"Spitznamen"}))
+	if (!open (INFILE,"<",$genhash{"Spitznamen"}))
 	{
 		$meldung->insert('end',"FEHLER: Kann Spitznamen Datei ".$genhash{"Spitznamen"}." nicht lesen");
 		return;
@@ -921,7 +1099,7 @@ sub get_overrides {
 	my $line = 0;
 	$overrides = undef;
 	return unless (-e $overridefilename);
-	if (!open (INFILE, $overridefilename))
+	if (!open (INFILE,"<",$overridefilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann Override Datei ".$overridefilename." nicht lesen");
 		return;
@@ -1160,6 +1338,9 @@ sub MatchPat {
 #Auswertung und Export aller OVFJ
 sub do_eval_allovfj {
 	my $i = 0;
+	my $success = 0;
+	my $retval;
+	
 	do_reset_eval();
 	$_ = $fjlistbox->Contents();
 	my @fjlines = split(/\n/);
@@ -1167,10 +1348,12 @@ sub do_eval_allovfj {
 	{
 		$ovfjname = $str;
 		next if ($ovfjname !~ /\S+/);
-		CreateEdit_ovfj($ovfjname,0);
-		do_eval_ovfj($i++);
+		next if (CreateEdit_ovfj($ovfjname,2)==1);
+		$retval = do_eval_ovfj($i++);
+		$success = 1 if ($retval == 0);	# Stelle fest, ob wenigstens eine Auswertung erfolgreich war
+		last if ($retval == 2);	# systematischer Fehler, Abbruch der Schleife
 	}
-	Export();
+	Export() if ($success);
 }
 
 #Suche in PM Daten
@@ -1381,7 +1564,7 @@ sub SucheTlnInPM {
 #Lesen der Vorjahr (mode == 0) oder der aktuellen (mode == 1) PM Daten
 #Rückgabewerte: 0 = ok, 1 = Fehler
 sub ReadPMDaten {
-	local *FH = shift;
+	my $OUTFILE = shift;
 	my ($mode,$pmarray) = @_;	#mode: 0 = PMVJ Daten, 1 = akt. PM Daten
 	my $anonarray = [];	# anonymes Array
 	my ($pmname,$pmvorname,$pmcall,$pmdok,$pmgebjahr,$pmpm,$pmdatum);
@@ -1389,15 +1572,15 @@ sub ReadPMDaten {
 	{
 		if ($genhash{"PMVorjahr"} eq "")
 		{
-			RepMeld(*OUTFILE,"FEHLER: Keine PMVorjahr Datei spezifiziert");
-			close (OUTFILE) || die "close: $!";
+			RepMeld($OUTFILE,"FEHLER: Keine PMVorjahr Datei spezifiziert");
+			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 
-		if (!open (INFILE2, $genhash{"PMVorjahr"}))
+		if (!open (INFILE2,"<",$genhash{"PMVorjahr"}))
 		{
-			RepMeld(*OUTFILE,"FEHLER: Kann PMVorjahr Datei ".$genhash{"PMVorjahr"}." nicht lesen");
-			close (OUTFILE) || die "close: $!";
+			RepMeld($OUTFILE,"FEHLER: Kann PMVorjahr Datei ".$genhash{"PMVorjahr"}." nicht lesen");
+			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 	}
@@ -1405,15 +1588,15 @@ sub ReadPMDaten {
 	{
 		if ($genhash{"PMaktJahr"} eq "")
 		{
-			RepMeld(*OUTFILE,"FEHLER: Keine aktuelle PM Datei spezifiziert");
-			close (OUTFILE) || die "close: $!";
+			RepMeld($OUTFILE,"FEHLER: Keine aktuelle PM Datei spezifiziert");
+			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 
-		if (!open (INFILE2, $genhash{"PMaktJahr"}))
+		if (!open (INFILE2,"<",$genhash{"PMaktJahr"}))
 		{
-			RepMeld(*OUTFILE,"FEHLER: Kann aktuelle PM Datei ".$genhash{"PMaktJahr"}." nicht lesen");
-			close (OUTFILE) || die "close: $!";
+			RepMeld($OUTFILE,"FEHLER: Kann aktuelle PM Datei ".$genhash{"PMaktJahr"}." nicht lesen");
+			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 	}
@@ -1432,8 +1615,9 @@ sub ReadPMDaten {
 }
 
 #Auswertung der aktuellen OVFJ
-sub do_eval_ovfj {
+sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der auesseren Schleife
 	my ($mode) = @_;	# 0 = erster Start, >0 = Aufruf aus Auswertung und Export aller OVFJ heraus
+	
 	my $patmatched;
 	my $evermatched = 0;
 	my ($platz,$ev_nachname,$ev_vorname,$ev_gebjahr);
@@ -1466,6 +1650,12 @@ sub do_eval_ovfj {
 	update_genhash(0) if ($mode == 0);	# Generelle Hashdaten aktualisieren auf Basis der Felder
 	update_ovfjhash(0) if ($mode == 0);	# Hashdaten aktualisieren
 	
+	if ($year !~ /^\d{4}$/)
+	{
+		$meldung->insert('end',"FEHLER: Jahr ist keine gültige Zahl");
+		return 2;	# Fehler mit Schleifenabbruch
+	}
+	
 	$meldung->insert('end',"***************  ".$ovfjname."  ***************");
 	
 	$_ = $ovjpattern->get;
@@ -1481,7 +1671,17 @@ sub do_eval_ovfj {
 		get_overrides();		# Lade die Override-Datei (falls vorhanden)
 	}
 
-	if (!open (OUTFILE, ">".$reportpath.$pathsep.$ovfjrepfilename))
+	unless (-e $reportpath.$pathsep.$genfilename && -d $reportpath.$pathsep.$genfilename)
+	{
+		$meldung->insert('end',"HINWEIS: Erstelle Verzeichnis \'".$genfilename."\' in \'".$reportpath."\'");
+		unless (mkdir($reportpath.$pathsep.$genfilename))
+		{
+			$meldung->insert('end',"FEHLER: Konnte Verzeichnis \'".$reportpath.$pathsep.$genfilename."\' nicht erstellen".$!);
+			return 1;	# Fehler
+		}
+	}
+	
+	if (!open (OUTFILE,">",$reportpath.$pathsep.$genfilename.$pathsep.$ovfjrepfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$ovfjrepfilename." nicht schreiben");
 		return 1;	# Fehler
@@ -1489,9 +1689,9 @@ sub do_eval_ovfj {
 
 	if ($mode == 0)
 	{# Lese PMVJ Daten
-		return 1 if (ReadPMDaten(*OUTFILE,0,\@pmvjarray) == 1);	# Fehler
+		return 2 if (ReadPMDaten(*OUTFILE,0,\@pmvjarray) == 1);	# Fehler mit Schleifenabbruch
 	 # Lese aktuelle PM Daten
-		return 1 if (ReadPMDaten(*OUTFILE,1,\@pmaktarray) == 1);	# Fehler
+		return 2 if (ReadPMDaten(*OUTFILE,1,\@pmaktarray) == 1);	# Fehler mit Schleifenabbruch
 	}
 
 	if ($ovfjhash{"OVFJDatei"} eq "")
@@ -1501,7 +1701,14 @@ sub do_eval_ovfj {
 		return 1;	# Fehler
 	}	
 	
-	if (!open (INFILE, $inputpath.$pathsep.$ovfjhash{"OVFJDatei"}))
+	unless (-e $inputpath.$pathsep.$genfilename && -d $inputpath.$pathsep.$genfilename)
+	{
+		$meldung->insert('end',"FEHLER: Verzeichnis \'".$inputpath.$pathsep.$genfilename."\' nicht vorhanden");
+		close (OUTFILE) || die "close: $!";
+		return 2;	# Fehler mit Schleifenabbruch
+	}
+	
+	if (!open (INFILE,"<",$inputpath.$pathsep.$genfilename.$pathsep.$ovfjhash{"OVFJDatei"}))
 	{
 		RepMeld(*OUTFILE,"FEHLER: Kann OVFJ Datei ".$ovfjhash{"OVFJDatei"}." nicht lesen");
 		close (OUTFILE) || die "close: $!";
@@ -1892,19 +2099,30 @@ sub Export {
 	$ExcludeTln = $check_ExcludeTln->{'Value'};
 
 	$rawresultfilename = "OVJ_Ergebnisse_".$genhash{"Distriktskenner"}."_".$year."raw.txt";
-	if (!open (ROUTFILE, ">".$outputpath.$pathsep.$rawresultfilename))
+	
+	unless (-e $outputpath.$pathsep.$genfilename && -d $outputpath.$pathsep.$genfilename)
+	{
+		$meldung->insert('end',"HINWEIS: Erstelle Verzeichnis \'".$genfilename."\' in \'".$outputpath."\'");
+		unless (mkdir($outputpath.$pathsep.$genfilename))
+		{
+			$meldung->insert('end',"FEHLER: Konnte Verzeichnis \'".$outputpath.$pathsep.$genfilename."\' nicht erstellen".$!);
+			return;
+		}
+	}	
+	
+	if (!open (ROUTFILE,">",$outputpath.$pathsep.$genfilename.$pathsep.$rawresultfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$rawresultfilename." nicht schreiben");
 		return;
 	}
 	$asciiresultfilename = "OVJ".$genhash{"Distriktskenner"}.$year.".txt";
-	if (!open (AOUTFILE, ">".$outputpath.$pathsep.$asciiresultfilename))
+	if (!open (AOUTFILE,">",$outputpath.$pathsep.$genfilename.$pathsep.$asciiresultfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$asciiresultfilename." nicht schreiben");
 		return;
 	}
 	$htmlresultfilename = "OVJ_Ergebnisse_".$genhash{"Distriktskenner"}."_".$year.".htm";
-	if (!open (HOUTFILE, ">".$outputpath.$pathsep.$htmlresultfilename))
+	if (!open (HOUTFILE,">",$outputpath.$pathsep.$genfilename.$pathsep.$htmlresultfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$htmlresultfilename." nicht schreiben");
 		return;
@@ -2108,6 +2326,7 @@ sub Leave {
 	return if (CheckForUnsavedPatterns());	# Abbruch durch Benutzer
 	return if (CheckForSaveGenfile());		# Abbruch durch Benutzer
 	return if (CheckForOVFJList());			# Abbruch durch Benutzer
+	write_inifile();								# Speichern der Inidaten
 	exit;
 }
 
