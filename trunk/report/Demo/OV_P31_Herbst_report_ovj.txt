@@ -1,0 +1,93 @@
+
+Ausrichter: Landmann, Marc, 1975, DL5SEZ, P31
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Landmann,Marc ist bereits in Auswertung, Status: Ausrichter
+
+Teilnehmer: Roethe, Nick, , DF1FO, F13
+INFO: Erster Match mit:  1      Nick Roethe             DF1FO   0.49.58 5       F13
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+INFO: Roethe, Nick als Roethe, Nickolas ueber Rufzeichen und Spitznamen in akt. PM Daten gefunden, verwende neuen Vornamen
+Roethe,Nickolas ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Pichler, Jens, , DH2SP, P51
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Pichler,Jens ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Barth, Wolf-Dietrich, , DK7TD, P60
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Barth,Wolf-Dietrich ist bereits in Auswertung, Status: 2 Extrapunkte für Platz 1 als Nicht-PM
+
+Teilnehmer: Kuhn, Martin, , DL3SFB, P06
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Kuhn,Martin ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Klüppel, Werner, , DF1IAR, A07
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Klüppel,Werner ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Roethe, Brigitte, , ---, ---
+INFO: Overridedatensatz für Roethe, Brigitte gefunden
+INFO: Roethe, Brigitte in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund von 'IstInPMVJ Override'
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! 'IstInPMVJ' Override !
+Roethe,Brigitte ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Jurtz, Manuel, , ---, ---
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Jurtz,Manuel ist neu in Auswertung, Status: 1 Extrapunkt für Platz 2 als Nicht-PM
+
+Teilnehmer: Jurtz, Vanessa, , ---, ---
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Jurtz,Vanessa ist neu in Auswertung, Status: 
+
+Teilnehmer: Schrade, Erich, , DF1SI, P31
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Schrade,Erich ist bereits in Auswertung, Status: 
+
+Teilnehmer: Jurtz, Klaus-Dieter, , ---, ---
+INFO: Overridedatensatz für Jurtz, Klaus-Dieter gefunden
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Jurtz,Klaus-Dieter ist bereits in Auswertung, Status: 
+
+Teilnehmer: Jurtz, Marcel, , ---, ---
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Jurtz,Marcel ist neu in Auswertung, Status: 
+
+Teilnehmer: Jurtz, Michael, , ---, ---
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Jurtz,Michael ist neu in Auswertung, Status: 
+
+Teilnehmer: Jurtz, Julian, , ---, ---
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Jurtz,Julian ist neu in Auswertung, Status: 
+
+Teilnehmer: Schoor, Uli, , DF6TZ, P06
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Schoor,Uli ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Gödan, Ulrich, , DB2TX, P12
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Gödan,Ulrich ist neu in Auswertung, Status: 
+
+Teilnehmer: Ebert, Anke, , DL9OCA, P60
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Ebert,Anke ist bereits in Auswertung, Status: 
+
+Teilnehmer: Cagan, Sarah, , ---, P31
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Cagan,Sarah ist bereits in Auswertung, Status: 
+
+Teilnehmer: Cagan, Irmgard, , DH6CI, P31
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Cagan,Irmgard ist bereits in Auswertung, Status: 
+
+Teilnehmer: Cagan, Marie, , ---, P31
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Cagan,Marie ist bereits in Auswertung, Status: 
+
+<Beginn Helferabschnitt>
+
+Helfer: Kühlewein, Matthias, , DL3SDO, P12
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Kühlewein,Matthias ist bereits in Auswertung, Status: Helfer
+
+<Beginn Ignorierabschnitt>

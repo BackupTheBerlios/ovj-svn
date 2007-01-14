@@ -1,0 +1,60 @@
+
+Ausrichter: Kuhn, Martin, 1973, DL3SFB, P06
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Kuhn,Martin ist bereits in Auswertung, Status: Ausrichter
+
+Teilnehmer: Maier, Marcus, , DL6SFC, P11
+INFO: Erster Match mit:     1 Maier, Marcus            DL6SFC     P11        5     44:14
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Maier,Marcus ist neu in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Barth, Wolf-Dietrich, , DK7TD, P60
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Barth,Wolf-Dietrich ist bereits in Auswertung, Status: 2 Extrapunkte für Platz 1 als Nicht-PM
+
+Teilnehmer: Pichler, Jens, , DH2SP, P51
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Pichler,Jens ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Ebert, Anke, , DL9OCA, P60
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Ebert,Anke ist bereits in Auswertung, Status: 1 Extrapunkt für Platz 2 als Nicht-PM
+
+Teilnehmer: Klüppel, Werner, , DF1IAR, A07
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Klüppel,Werner ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Schoor, Uli, , DF6TZ, P06
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Schoor,Uli ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Gaiser, Simon, , ---, ---
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Gaiser,Simon ist neu in Auswertung, Status: 
+
+Teilnehmer: Gaiser, Ulrich, , DF7SC, P26
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Gaiser,Ulrich ist neu in Auswertung, Status: 
+
+Teilnehmer: Popp, Nanette, , ---, ---
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Popp,Nanette ist neu in Auswertung, Status: 
+
+Teilnehmer: Bonifert, Florian, , ---, ---
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Bonifert,Florian ist neu in Auswertung, Status: 
+
+Teilnehmer: Fänger, Andreas, , ---, ---
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Fänger,Andreas ist neu in Auswertung, Status: 
+
+Teilnehmer: Hollenbach, Sven, , ---, ---
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Hollenbach,Sven ist neu in Auswertung, Status: 
+
+Teilnehmer: Weber, Richard, , DF5SL, P48
+INFO: Weber, Richard in PMVorjahr gefunden, aber DOK: P48 und Call: DF5SL stimmen nicht, verwende Daten nicht
+INFO: mögliche Teilnehmer: 
+Weber,Richard,DF6ZV,F16,1949,,19990508
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+Weber,Richard ist neu in Auswertung, Status: 

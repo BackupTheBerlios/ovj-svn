@@ -1,0 +1,33 @@
+Peilwettbewerb des Ortsverbandes: Ermstal, P31		
+am: 30.04.2006	um: 10.00 Uhr MESZ
+Band: 80 m	Max. Laufzeit: 2 Stunden
+Ankündigung: eMail-Verteiler, Württemberg-Rundspruch KW 17
+Treffpunkt: CVJM-Heim beim Stausee in Metzingen
+Ausrichter OV: P31 - Ermstal
+Verantwortlich: Marc Landmann		Rufzeichen: DL5SEZ
+
+Platz	Vorname, Name		Call	Zeit	TX	DOK 
+-------------------------------------------------------------------
+ 1	Wolf-Dietrich Barth	DK7TD	0.56.54	5	P60
+ 2	Jens Pichler		DH2SP	1.01.26	5	P51
+ 3	Matthias Kühlewein	DL3SDO	1.11.42	5	P12
+ 4	Martin Kuhn		DL3SFB	1.15.05	5	P06
+ 5	Nick Roethe		DF1FO	1.15.20	5	F13
+ 6	Brigitte Roethe		---	1.20.21	5	F13
+ 7	Uli Schoor		DF6TZ	1.25.30	5	P06
+ 8	Michael Berger		DF7SA	1.29.00	5	P02
+ 9	Erich Schrade		DF1SI	1.35.43	5	P31
+10	Werner Klüppel		DF1IAR	1.46.10	5	A07
+11	Susanne Walz		DG4SFF	1.50.23	5	P12
+12	Harald Dettling		DC1GB	1.50.32	5	P12
+13	Anke Ebert		DL9OCA	1.58.31	5	P60
+14	Rebekka Hientz		---	2.12.30	5	---
+14	Deborah Hientz		---	2.12.30	5	---
+14	Sarah Cagan		---	2.12.30	5	P31
+14	Marie Cagan		---	2.12.30	5	P31
+14	Irmgard Cagan		DH6CI	2.12.30	5	P31
+15	Andreas Moser		DO2NT	2.17.05	5	P07
+16	Sylke Störner		---	2.17.30	5	---
+17	Marcus Gehr		DH5MG	2.07.40	4	P31
+
+Helfer:	Marc Landmann, OV P31

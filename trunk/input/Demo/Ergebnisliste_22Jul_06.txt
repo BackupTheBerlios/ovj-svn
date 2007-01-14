@@ -1,0 +1,39 @@
+Ergebnisliste des 2. AKAFUNK-Foxoring
+Akademische Funkgruppe der Universität Stuttgart DK0SU DOK P11
+
+Datum: 22.07.2006
+Band: 80m Wettbewerb
+Sender: 14 (Fortgeschrittene), 10 (Anfänger)
+Ort: Gerlingen Krummbachtal, Gebiet Eingemachter Wald, Tauschwald
+Ausrichter: Martin Kuhn DL3SFB DOK P06
+Teilnehmerzahl: 14
+optimale Laufstrecke Fortgeschrittene: 7 km
+optimale Laufstrecke Anfänger: 4,8 km
+
+Gelände: Steigung von Start und Ziel ins Gebiet, sonst
+         weitgehend eben
+Wetter:  heiß, trocken
+Technik: Sender Tinyfox 80m
+
+Wertung Fortgeschrittene
+Platz Name                     Rufzeichen DOK    Baken  Laufzeit
+-----------------------------------------------------------------
+    1 Pichler, Jens            DH2SP      P51       14     60:13
+    2 Röthe, Nick              DF1FO      F13       14     67:00  
+    3 Barth, Wolf-Dietrich     DK7TD      P60       14     71:17
+    4 Berger, Michael          DF7SA      P02       14     72:04
+    5 Eipper, Ernst            DH1EE      P18       14     73:53
+    6 Maier, Marcus            DL6SFC     P11       14     85:02
+    7 Eipper, Carmen           DH3SC      P18       14     91:47
+    8 Eipper, Jens                -       P18       14     91:48
+    9 Klüppel, Werner          DF1IAR     A07       14     95:13
+   10 Gaiser, Simon            DO1SIG     P26       14    107:05
+   10 Gaiser, Jonas               -        -        14    107:05
+   11 Gaiser, Ulrich           DF7SC      P26       14    107:56
+   12 Ebert, Anke              DL9OCA     P60       14    114:30
+<Ignoriere>
+Wertung Anfänger
+Platz Name                     Rufzeichen DOK    Baken  Laufzeit
+-----------------------------------------------------------------
+</Ignoriere>
+    1 Seifert, Alexandra       DH9AL       -        10     75:38
