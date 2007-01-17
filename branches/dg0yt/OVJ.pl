@@ -23,6 +23,9 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
+#
+# Branch DG0YT $Id$
+#
 use strict;		# um 'besseren' Code zu erzwingen
 use Tk;
 #use Tk::FileSelect;
@@ -336,13 +339,14 @@ sub read_inifile {
 
 	while (<INFILE>)
 	{
+		s/\r//;
 		if (/^#/ || /^\s/)
 		{
 			$inicomments .= $_;
 			next;
 		}
 		#print $_."\n";
-		if (/^((?:\w|-)+)\s*=\s*(.*?)\s+$/)
+		if (/^((?:\w|-)+)\s*=\s*(.*?)\s*$/)
 		{
 			$inihash{$1} = $2;
 			#print $1."=".$2;
@@ -396,6 +400,7 @@ sub do_select_fjfile {
 	}
 	while (<INFILE>)
 	{
+		s/\r//;
 		if (/^Organisation:\s*(.+)$/)
 		{
 			$tp = $1;
@@ -495,6 +500,7 @@ sub do_read_patterns {
 	{
 		local $/ = undef;
 		$_ = <INFILE>;										# alles einlesen
+		s/\r//g;
 		close (INFILE) || die "close: $!";
 		$patterns->Contents($_);
 		$patternsaved = $_;
@@ -781,8 +787,9 @@ sub read_genfile {
 	{
 		next if /^#/;
 		next if /^\s/;
+		s/\r//;
 		#print $_."\n";
-		if (/^((?:\w|-)+)\s*=\s*(.*?)\s+$/)
+		if (/^((?:\w|-)+)\s*=\s*(.*?)\s*$/)
 		{
 			if ($1 eq "ovfj_link" && $choice == 0)
 			{
@@ -965,7 +972,8 @@ sub read_ovfjfile { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 	{
 		next if /^#/;
 		next if /^\s/;
-		if (/^((?:\w|-)+)\s*=\s*(.*?)\s+$/)
+		s/\r//;
+		if (/^((?:\w|-)+)\s*=\s*(.*?)\s*$/)
 		{
 			$ovfjhash{$1} = $2;
 			#print $1."=".$2;
@@ -1087,6 +1095,7 @@ sub get_nicknames {
 	{
 		local $/ = undef;
 		$_ = <INFILE>;										# alles einlesen
+		s/\r//g;
 		close (INFILE) || die "close: $!";
 	}
 	s/^#.*?$//mg;
@@ -1111,6 +1120,7 @@ sub get_overrides {
 		next if (/^#/);		# Kommentarzeilen ueberspringen
 		next if (/^\W+/);		# Zeilen, die nicht mit einem Buchstaben beginnen ueberspringen
 		next if ($_ eq "");	# Leerzeilen ueberspringen
+		s/\r//;
 		unless (/^[-a-zA-ZäöüÄÖÜß]+,[-a-zA-ZäöüÄÖÜß]+,(|---|\w+),(|---|\w+),(|\d{4}),(NichtInPMVJ|IstInPMVJ|)\s*$/)
 		{
 			$meldung->insert('end',"FEHLER: Formatfehler in Zeile ".$line." der Overridedatei: ".$_);
@@ -1605,6 +1615,7 @@ sub ReadPMDaten {
 	while (<INFILE2>)
 	{
 		next unless (/^\"/);	# Zeile muss mit Anfuehrungszeichen beginnen
+		s/\r//;
 		tr/\"//d;				# entferne alle Anführungszeichen
 		($pmname,$pmvorname,$pmcall,$pmdok,undef,undef,$pmgebjahr,undef,$pmpm,undef,$pmdatum,undef) = split(/,/);
 		$anonarray = [$pmname,$pmvorname,$pmcall,$pmdok,$pmgebjahr,$pmpm,$pmdatum];
@@ -1724,6 +1735,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 
 	while (<INFILE>)
 	{
+		s/\r//;
 		$HelferInKopf = 0;
 		if ($AddedVerant == 1)
 		{
@@ -2330,4 +2342,4 @@ sub Leave {
 	exit;
 }
 
-die;
+exit 0;
