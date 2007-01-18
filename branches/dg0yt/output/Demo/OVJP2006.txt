@@ -9,8 +9,8 @@ DOK                             P12
 Telefon                         0172 7283903
 Home-BBS                        
 E-Mail                          dl3sdo@darc.de
-Auswertung mit                  OVJ (Version 0.96 vom 14.1.2007)
-am                              14.1.2007
+Auswertung mit                  OVJ (Version 0.96 rev 280 vom 18.01.2007)
+am                              18.1.2007
 Hinweis                         Teilnehmer ohne Teilnahme an offiziellen Wettbewerb in 2006
                                 wurden von OVJ entfernt
 
