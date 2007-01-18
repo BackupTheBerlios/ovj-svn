@@ -38,6 +38,8 @@ use OVJ::Inifile;
 '$Id$' =~ / (\d+) (\d{4})-(\d{2})-(\d{2}) /;
 my $ovjdate = "$4.$3.$2";
 my $ovjvers = "0.96 rev $1";
+my %config  = ();			# Hash fuer die Inidaten von OVJ
+
 my $patternfilename = "OVFJ_Muster.txt";
 my $overridefilename = "Override.txt";
 my $inifilename = "OVJini.txt";
@@ -74,265 +76,317 @@ my $patternsaved;		# Auswertungsmuster, die gespeichert wurden. Abgleich der akt
 my $overrides=undef;	# Overrides
 my @pmvjarray;			# Array mit PMVJ Daten
 my @pmaktarray;		# Array mit aktuellen PM Daten
-my %config;			# Hash fuer die Inidaten von OVJ
 
 
-$str = "*  OVJ ".$ovjvers." by DL3SDO, ".$ovjdate."  *";
-print "\n".'*'x length($str)."\n";
-print $str."\n";
-print '*'x length($str)."\n";
+my $meldung;
+my $mw;
+my $anztlnmanuell;
+my $band;
+my $call;
+my $check_ExcludeTln;
+my $copy_pattern_button;
+my $datum;
+my $distrikt;
+my $distriktskenner;
+my $dok;
+my $email;
+my $exp_eval_button;
+my $fjfile;
+my $fjlistbox;
+my $fr1;
+my $fr3;
+my $gendatalabel;
+my $homebbs;
+my $jahr;
+my $name;
+my $nickfile;
+my $ovfj_eval_button;
+my $ovfj_fileset_button;
+my $ovfjnamelabel;
+my $ovfj_save_button;
+my $ovjpattern;
+my $ovname;
+my $ovnum;
+my $patterns;
+my $pmaj;
+my $pmvj;
+my $reset_eval_button;
+my $telefon;
+my $verantcall;
+my $verantdok;
+my $verantgeb;
+my $verantname;
+my $verantvorname;
+my $vorname;
 
-my $mw = MainWindow->new;
+hello_world();
+make_window();
+init();
+MainLoop();
+exit 0;
 
-my $menu_bar = $mw->Frame(-relief => 'raised', -borderwidth => 2)->pack(-side => 'top', -anchor => "nw", -fill => "x");
-my $help = $menu_bar->Menubutton(-text => 'Datei', -menuitems => [
-				[ Button => "Exit",-command => \&Leave]])
-							->pack(-side => 'left');
-my $help = $menu_bar->Menubutton(-text => 'Hilfe', , -menuitems => [
-				[ Button => "Über",-command => \&About]])
-							->pack(-side => 'left');
-$menu_bar->Button(
-        -text    => 'Exit',
-        -command => \&Leave)->pack(-side => 'right');
-$menu_bar->Label(-text => "OVJ $ovjvers by DL3SDO, $ovjdate")->pack;
-    
-my $fr1 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
-$fr1->pack;
-my $gendatalabel = $fr1->Label(-text => 'Generelle Daten:')->pack;
-my $fr11 = $fr1->Frame->pack(-side => 'left');
-my $fr111 = $fr11->Frame->pack;
-$fr111->Button(
-        -text => 'Importieren',
-        -command => sub{do_file_general(3)}
-    )->pack(-side => 'right',-padx => 1);
-$fr111->Button(
-        -text => 'Speichern als',
-        -command => sub{do_file_general(4)}
-    )->pack(-side => 'right',-padx => 1);
-$fr111->Button(
-        -text => 'Speichern',
-        -command => sub{do_file_general(0)}
-    )->pack(-side => 'right',-padx => 1);
-$fr111->Button(
-        -text => 'Laden',
-        -command => sub{do_file_general(1)}
-    )->pack(-side => 'right',-padx => 1);
-
-my $fr112 = $fr11->Frame->pack;
-$fr112->Label(-text => 'Distrikt')->pack(-side => 'left');
-my $distrikt = $fr112->Entry()->pack(-side => 'left');
-
-my $fr113 = $fr11->Frame->pack;
-$fr113->Label(-text => 'Distriktskenner')->pack(-side => 'left');
-my $distriktskenner = $fr113->Entry(-width => 1)->pack(-side => 'left');
-
-$fr113->Label(-text => 'Jahr')->pack(-side => 'left');
-my $jahr = $fr113->Entry(-width => 4)->pack(-side => 'left');
-
-my $fr12 = $fr1->Frame->pack(-side => 'left');
-my $fr121 = $fr12->Frame->pack;
-my $name = $fr121->Entry(-width => 16)->pack(-side => 'right');
-$fr121->Label(-text => 'Name')->pack(-side => 'left');
-my $fr122 = $fr12->Frame->pack;
-my $vorname = $fr122->Entry(-width => 16)->pack(-side => 'right');
-$fr122->Label(-text => 'Vorname')->pack(-side => 'left');
-my $fr123 = $fr12->Frame->pack;
-$fr123->Label(-text => 'CALL')->pack(-side => 'left');
-my $call = $fr123->Entry(-width => 8)->pack(-side => 'left');
-my $dok = $fr123->Entry(-width => 4)->pack(-side => 'right');
-$fr123->Label(-text => 'DOK')->pack(-side => 'left');
-
-my $fr13 = $fr1->Frame->pack(-side => 'left');
-my $fr131 = $fr13->Frame->pack;
-my $telefon = $fr131->Entry()->pack(-side => 'right');
-$fr131->Label(-text => 'Telefon')->pack(-side => 'left');
-my $fr132 = $fr13->Frame->pack;
-my $homebbs = $fr132->Entry()->pack(-side => 'right');
-$fr132->Label(-text => 'Home-BBS')->pack(-side => 'left');
-my $fr133 = $fr13->Frame->pack;
-my $email = $fr133->Entry()->pack(-side => 'right');
-$fr133->Label(-text => 'E-Mail')->pack(-side => 'left');
-
-my $fr14 = $fr1->Frame->pack(-side => 'left');
-my $fr141 = $fr14->Frame->pack;
-my $pmvj = $fr141->Entry(-width => 15)->pack(-side => 'right');
-$fr141->Button(
-        -text => 'PM Vorjahr',
-        -command => sub{do_select_pmfile(0)}
-    )->pack(-side => 'left');
-my $fr142 = $fr14->Frame->pack;
-my $pmaj = $fr142->Entry(-width => 15)->pack(-side => 'right');
-$fr142->Button(
-        -text => 'PM akt. Jahr',
-        -command => sub{do_select_pmfile(1)}
-    )->pack(-side => 'left');
-my $fr143 = $fr14->Frame->pack;
-my $nickfile = $fr143->Entry(-width => 15)->pack(-side => 'right');
-$fr143->Button(
-        -text => 'Spitznamen',
-        -command => sub{do_get_nickfile()}
-    )->pack(-side => 'left');
-
-my $fr2 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
-$fr2->pack;
-$fr2->Label(-text => 'Liste der OV Wettbewerbe')->pack;
-my $fr21 = $fr2->Frame->pack();
-my $fjlistbox = $fr21->Scrolled('Text',-scrollbars =>'oe',width => 40, height => 4)->pack(-side => 'left');
-my $fr21b = $fr21->Frame->pack(-side => 'right');
-$fr21b->Button(
-        -text => 'Editieren/Erzeugen',
-        -command => sub{do_edit_ovfj(0)}
-    )->pack();
-$fr21b->Button(
-        -text => 'Erzeugen aus aktuellem OV Wettbewerb',
-        -command => sub{do_edit_ovfj(1)}
-    )->pack();
-my $fr22 = $fr2->Frame->pack();
-$fr22->Button(
-        -text => 'Alle OV Wettbewerbe auswerten und exportieren',
-        -command => sub{do_eval_allovfj()}
-    )->pack(-side => 'left');
-my $reset_eval_button = $fr22->Button(
-        -text => 'Auswertung im Speicher löschen',
-        -command => sub{do_reset_eval()},
-        -state => 'disabled'
-    )->pack(-side => 'left');
-my $fr23 = $fr2->Frame->pack();
-my $exp_eval_button = $fr23->Button(
-        -text => 'Auswertung exportieren',
-        -command => sub{Export()},
-        -state => 'disabled'
-    )->pack(-side => 'left');
-
-$fr23->Label(-text => 'Beim Export Teilnehmer ohne offizielle Veranstaltung im akt. Jahr ausschliessen')->pack(-side => 'left');
-my $check_ExcludeTln = $fr23->Checkbutton()->pack(-side => 'left');
-
-my $fr4 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
-$fr4->pack;
-$fr4->Label(-text => 'Liste der Auswertungsmuster')->pack;
-my $fr41 = $fr4->Frame->pack(-side => 'left');
-my $patterns = $fr41->Scrolled('Text',-scrollbars =>'oe',-width => 91, -height => 4)->pack();
-my $fr42 = $fr4->Frame->pack(-side => 'right');
-$fr42->Button(
-        -text => 'Speichern',
-        -command => sub{do_save_patterns()}
-    )->pack();
-my $copy_pattern_button = $fr42->Button(
-        -text => 'Kopiere',
-        -command => sub{do_copy_pattern()},
-        -state => 'disabled'
-    )->pack();
-
-my $fr3 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
-$fr3->pack;
-my $ovfjnamelabel = $fr3->Label(-text => 'OV Wettbewerb:')->pack();
-my $fr30 = $fr3->Frame->pack(-side => 'top');
-my $ovfj_save_button = $fr30->Button(
-        -text => 'Speichern',
-        -command => sub{do_write_ovfjfile()},
-        -state => 'disabled'
-        )
-		->pack(-side => 'left',-padx => 2);
-my $ovfj_eval_button = $fr30->Button(
-        -text => 'Auswertung',
-        -command => sub{do_eval_ovfj(0)},
-        -state => 'disabled'
-        )
-		->pack(-side => 'left',-padx => 2);
-
-
-my $fr3b = $fr3->Frame->pack();
-
-my $fr31 = $fr3b->Frame->pack(-side => 'left');
-my $fr311 = $fr31->Frame->pack;
-$fr311->Label(-text => 'Ausricht. OV')->pack(-side => 'left');
-my $ovname = $fr311->Entry()->pack(-side => 'left');
-my $ovnum = $fr311->Entry(-width => 4)->pack(-side => 'right');
-$fr311->Label(-text => 'DOK')->pack(-side => 'left');
-my $fr313 = $fr31->Frame->pack;
-$fr313->Label(-text => 'Datum')->pack(-side => 'left');
-my $datum = $fr313->Entry(-width => 10)->pack(-side => 'left');
-$fr313->Label(-text => 'Band')->pack(-side => 'left');
-my $band = $fr313->Entry(-width => 2)->pack(-side => 'left');
-$fr313->Label(-text => 'Anz. Teilnehmer manuell')->pack(-side => 'left');
-my $anztlnmanuell = $fr313->Entry(-width => 2)->pack(-side => 'left');
-my $fr315 = $fr31->Frame->pack;
-my $ovfj_fileset_button = $fr315->Button(
-        -text => 'OVFJ Auswertungsdatei',
-        -state => 'disabled',
-        -command => sub{do_select_fjfile()}
-    )->pack(-side => 'left');
-my $fjfile = $fr315->Entry(-width => 27)->pack(-side => 'right');
-
-my $fr32 = $fr3b->Frame->pack(-side => 'left');
-my $fr321 = $fr32->Frame->pack;
-my $verantname = $fr321->Entry()->pack(-side => 'right');
-$fr321->Label(-text => 'Name')->pack(-side => 'left');
-my $fr325 = $fr32->Frame->pack;
-my $verantvorname = $fr325->Entry()->pack(-side => 'right');
-$fr325->Label(-text => 'Vorname')->pack(-side => 'left');
-my $fr322 = $fr32->Frame->pack;
-$fr322->Label(-text => 'CALL')->pack(-side => 'left');
-my $verantcall = $fr322->Entry(-width => 8)->pack(-side => 'left');
-$fr322->Label(-text => 'DOK')->pack(-side => 'left');
-my $verantdok = $fr322->Entry(-width => 4)->pack(-side => 'left');
-my $verantgeb = $fr322->Entry(-width => 4)->pack(-side => 'right');
-$fr322->Label(-text => 'Geburtsjahr')->pack(-side => 'left');
-
-my $fr33 = $fr3->Frame->pack();
-#$fr33->Button(
-#        -text => 'Teste Muster',
-#        -state => 'disabled',
-#        -command => sub{do_test_pattern()}
-#    )->pack(-side => 'left');
-$fr33->Label(-text => 'Muster')->pack(-side => 'left');
-my $ovjpattern = $fr33->Entry(-width => 70)->pack(-side => 'right');
-
-my $fr4 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
-$fr4->pack;
-$fr4->Label(-text => 'Meldungen')->pack;
-my $meldung = $fr4->Scrolled('Listbox',-scrollbars =>'e',-width => 116, -height => 12)->pack();
-
-%config = OVJ::Inifile::read($inifilename)		# Lade die Ini Datei
-  or warn "Kann INI-Datei '$inifilename' nicht lesen: $!";
-do_file_general(2);	# Lade Generelle Daten Datei falls vorhanden
-do_read_patterns();	# Lade die Musterdatei (sollte vorhanden sein, ansonsten bleibt die Liste
-							# halt leer
-
-unless (-e $configpath && -d $configpath)
-{
-	$meldung->insert('end',"Erzeuge Verzeichnis \'".$configpath."\'");
-	unless (mkdir($configpath))
-	{
-		$meldung->insert('end',"FEHLER: Konnte Verzeichnis \'".$configpath."\' nicht erstellen".$!);
-		return;
-	}
+#######################
+sub hello_world {
+	$str = "*  OVJ ".$ovjvers." by DL3SDO, ".$ovjdate."  *";
+	print "\n".'*'x length($str)."\n";
+	print $str."\n";
+	print '*'x length($str)."\n";
 }
-unless (-e $reportpath && -d $reportpath)
-{
-	$meldung->insert('end',"Erzeuge Verzeichnis \'".$reportpath."\'");
-	unless (mkdir($reportpath))
-	{
-		$meldung->insert('end',"FEHLER: Konnte Verzeichnis \'".$reportpath."\' nicht erstellen".$!);
-		return;
-	}
+
+sub make_window {
+	$mw = MainWindow->new;
+	
+	my $menu_bar = $mw->Frame(-relief => 'raised', -borderwidth => 2)->pack(-side => 'top', -anchor => "nw", -fill => "x");
+	my $help = $menu_bar->Menubutton(-text => 'Datei', -menuitems => [
+					[ Button => "Exit",-command => \&Leave]])
+								->pack(-side => 'left');
+	$help = $menu_bar->Menubutton(-text => 'Hilfe', , -menuitems => [
+					[ Button => "Über",-command => \&About]])
+								->pack(-side => 'left');
+	$menu_bar->Button(
+	        -text    => 'Exit',
+	        -command => \&Leave)->pack(-side => 'right');
+	$menu_bar->Label(-text => "OVJ $ovjvers by DL3SDO, $ovjdate")->pack;
+	    
+	$fr1 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
+	$fr1->pack;
+	$gendatalabel = $fr1->Label(-text => 'Generelle Daten:')->pack;
+	my $fr11 = $fr1->Frame->pack(-side => 'left');
+	my $fr111 = $fr11->Frame->pack;
+	$fr111->Button(
+	        -text => 'Importieren',
+	        -command => sub{do_file_general(3)}
+	    )->pack(-side => 'right',-padx => 1);
+	$fr111->Button(
+	        -text => 'Speichern als',
+	        -command => sub{do_file_general(4)}
+	    )->pack(-side => 'right',-padx => 1);
+	$fr111->Button(
+	        -text => 'Speichern',
+	        -command => sub{do_file_general(0)}
+	    )->pack(-side => 'right',-padx => 1);
+	$fr111->Button(
+	        -text => 'Laden',
+	        -command => sub{do_file_general(1)}
+	    )->pack(-side => 'right',-padx => 1);
+	
+	my $fr112 = $fr11->Frame->pack;
+	$fr112->Label(-text => 'Distrikt')->pack(-side => 'left');
+	$distrikt = $fr112->Entry()->pack(-side => 'left');
+	
+	my $fr113 = $fr11->Frame->pack;
+	$fr113->Label(-text => 'Distriktskenner')->pack(-side => 'left');
+	$distriktskenner = $fr113->Entry(-width => 1)->pack(-side => 'left');
+	
+	$fr113->Label(-text => 'Jahr')->pack(-side => 'left');
+	$jahr = $fr113->Entry(-width => 4)->pack(-side => 'left');
+	
+	my $fr12 = $fr1->Frame->pack(-side => 'left');
+	my $fr121 = $fr12->Frame->pack;
+	$name = $fr121->Entry(-width => 16)->pack(-side => 'right');
+	$fr121->Label(-text => 'Name')->pack(-side => 'left');
+	my $fr122 = $fr12->Frame->pack;
+	$vorname = $fr122->Entry(-width => 16)->pack(-side => 'right');
+	$fr122->Label(-text => 'Vorname')->pack(-side => 'left');
+	my $fr123 = $fr12->Frame->pack;
+	$fr123->Label(-text => 'CALL')->pack(-side => 'left');
+	$call = $fr123->Entry(-width => 8)->pack(-side => 'left');
+	$dok = $fr123->Entry(-width => 4)->pack(-side => 'right');
+	$fr123->Label(-text => 'DOK')->pack(-side => 'left');
+	
+	my $fr13 = $fr1->Frame->pack(-side => 'left');
+	my $fr131 = $fr13->Frame->pack;
+	$telefon = $fr131->Entry()->pack(-side => 'right');
+	$fr131->Label(-text => 'Telefon')->pack(-side => 'left');
+	my $fr132 = $fr13->Frame->pack;
+	$homebbs = $fr132->Entry()->pack(-side => 'right');
+	$fr132->Label(-text => 'Home-BBS')->pack(-side => 'left');
+	my $fr133 = $fr13->Frame->pack;
+	$email = $fr133->Entry()->pack(-side => 'right');
+	$fr133->Label(-text => 'E-Mail')->pack(-side => 'left');
+	
+	my $fr14 = $fr1->Frame->pack(-side => 'left');
+	my $fr141 = $fr14->Frame->pack;
+	$pmvj = $fr141->Entry(-width => 15)->pack(-side => 'right');
+	$fr141->Button(
+	        -text => 'PM Vorjahr',
+	        -command => sub{do_select_pmfile(0)}
+	    )->pack(-side => 'left');
+	my $fr142 = $fr14->Frame->pack;
+	$pmaj = $fr142->Entry(-width => 15)->pack(-side => 'right');
+	$fr142->Button(
+	        -text => 'PM akt. Jahr',
+	        -command => sub{do_select_pmfile(1)}
+	    )->pack(-side => 'left');
+	my $fr143 = $fr14->Frame->pack;
+	$nickfile = $fr143->Entry(-width => 15)->pack(-side => 'right');
+	$fr143->Button(
+	        -text => 'Spitznamen',
+	        -command => sub{do_get_nickfile()}
+	    )->pack(-side => 'left');
+	
+	my $fr2 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
+	$fr2->pack;
+	$fr2->Label(-text => 'Liste der OV Wettbewerbe')->pack;
+	my $fr21 = $fr2->Frame->pack();
+	$fjlistbox = $fr21->Scrolled('Text',-scrollbars =>'oe',width => 40, height => 4)->pack(-side => 'left');
+	my $fr21b = $fr21->Frame->pack(-side => 'right');
+	$fr21b->Button(
+	        -text => 'Editieren/Erzeugen',
+	        -command => sub{do_edit_ovfj(0)}
+	    )->pack();
+	$fr21b->Button(
+	        -text => 'Erzeugen aus aktuellem OV Wettbewerb',
+	        -command => sub{do_edit_ovfj(1)}
+	    )->pack();
+	my $fr22 = $fr2->Frame->pack();
+	$fr22->Button(
+	        -text => 'Alle OV Wettbewerbe auswerten und exportieren',
+	        -command => sub{do_eval_allovfj()}
+	    )->pack(-side => 'left');
+	$reset_eval_button = $fr22->Button(
+	        -text => 'Auswertung im Speicher löschen',
+	        -command => sub{do_reset_eval()},
+	        -state => 'disabled'
+	    )->pack(-side => 'left');
+	my $fr23 = $fr2->Frame->pack();
+	$exp_eval_button = $fr23->Button(
+	        -text => 'Auswertung exportieren',
+	        -command => sub{Export()},
+	        -state => 'disabled'
+	    )->pack(-side => 'left');
+	
+	$fr23->Label(-text => 'Beim Export Teilnehmer ohne offizielle Veranstaltung im akt. Jahr ausschliessen')->pack(-side => 'left');
+	$check_ExcludeTln = $fr23->Checkbutton()->pack(-side => 'left');
+	
+	my $fr4 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
+	$fr4->pack;
+	$fr4->Label(-text => 'Liste der Auswertungsmuster')->pack;
+	my $fr41 = $fr4->Frame->pack(-side => 'left');
+	$patterns = $fr41->Scrolled('Text',-scrollbars =>'oe',-width => 91, -height => 4)->pack();
+	my $fr42 = $fr4->Frame->pack(-side => 'right');
+	$fr42->Button(
+	        -text => 'Speichern',
+	        -command => sub{do_save_patterns()}
+	    )->pack();
+	$copy_pattern_button = $fr42->Button(
+	        -text => 'Kopiere',
+	        -command => sub{do_copy_pattern()},
+	        -state => 'disabled'
+	    )->pack();
+	
+	$fr3 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
+	$fr3->pack;
+	$ovfjnamelabel = $fr3->Label(-text => 'OV Wettbewerb:')->pack();
+	my $fr30 = $fr3->Frame->pack(-side => 'top');
+	$ovfj_save_button = $fr30->Button(
+	        -text => 'Speichern',
+	        -command => sub{do_write_ovfjfile()},
+	        -state => 'disabled'
+	        )
+			->pack(-side => 'left',-padx => 2);
+	$ovfj_eval_button = $fr30->Button(
+	        -text => 'Auswertung',
+	        -command => sub{do_eval_ovfj(0)},
+	        -state => 'disabled'
+	        )
+			->pack(-side => 'left',-padx => 2);
+	
+	
+	my $fr3b = $fr3->Frame->pack();
+	
+	my $fr31 = $fr3b->Frame->pack(-side => 'left');
+	my $fr311 = $fr31->Frame->pack;
+	$fr311->Label(-text => 'Ausricht. OV')->pack(-side => 'left');
+	$ovname = $fr311->Entry()->pack(-side => 'left');
+	$ovnum = $fr311->Entry(-width => 4)->pack(-side => 'right');
+	$fr311->Label(-text => 'DOK')->pack(-side => 'left');
+	my $fr313 = $fr31->Frame->pack;
+	$fr313->Label(-text => 'Datum')->pack(-side => 'left');
+	$datum = $fr313->Entry(-width => 10)->pack(-side => 'left');
+	$fr313->Label(-text => 'Band')->pack(-side => 'left');
+	$band = $fr313->Entry(-width => 2)->pack(-side => 'left');
+	$fr313->Label(-text => 'Anz. Teilnehmer manuell')->pack(-side => 'left');
+	$anztlnmanuell = $fr313->Entry(-width => 2)->pack(-side => 'left');
+	my $fr315 = $fr31->Frame->pack;
+	$ovfj_fileset_button = $fr315->Button(
+	        -text => 'OVFJ Auswertungsdatei',
+	        -state => 'disabled',
+	        -command => sub{do_select_fjfile()}
+	    )->pack(-side => 'left');
+	$fjfile = $fr315->Entry(-width => 27)->pack(-side => 'right');
+	
+	my $fr32 = $fr3b->Frame->pack(-side => 'left');
+	my $fr321 = $fr32->Frame->pack;
+	$verantname = $fr321->Entry()->pack(-side => 'right');
+	$fr321->Label(-text => 'Name')->pack(-side => 'left');
+	my $fr325 = $fr32->Frame->pack;
+	$verantvorname = $fr325->Entry()->pack(-side => 'right');
+	$fr325->Label(-text => 'Vorname')->pack(-side => 'left');
+	my $fr322 = $fr32->Frame->pack;
+	$fr322->Label(-text => 'CALL')->pack(-side => 'left');
+	$verantcall = $fr322->Entry(-width => 8)->pack(-side => 'left');
+	$fr322->Label(-text => 'DOK')->pack(-side => 'left');
+	$verantdok = $fr322->Entry(-width => 4)->pack(-side => 'left');
+	$verantgeb = $fr322->Entry(-width => 4)->pack(-side => 'right');
+	$fr322->Label(-text => 'Geburtsjahr')->pack(-side => 'left');
+	
+	my $fr33 = $fr3->Frame->pack();
+	#$fr33->Button(
+	#        -text => 'Teste Muster',
+	#        -state => 'disabled',
+	#        -command => sub{do_test_pattern()}
+	#    )->pack(-side => 'left');
+	$fr33->Label(-text => 'Muster')->pack(-side => 'left');
+	$ovjpattern = $fr33->Entry(-width => 70)->pack(-side => 'right');
+	
+	$fr4 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
+	$fr4->pack;
+	$fr4->Label(-text => 'Meldungen')->pack;
+	$meldung = $fr4->Scrolled('Listbox',-scrollbars =>'e',-width => 116, -height => 12)->pack();
 }
-unless (-e $outputpath && -d $outputpath)
-{
-	$meldung->insert('end',"Erzeuge Verzeichnis \'".$outputpath."\'");
-	unless (mkdir($outputpath))
+
+sub init {
+	%config = OVJ::Inifile::read($inifilename)
+	  or warn "Kann INI-Datei '$inifilename' nicht lesen: $!";
+	do_file_general(2);	# Lade Generelle Daten Datei falls vorhanden
+	do_read_patterns();	# Lade die Musterdatei (sollte vorhanden sein, ansonsten bleibt die Liste
+								# halt leer
+	
+	unless (-e $configpath && -d $configpath)
+	{
+		$meldung->insert('end',"Erzeuge Verzeichnis \'".$configpath."\'");
+		unless (mkdir($configpath))
 		{
-		$meldung->insert('end',"FEHLER: Konnte Verzeichnis \'".$outputpath."\' nicht erstellen".$!);
-		return;
+			$meldung->insert('end',"FEHLER: Konnte Verzeichnis \'".$configpath."\' nicht erstellen".$!);
+			return;
+		}
 	}
+	unless (-e $reportpath && -d $reportpath)
+	{
+		$meldung->insert('end',"Erzeuge Verzeichnis \'".$reportpath."\'");
+		unless (mkdir($reportpath))
+		{
+			$meldung->insert('end',"FEHLER: Konnte Verzeichnis \'".$reportpath."\' nicht erstellen".$!);
+			return;
+		}
+	}
+	unless (-e $outputpath && -d $outputpath)
+	{
+		$meldung->insert('end',"Erzeuge Verzeichnis \'".$outputpath."\'");
+		unless (mkdir($outputpath))
+			{
+			$meldung->insert('end',"FEHLER: Konnte Verzeichnis \'".$outputpath."\' nicht erstellen".$!);
+			return;
+		}
+	}
+	unless (-e $inputpath && -d $inputpath)
+	{
+		$meldung->insert('end',"Warnung: Verzeichnis \'".$inputpath."\' nicht vorhanden");
+	}
+	
+	$fjlistsaved = $fjlistbox->Contents();
 }
-unless (-e $inputpath && -d $inputpath)
-{
-	$meldung->insert('end',"Warnung: Verzeichnis \'".$inputpath."\' nicht vorhanden");
-}
-
-$fjlistsaved = $fjlistbox->Contents();
-MainLoop;
 
 
 
@@ -2303,7 +2357,6 @@ sub Leave {
 	return if (CheckForOVFJList());			# Abbruch durch Benutzer
 	OVJ::Inifile::write($inifilename,%config)		# Speichern der Inidaten
 	  or warn "Kann INI-Datei '$inifilename' nicht schreiben: $!";
-	exit;
+	exit 0;
 }
 
-exit 0;
