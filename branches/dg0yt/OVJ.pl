@@ -9,6 +9,9 @@
 #
 # Copyright (C) 2007  Matthias Kuehlewein, DL3SDO
 #
+# Branch DG0YT $Id$
+# Some portions (C) 2007 Kai Pastor, DG0YT <dg0yt AT darc DOT de>
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -24,14 +27,17 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 #
-# Branch DG0YT $Id$
-#
+
 use strict;		# um 'besseren' Code zu erzwingen
+use lib "lib";	# FIXME: 
+
 use Tk;
 #use Tk::FileSelect;
+use OVJ::Inifile;
 
-my $ovjdate = "14.1.2007";
-my $ovjvers = "0.96";
+'$Id$' =~ / (\d+) (\d{4})-(\d{2})-(\d{2}) /;
+my $ovjdate = "$4.$3.$2";
+my $ovjvers = "0.96 rev $1";
 my $patternfilename = "OVFJ_Muster.txt";
 my $overridefilename = "Override.txt";
 my $inifilename = "OVJini.txt";
@@ -68,8 +74,7 @@ my $patternsaved;		# Auswertungsmuster, die gespeichert wurden. Abgleich der akt
 my $overrides=undef;	# Overrides
 my @pmvjarray;			# Array mit PMVJ Daten
 my @pmaktarray;		# Array mit aktuellen PM Daten
-my %inihash;			# Hash fuer die Inidaten von OVJ
-my $inicomments;		# Kommentare im Inifile
+my %config;			# Hash fuer die Inidaten von OVJ
 
 
 $str = "*  OVJ ".$ovjvers." by DL3SDO, ".$ovjdate."  *";
@@ -288,7 +293,8 @@ $fr4->pack;
 $fr4->Label(-text => 'Meldungen')->pack;
 my $meldung = $fr4->Scrolled('Listbox',-scrollbars =>'e',-width => 116, -height => 12)->pack();
 
-read_inifile();		# Lade die Ini Datei
+%config = OVJ::Inifile::read($inifilename)		# Lade die Ini Datei
+  or warn "Kann INI-Datei '$inifilename' nicht lesen: $!";
 do_file_general(2);	# Lade Generelle Daten Datei falls vorhanden
 do_read_patterns();	# Lade die Musterdatei (sollte vorhanden sein, ansonsten bleibt die Liste
 							# halt leer
@@ -329,49 +335,6 @@ $fjlistsaved = $fjlistbox->Contents();
 MainLoop;
 
 
-#Laden der Ini-Datei
-sub read_inifile {
-	if (!open (INFILE,"<",$inifilename))
-	{
-	$meldung->insert('end',"HINWEIS: Kann ".$inifilename." nicht lesen");
-	return;
-	}
-
-	while (<INFILE>)
-	{
-		s/\r//;
-		if (/^#/ || /^\s/)
-		{
-			$inicomments .= $_;
-			next;
-		}
-		#print $_."\n";
-		if (/^((?:\w|-)+)\s*=\s*(.*?)\s*$/)
-		{
-			$inihash{$1} = $2;
-			#print $1."=".$2;
-		}
-	}
-	close (INFILE) || die "close: $!";
-	return;
-}
-
-#Schreiben der Ini-Datei
-sub write_inifile {
-	my $key;
-	
-	if (!open (OUTFILE,">",$inifilename))
-	{
-	$meldung->insert('end',"FEHLER: Kann ".$inifilename." nicht schreiben");
-	return;
-	}
-	printf OUTFILE $inicomments;
-	foreach $key (keys %inihash) {
-		printf OUTFILE $key." = ".$inihash{$key}."\n";
-	}
-	close (OUTFILE) || die "close: $!";
-	return;
-}
 
 #Auswahl der FJ Datei per Button
 #und Pruefen, ob automatisch OVFJ Kopfdaten ausgefuellt werden koennen
@@ -589,7 +552,7 @@ sub do_file_general {
 		{
 			$genfilename = $filename;
 			$gendatalabel->configure(-text => "Generelle Daten: ".$genfilename);
-			$inihash{"LastGenFile"} = $genfilename;
+			$config{"LastGenFile"} = $genfilename;
 		}
 		return($retstate);
 	}
@@ -609,31 +572,31 @@ sub do_file_general {
 		{
 			$genfilename = "";	# Beim Importieren wird kein Name festgelegt
 			$gendatalabel->configure(-text => "Generelle Daten: ");
-			$inihash{"LastGenFile"} = $genfilename;
+			$config{"LastGenFile"} = $genfilename;
 		}
 		return($retstate);
 	}
 
 	if ($choice == 2)	# Laden der im Inifile angegebenen Datei, wird beim Programmstart ausgeführt
 	{	
-		return 1 unless (exists($inihash{"LastGenFile"}));	# Hashwert existiert nicht, da vermutlich keine Inidatei vorhanden
+		return 1 unless (exists($config{"LastGenFile"}));	# Hashwert existiert nicht, da vermutlich keine Inidatei vorhanden
 
-		if (-e $configpath.$pathsep.$inihash{"LastGenFile"}.$pathsep.$inihash{"LastGenFile"}.".txt")
+		if (-e $configpath.$pathsep.$config{"LastGenFile"}.$pathsep.$config{"LastGenFile"}.".txt")
 		{
-			$genfilename = $inihash{"LastGenFile"};
+			$genfilename = $config{"LastGenFile"};
 			$meldung->insert('end',"Lade ".$genfilename);
 			$gendatalabel->configure(-text => "Generelle Daten: ".$genfilename);
 			return(read_genfile(0,$genfilename));
 		}
 		else
 		{
-			unless (-e $configpath.$pathsep.$inihash{"LastGenFile"} && -d $configpath.$pathsep.$inihash{"LastGenFile"})
+			unless (-e $configpath.$pathsep.$config{"LastGenFile"} && -d $configpath.$pathsep.$config{"LastGenFile"})
 			{
-				$meldung->insert('end',"Kann ".$inihash{"LastGenFile"}." nicht laden da Verzeichnis \'".$inihash{"LastGenFile"}."\' nicht existiert!");
+				$meldung->insert('end',"Kann ".$config{"LastGenFile"}." nicht laden da Verzeichnis \'".$config{"LastGenFile"}."\' nicht existiert!");
 			}
 			else
 			{
-				$meldung->insert('end',"Kann ".$inihash{"LastGenFile"}." nicht laden! Datei existiert nicht");
+				$meldung->insert('end',"Kann ".$config{"LastGenFile"}." nicht laden! Datei existiert nicht");
 			}
 			return 1;	# Fehler
 		}
@@ -686,7 +649,7 @@ sub do_file_general {
 		else { $meldung->insert('end',"Erzeuge ".$genfilename); }
 #		}
 		$gendatalabel->configure(-text => "Generelle Daten: ".$genfilename);
-		$inihash{"LastGenFile"} = $genfilename;
+		$config{"LastGenFile"} = $genfilename;
 		return(write_genfile());
 	}
 }
@@ -2338,7 +2301,8 @@ sub Leave {
 	return if (CheckForUnsavedPatterns());	# Abbruch durch Benutzer
 	return if (CheckForSaveGenfile());		# Abbruch durch Benutzer
 	return if (CheckForOVFJList());			# Abbruch durch Benutzer
-	write_inifile();								# Speichern der Inidaten
+	OVJ::Inifile::write($inifilename,%config)		# Speichern der Inidaten
+	  or warn "Kann INI-Datei '$inifilename' nicht schreiben: $!";
 	exit;
 }
 
