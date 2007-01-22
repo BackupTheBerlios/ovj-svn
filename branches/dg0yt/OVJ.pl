@@ -1,5 +1,10 @@
 #!/usr/bin/perl -w
 #
+# Branch DG0YT $Id$
+# Some portions (C) 2007 Kai Pastor, DG0YT <dg0yt AT darc DOT de>
+#
+# Based on / major work:
+#
 # Script zum Erzeugen der OV Jahresauswertung für
 # OV Peilwettbewerbe
 # Autor:   Matthias Kuehlewein, DL3SDO
@@ -8,9 +13,6 @@
 #
 #
 # Copyright (C) 2007  Matthias Kuehlewein, DL3SDO
-#
-# Branch DG0YT $Id$
-# Some portions (C) 2007 Kai Pastor, DG0YT <dg0yt AT darc DOT de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,17 +30,21 @@
 #
 #
 
-use strict;		# um 'besseren' Code zu erzwingen
-use lib "lib";	# FIXME: 
+use strict;		# Deklarationen erzwingen
+use lib "lib";	# FIXME: relativ zum Programverzeichnis ermitteln
 
 use Tk;
-#use Tk::FileSelect;
 use OVJ::Inifile;
 
 '$Id$' =~ / (\d+) (\d{4})-(\d{2})-(\d{2}) /;
 my $ovjdate = "$4.$3.$2";
 my $ovjvers = "0.96 rev $1";
-my %config  = ();			# Hash fuer die Inidaten von OVJ
+
+my %config  = ();			# Konfigurationsdaten
+# my %auswertung;			# Hash für Generelle Einstellungen -> %auswertung
+my %auswertung = (			# Generelle Einstellungen
+	jahr => $2,
+);
 
 my $patternfilename = "OVFJ_Muster.txt";
 my $overridefilename = "Override.txt";
@@ -51,9 +57,7 @@ my $configpath = "config";		# Pfad für die Konfigurationsdaten
 my $pathsep = ($^O =~ /Win/i) ? '\\' : '/';	# Kai, fuer Linux und Win32 Portabilitaet
 
 my ($genfile,$genfilename,$ovfjfile,$ovfjfilename,$ovfjrepfilename);
-my $year;				# Auswertungsjahr 
-my %genhash;			# Hash für Generelle Einstellungen
-my %genhashsaved;		# gespeicherter Hash fuer Generelle Einstellungen
+my %auswertung_saved;		# gespeicherter Hash fuer Generelle Einstellungen
 my @fjlist;				# Liste der OV Veranstaltungen, nur die Namen, keine Details
 my $fjlistsaved;		# gespeicherte Liste der OV Veranstaltungen, auf Basis des Eingabefeldes, daher
                      # keine Liste
@@ -136,6 +140,7 @@ sub hello_world {
 sub make_window {
 	$mw = MainWindow->new;
 	
+	# Menü
 	my $menu_bar = $mw->Frame(-relief => 'raised', -borderwidth => 2)->pack(-side => 'top', -anchor => "nw", -fill => "x");
 	$menu_bar->Menubutton(-text => 'Datei', -menuitems => [
 				[ Button => "Exit",-command => \&Leave]])
@@ -148,6 +153,7 @@ sub make_window {
 	        -command => \&Leave)->pack(-side => 'right');
 	$menu_bar->Label(-text => "OVJ $ovjvers by DL3SDO, $ovjdate")->pack;
 	    
+	# Generelle Daten
 	$fr1 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
 	$fr1->pack;
 	$gendatalabel = $fr1->Label(-text => 'Generelle Daten:')->pack;
@@ -224,7 +230,8 @@ sub make_window {
 	        -text => 'Spitznamen',
 	        -command => sub{do_get_nickfile()}
 	    )->pack(-side => 'left');
-	
+	     
+	# Liste der OV-Wettbewerbe
 	my $fr2 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
 	$fr2->pack;
 	$fr2->Label(-text => 'Liste der OV Wettbewerbe')->pack;
@@ -353,6 +360,7 @@ sub init {
 	do_read_patterns();	# Lade die Musterdatei (sollte vorhanden sein, ansonsten bleibt die Liste
 								# halt leer
 	
+	# FIXME: use loop
 	unless (-e $configpath && -d $configpath)
 	{
 		$meldung->insert('end',"Erzeuge Verzeichnis \'".$configpath."\'");
@@ -735,11 +743,11 @@ sub write_genfile {
 		$meldung->insert('end',"FEHLER: Kann ".$genfilename." nicht schreiben");
 		return 1;	# Fehler
 	}
-	update_genhash(0);	# Hash aktualisieren auf Basis der Felder
-	printf OUTFILE "#OVJ Toplevel-Datei für ".$year."\n\n";
+	update_auswertung(0);	# Hash aktualisieren auf Basis der Felder
+	printf OUTFILE "#OVJ Toplevel-Datei für ".$auswertung{Jahr}."\n\n";
 	my $key;
-	foreach $key (keys %genhash) {
-		printf OUTFILE $key." = ".$genhash{$key}."\n";
+	foreach $key (keys %auswertung) {
+		printf OUTFILE $key." = ".$auswertung{$key}."\n";
 	}
 	printf OUTFILE "\n";
 	$_ = $fjlistbox->Contents();
@@ -748,42 +756,42 @@ sub write_genfile {
 	{
 		printf OUTFILE "ovfj_link = ".$str."\n";
 	}
-	%genhashsaved = %genhash;
+	%auswertung_saved = %auswertung;
 	$fjlistsaved = $_;
 	close (OUTFILE) || die "close: $!";
 	return 0;	# kein Fehler
 }
 
 #Aktualisieren der aktuellen Generellen Daten im Hash
-sub update_genhash {
-	my ($mode) = @_;	# 0 = Update, 1 = Vergleich mit gespeicherten Daten
-	my %genhashtemp;
+sub update_auswertung {
+	my $mode = shift;	# 0 = Update, 1 = Vergleich mit gespeicherten Daten
+	my %auswertung_temp;
 	my ($key,$value);
 		
-	%genhashtemp = ("Jahr" => $jahr->get,
-						"Distrikt" => $distrikt->get,
-						"Distriktskenner" => $distriktskenner->get,
-	   	         "Name" => $name->get,
-	      	      "Vorname" => $vorname->get,
-	         	   "Call" => $call->get,
-	            	"DOK" => $dok->get,
-		            "Telefon" => $telefon->get,
-		            "Home-BBS" => $homebbs->get,
-	   	         "E-Mail" => $email->get,
-	      	      "PMVorjahr" => $pmvj->get,
-	         	   "PMaktJahr" => $pmaj->get,
-		            "Spitznamen" => $nickfile->get,
-		            "Exclude_Checkmark" => $check_ExcludeTln->{'Value'}
-	   	         );
+	%auswertung_temp = (
+		"Jahr" => $jahr->get,
+		"Distrikt" => $distrikt->get,
+		"Distriktskenner" => $distriktskenner->get,
+		"Name" => $name->get,
+		"Vorname" => $vorname->get,
+		"Call" => $call->get,
+		"DOK" => $dok->get,
+		"Telefon" => $telefon->get,
+		"Home-BBS" => $homebbs->get,
+		"E-Mail" => $email->get,
+		"PMVorjahr" => $pmvj->get,
+		"PMaktJahr" => $pmaj->get,
+		"Spitznamen" => $nickfile->get,
+		"Exclude_Checkmark" => $check_ExcludeTln->{'Value'},
+	);
 	if ($mode == 0)
 	{
-		%genhash = %genhashtemp;
-		$year = $genhash{"Jahr"};
+		%auswertung = %auswertung_temp;
 		return 0;
 	}
-	while (($key,$value) = each(%genhashtemp))
+	while (($key,$value) = each(%auswertung_temp))
 	{
-		return 1 if ($genhashsaved{$key} ne $value); # Diskrepanz, also 1 zurückgeben
+		return 1 if ($auswertung_saved{$key} ne $value); # Diskrepanz, also 1 zurückgeben
 	}
 	return 0;	# alles ok
 }
@@ -813,43 +821,43 @@ sub read_genfile {
 				push(@fjlist,$2);
 				$fjlistbox->insert("end",$2."\n");
 			}
-			$genhash{$1} = $2;
+			$auswertung{$1} = $2;
 			#print $1."=".$2;
 		}
 	}
 	close (INFILE) || die "close: $!";
 	$jahr->delete(0,"end");
-	$jahr->insert(0,$genhash{"Jahr"}) if ($choice == 0);
-	$year = $genhash{"Jahr"};
+	$jahr->insert(0,$auswertung{"Jahr"}) if ($choice == 0);
+	$auswertung{Jahr} = $auswertung{"Jahr"};
 	$distrikt->delete(0,"end");
-	$distrikt->insert(0,$genhash{"Distrikt"});
+	$distrikt->insert(0,$auswertung{"Distrikt"});
 	$distriktskenner->delete(0,"end");
-	$distriktskenner->insert(0,$genhash{"Distriktskenner"});
+	$distriktskenner->insert(0,$auswertung{"Distriktskenner"});
 	$name->delete(0,"end");
-	$name->insert(0,$genhash{"Name"});
+	$name->insert(0,$auswertung{"Name"});
 	$vorname->delete(0,"end");
-	$vorname->insert(0,$genhash{"Vorname"});
+	$vorname->insert(0,$auswertung{"Vorname"});
 	$call->delete(0,"end");
-	$call->insert(0,$genhash{"Call"});
+	$call->insert(0,$auswertung{"Call"});
 	$dok->delete(0,"end");
-	$dok->insert(0,$genhash{"DOK"});
+	$dok->insert(0,$auswertung{"DOK"});
 	$telefon->delete(0,"end");
-	$telefon->insert(0,$genhash{"Telefon"});
+	$telefon->insert(0,$auswertung{"Telefon"});
 	$homebbs->delete(0,"end");
-	$homebbs->insert(0,$genhash{"Home-BBS"});
+	$homebbs->insert(0,$auswertung{"Home-BBS"});
 	$email->delete(0,"end");
-	$email->insert(0,$genhash{"E-Mail"});
+	$email->insert(0,$auswertung{"E-Mail"});
 	$pmvj->delete(0,"end");
-	$pmvj->insert(0,$genhash{"PMVorjahr"}) if ($choice == 0);
+	$pmvj->insert(0,$auswertung{"PMVorjahr"}) if ($choice == 0);
 	$pmaj->delete(0,"end");
-	$pmaj->insert(0,$genhash{"PMaktJahr"}) if ($choice == 0);
+	$pmaj->insert(0,$auswertung{"PMaktJahr"}) if ($choice == 0);
 	$nickfile->delete(0,"end");
-	$nickfile->insert(0,$genhash{"Spitznamen"});
-	$check_ExcludeTln->{'Value'} = $genhash{"Exclude_Checkmark"};
+	$nickfile->insert(0,$auswertung{"Spitznamen"});
+	$check_ExcludeTln->{'Value'} = $auswertung{"Exclude_Checkmark"};
 	
-	%genhashsaved = %genhash;
+	%auswertung_saved = %auswertung;
 	$fjlistsaved = $fjlistbox->Contents();
-	update_genhash(0) if ($choice == 1);	# einige Hashwerte löschen
+	update_auswertung(0) if ($choice == 1);	# einige Hashwerte löschen
 	do_reset_eval();	# evtl. vorhandene Auswertungen löschen
 	undef %ovfjhash;	# OVFJ Daten löschen
 	undef %ovfjhashsaved;
@@ -865,7 +873,7 @@ sub read_genfile {
 #Prüfen, ob Generelle Daten verändert wurde, ohne gespeichert worden zu
 #sein
 sub CheckForSaveGenfile {
-	return 0 if (update_genhash(1)==0);
+	return 0 if (update_auswertung(1)==0);
 	my $response = $mw->messageBox(-icon => 'question', 
 											-message => "Generelle Daten \'$genfilename\' wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
 											-title => "Generelle Daten \'$genfilename\' speichern?", 
@@ -1097,15 +1105,15 @@ sub do_reset_eval {
 
 #Lesen der Spitznamen Datei
 sub get_nicknames {
-	if ($genhash{"Spitznamen"} eq "")
+	if ($auswertung{"Spitznamen"} eq "")
 	{
 		$meldung->insert('end',"HINWEIS: Keine Spitznamen Datei spezifiziert");
 		return;
 	}	
 	
-	if (!open (INFILE,"<",$genhash{"Spitznamen"}))
+	if (!open (INFILE,"<",$auswertung{"Spitznamen"}))
 	{
-		$meldung->insert('end',"FEHLER: Kann Spitznamen Datei ".$genhash{"Spitznamen"}." nicht lesen");
+		$meldung->insert('end',"FEHLER: Kann Spitznamen Datei ".$auswertung{"Spitznamen"}." nicht lesen");
 		return;
 	}
 	else
@@ -1597,32 +1605,32 @@ sub ReadPMDaten {
 	my ($pmname,$pmvorname,$pmcall,$pmdok,$pmgebjahr,$pmpm,$pmdatum);
 	if ($mode == 0)
 	{
-		if ($genhash{"PMVorjahr"} eq "")
+		if ($auswertung{"PMVorjahr"} eq "")
 		{
 			RepMeld($OUTFILE,"FEHLER: Keine PMVorjahr Datei spezifiziert");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 
-		if (!open (INFILE2,"<",$genhash{"PMVorjahr"}))
+		if (!open (INFILE2,"<",$auswertung{"PMVorjahr"}))
 		{
-			RepMeld($OUTFILE,"FEHLER: Kann PMVorjahr Datei ".$genhash{"PMVorjahr"}." nicht lesen");
+			RepMeld($OUTFILE,"FEHLER: Kann PMVorjahr Datei ".$auswertung{"PMVorjahr"}." nicht lesen");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 	}
 	else
 	{
-		if ($genhash{"PMaktJahr"} eq "")
+		if ($auswertung{"PMaktJahr"} eq "")
 		{
 			RepMeld($OUTFILE,"FEHLER: Keine aktuelle PM Datei spezifiziert");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 
-		if (!open (INFILE2,"<",$genhash{"PMaktJahr"}))
+		if (!open (INFILE2,"<",$auswertung{"PMaktJahr"}))
 		{
-			RepMeld($OUTFILE,"FEHLER: Kann aktuelle PM Datei ".$genhash{"PMaktJahr"}." nicht lesen");
+			RepMeld($OUTFILE,"FEHLER: Kann aktuelle PM Datei ".$auswertung{"PMaktJahr"}." nicht lesen");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
@@ -1675,10 +1683,10 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 	my $TlnIstAusrichter;	# Teilnehmer ist auch Ausrichter
 	
 	#Auswertung
-	update_genhash(0) if ($mode == 0);	# Generelle Hashdaten aktualisieren auf Basis der Felder
+	update_auswertung(0) if ($mode == 0);	# Generelle Hashdaten aktualisieren auf Basis der Felder
 	update_ovfjhash(0) if ($mode == 0);	# Hashdaten aktualisieren
 	
-	if ($year !~ /^\d{4}$/)
+	if ($auswertung{Jahr} !~ /^\d{4}$/)
 	{
 		$meldung->insert('end',"FEHLER: Jahr ist keine gültige Zahl");
 		return 2;	# Fehler mit Schleifenabbruch
@@ -1987,7 +1995,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 					RepMeld(*OUTFILE,$str2);
 				}
 				$aktJahr = 1;	# zwar gefunden, aber keine Teilnahme im aktuellen Jahr (kann nachfolgend ueberschrieben werden)
-				$aktJahr = 2 if ($pmdatum =~ /^$year\d{4}$/);
+				$aktJahr = 2 if ($pmdatum =~ /^$auswertung{Jahr}\d{4}$/);
 			}		
 			
 			if ($IsPM == 0 && $AddedVerant == 1 && $Helfermode == 0 && $HelferInKopf == 0 && $KeineSonderpunkte == 0)
@@ -2127,7 +2135,7 @@ sub Export {
 
 	$ExcludeTln = $check_ExcludeTln->{'Value'};
 
-	$rawresultfilename = "OVJ_Ergebnisse_".$genhash{"Distriktskenner"}."_".$year."raw.txt";
+	$rawresultfilename = "OVJ_Ergebnisse_".$auswertung{"Distriktskenner"}."_".$auswertung{Jahr}."raw.txt";
 	
 	unless (-e $outputpath.$pathsep.$genfilename && -d $outputpath.$pathsep.$genfilename)
 	{
@@ -2144,34 +2152,34 @@ sub Export {
 		$meldung->insert('end',"FEHLER: Kann ".$rawresultfilename." nicht schreiben");
 		return;
 	}
-	$asciiresultfilename = "OVJ".$genhash{"Distriktskenner"}.$year.".txt";
+	$asciiresultfilename = "OVJ".$auswertung{"Distriktskenner"}.$auswertung{Jahr}.".txt";
 	if (!open (AOUTFILE,">",$outputpath.$pathsep.$genfilename.$pathsep.$asciiresultfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$asciiresultfilename." nicht schreiben");
 		return;
 	}
-	$htmlresultfilename = "OVJ_Ergebnisse_".$genhash{"Distriktskenner"}."_".$year.".htm";
+	$htmlresultfilename = "OVJ_Ergebnisse_".$auswertung{"Distriktskenner"}."_".$auswertung{Jahr}.".htm";
 	if (!open (HOUTFILE,">",$outputpath.$pathsep.$genfilename.$pathsep.$htmlresultfilename))
 	{
 		$meldung->insert('end',"FEHLER: Kann ".$htmlresultfilename." nicht schreiben");
 		return;
 	}
 	
-	printf AOUTFILE "             OV Jahresauswertung ".$year." des Distrikts ".$genhash{"Distrikt"}."\n\n";
-	printf AOUTFILE "OV-Wettbewerbe des Distriktes   ".$genhash{"Distrikt"}."\n";
-	printf AOUTFILE "für das Jahr                    ".$year."\n";
+	printf AOUTFILE "             OV Jahresauswertung ".$auswertung{Jahr}." des Distrikts ".$auswertung{"Distrikt"}."\n\n";
+	printf AOUTFILE "OV-Wettbewerbe des Distriktes   ".$auswertung{"Distrikt"}."\n";
+	printf AOUTFILE "für das Jahr                    ".$auswertung{Jahr}."\n";
 	printf AOUTFILE "Distriktspeilreferent\n";
-	printf AOUTFILE "Name, Vorname                   ".$genhash{"Name"}.", ".$genhash{"Vorname"}."\n";
-	printf AOUTFILE "Call                            ".$genhash{"Call"}."\n";
-	printf AOUTFILE "DOK                             ".$genhash{"DOK"}."\n";
-	printf AOUTFILE "Telefon                         ".$genhash{"Telefon"}."\n";
-	printf AOUTFILE "Home-BBS                        ".$genhash{"Home-BBS"}."\n";
-	printf AOUTFILE "E-Mail                          ".$genhash{"E-Mail"}."\n";
+	printf AOUTFILE "Name, Vorname                   ".$auswertung{"Name"}.", ".$auswertung{"Vorname"}."\n";
+	printf AOUTFILE "Call                            ".$auswertung{"Call"}."\n";
+	printf AOUTFILE "DOK                             ".$auswertung{"DOK"}."\n";
+	printf AOUTFILE "Telefon                         ".$auswertung{"Telefon"}."\n";
+	printf AOUTFILE "Home-BBS                        ".$auswertung{"Home-BBS"}."\n";
+	printf AOUTFILE "E-Mail                          ".$auswertung{"E-Mail"}."\n";
 	printf AOUTFILE "Auswertung mit                  OVJ (Version ".$ovjvers." vom ".$ovjdate.")\n";
 	printf AOUTFILE ("am                              %i.%i.%i\n",$mday,$mon+1,$myear+1900);
 	if ($ExcludeTln == 1)
 	{
-		printf AOUTFILE "Hinweis                         Teilnehmer ohne Teilnahme an offiziellen Wettbewerb in ".$year."\n";
+		printf AOUTFILE "Hinweis                         Teilnehmer ohne Teilnahme an offiziellen Wettbewerb in ".$auswertung{Jahr}."\n";
 		printf AOUTFILE "                                wurden von OVJ entfernt\n";
 	}
 
@@ -2181,27 +2189,27 @@ sub Export {
 	printf AOUTFILE "Nr. Ausrichtender OV           DOK  Verantwortlicher          Call    DOK  Datum       Band  Teilnehmer\n";
 	printf AOUTFILE "-------------------------------------------------------------------------------------------------------\n";
 
-	printf HOUTFILE "<html>\n<head>\n<title>OV Jahresauswertung ".$year." des Distrikts ".$genhash{"Distrikt"}."</title>\n</head>\n";
+	printf HOUTFILE "<html>\n<head>\n<title>OV Jahresauswertung ".$auswertung{Jahr}." des Distrikts ".$auswertung{"Distrikt"}."</title>\n</head>\n";
 	printf HOUTFILE "<body>\n";
 	printf HOUTFILE "<h1>Jahresauswertung der OV-Peilveranstaltungen</h1>\n";
 	printf HOUTFILE "<table border=\"0\"><tbody align=\"left\">\n";
 	printf HOUTFILE "<tr><td>OV-Wettbewerbe des Distriktes&nbsp;&nbsp;&nbsp;</td>\n";
-	printf HOUTFILE "<td><b>".$genhash{"Distrikt"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$auswertung{"Distrikt"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>für das Jahr</td>\n";
-	printf HOUTFILE "<td><b>".$year."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$auswertung{Jahr}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td><b>Distriktspeilreferent</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Name, Vorname</td>\n";
-	printf HOUTFILE "<td><b>".$genhash{"Name"}.", ".$genhash{"Vorname"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$auswertung{"Name"}.", ".$auswertung{"Vorname"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Call</td>\n";
-	printf HOUTFILE "<td><b>".$genhash{"Call"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$auswertung{"Call"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>DOK</td>\n";
-	printf HOUTFILE "<td><b>".$genhash{"DOK"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$auswertung{"DOK"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Telefon</td>\n";
-	printf HOUTFILE "<td><b>".$genhash{"Telefon"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$auswertung{"Telefon"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Home-BBS</td>\n";
-	printf HOUTFILE "<td><b>".$genhash{"Home-BBS"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$auswertung{"Home-BBS"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>E-Mail</td>\n";
-	printf HOUTFILE "<td><b>".$genhash{"E-Mail"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$auswertung{"E-Mail"}."</b></td></tr>\n";
 	printf HOUTFILE "</tbody></table><br><br>\n";
 
 	printf HOUTFILE "<table border=\"1\">\n";
@@ -2276,7 +2284,7 @@ sub Export {
 
 		if ($ExcludeTln == 1 && $tn{$tnkey}->{aktjahr} == 1)
 		{
-			$addoutput .= "Schliesse ".$tn{$tnkey}->{nachname}.", ".$tn{$tnkey}->{vorname}." aus, da kein offizieller Wettbewerb in ".$year."\n";
+			$addoutput .= "Schliesse ".$tn{$tnkey}->{nachname}.", ".$tn{$tnkey}->{vorname}." aus, da kein offizieller Wettbewerb in ".$auswertung{Jahr}."\n";
 			next;
 		}
 
