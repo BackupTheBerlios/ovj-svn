@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<title>Vorgehen Schritt 1</title>
+<link rel="stylesheet" type="text/css" href="ovj.css">
+</head>
+<body>
+<b><a href="index.htm">Startseite</a></b><br><br>
+<a href="schritt2.htm"><img src="navforward.png" border="0" alt="NavigationWeiter"></a>
+<h1>Vorgehen Schritt für Schritt</h1>
+<br>
+Die nachfolgenden Hinweise basieren auf der Annahme, dass die OVJ Software installiert und OVJ gestartet wurde,<br>
+entweder als OVJ.exe oder OVJ.pl über einen Perl-Interpreter.<br>
+<h3>Generelle Daten</h3>
+<img src="GenerelleDaten.png" alt="Generelle Daten"><br>
+Hier werden die Daten des Distriktspeilreferenten eingetragen sowie drei Dateien angegeben:
+<ol>
+<li>Die PM Datei des Vorjahres <a href="pmdatei.htm" target="_blank">(weitere Informationen)</a></li>
+<li>Die aktuelle PM Datei <a href="pmdatei.htm" target="_blank">(weitere Informationen)</a></li>
+<li>Eine Datei zur Ersetzung von Vornamen, da oftmals Spitznamen wie Uli, Nick oder Didi in Auswertungen verwendet werden <a href="spitznamen.htm" target="_blank">(weitere Informationen)</a></li>
+</ol>
+Es empfiehlt sich, diese Dateien im Programmverzeichnis von OVJ abzulegen, d.h. auf der obersten Verzeichnisebene.<br>
+Wenn einer der Buttons links neben den Eingabefeldern gedrückt wird, so öffnet sich ein Dateidialog, um die
+entsprechende Datei auszuwählen, deren Namen dann in das entsprechende Feld kopiert wird. Man kann das Feld natürlich auch von Hand ausfüllen.<br>
+<br>
+Laden, Speichern und Importieren der Generellen Daten:<br>
+Über den Button 'Laden' werden die Generellen Daten geladen. Dabei wird die Jahreszahl verwendet, um den Dateinamen festzulegen: 'OVJ_Generell_XXXX.txt'<br>
+wobei XXXX durch die entsprechende Jahreszahl ersetzt wird. Die Generellen Daten befinden sich im Verzeichnis 'config' unterhalb des Programmverzeichnisses.<br>
+Beim Starten von OVJ wird dieses Verzeichnis automatisch nach 'OVJ_Generell_XXXX.txt'-Dateien durchsucht, die erste gefundene Datei wird geöffnet.<br>
+Daher muss der Button zum Laden normalerweise nie verwendet werden.<br><br>
+Über den Button 'Speichern' werden die Generellen Daten gespeichert. Dabei wird die Jahreszahl verwendet, um den Dateinamen festzulegen: 'OVJ_Generell_XXXX.txt'<br><br>
+Mittels des Buttons 'Importieren' können Generelle Daten z.B. aus dem Vorjahr importiert werden, dabei werden jedoch nur diejenigen Daten importiert,<br>
+welche noch aktuell sind.<br><br>
+Die Liste der OV Wettbewerbe wird zusammen mit den Generellen Daten in der gleichen Datei gespeichert.<br>
+</body>
+</html>
