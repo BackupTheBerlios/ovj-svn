@@ -137,11 +137,11 @@ sub make_window {
 	$mw = MainWindow->new;
 	
 	my $menu_bar = $mw->Frame(-relief => 'raised', -borderwidth => 2)->pack(-side => 'top', -anchor => "nw", -fill => "x");
-	my $help = $menu_bar->Menubutton(-text => 'Datei', -menuitems => [
-					[ Button => "Exit",-command => \&Leave]])
+	$menu_bar->Menubutton(-text => 'Datei', -menuitems => [
+				[ Button => "Exit",-command => \&Leave]])
 								->pack(-side => 'left');
-	$help = $menu_bar->Menubutton(-text => 'Hilfe', , -menuitems => [
-					[ Button => "Über",-command => \&About]])
+	$menu_bar->Menubutton(-text => 'Hilfe', , -menuitems => [
+				[ Button => "Über",-command => \&About]])
 								->pack(-side => 'left');
 	$menu_bar->Button(
 	        -text    => 'Exit',
@@ -340,10 +340,10 @@ sub make_window {
 	$fr33->Label(-text => 'Muster')->pack(-side => 'left');
 	$ovjpattern = $fr33->Entry(-width => 70)->pack(-side => 'right');
 	
-	$fr4 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
-	$fr4->pack;
-	$fr4->Label(-text => 'Meldungen')->pack;
-	$meldung = $fr4->Scrolled('Listbox',-scrollbars =>'e',-width => 116, -height => 12)->pack();
+	my $fr5 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
+	$fr5->pack;
+	$fr5->Label(-text => 'Meldungen')->pack;
+	$meldung = $fr5->Scrolled('Listbox',-scrollbars =>'e',-width => 116, -height => 12)->pack();
 }
 
 sub init {
@@ -403,7 +403,7 @@ sub do_select_fjfile {
 	#return if ($selfile eq "");
 	my $types = [['Text Files','.txt'],['All Files','*',]];
 	my $selfile = $fr3->getOpenFile(-initialdir => $inputpath.$pathsep.$genfilename, -filetypes => $types, -title => "FJ Datei auswählen");
-	return if ($selfile eq undef || $selfile eq "");
+	return if (!defined($selfile) || $selfile eq "");
 	my $tp;
 	my @fi;
 	$selfile =~ s/^.*\///;
@@ -485,7 +485,7 @@ sub do_get_nickfile {
 	#return if ($selfile eq "");
 	my $types = [['Text Files','.txt'],['All Files','*',]];
 	my $selfile = $fr1->getOpenFile(-initialdir => '.', -filetypes => $types, -title => "Spitznamen Datei auswählen");
-	return if ($selfile eq undef || $selfile eq "");
+	return if (!defined($selfile) || $selfile eq "");
 	$selfile =~ s/^.*\///;
 	$nickfile->delete(0,"end");
 	$nickfile->insert(0,$selfile);
@@ -547,7 +547,7 @@ sub do_select_pmfile {
 	#my $selfile = $FSref->Show;
 	my $types = [['Text Files','.txt'],['All Files','*',]];
 	my $selfile = $fr1->getOpenFile(-initialdir => '.', -filetypes => $types, -title => ($choice == 0 ? "PM Vorjahr Datei auswählen" : "aktuelle PM Datei auswählen"));
-	return if ($selfile eq undef || $selfile eq "");
+	return if (!defined($selfile) || $selfile eq "");
 	$selfile =~ s/^.*\///;
 	if ($choice == 0)
 	{
@@ -595,7 +595,7 @@ sub do_file_general {
 		return 1 if (CheckForOVFJList());			# Abbruch durch Benutzer
 		my $types = [['Text Files','.txt'],['All Files','*',]];
 		my $filename = $fr1->getOpenFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten laden");
-		return 1 if ($filename eq undef || $filename eq "");
+		return 1 if (!defined($filename) || $filename eq "");
 		#my $FSref = $fr1->FileSelect(-directory => $configpath);
 		#$tempname = $FSref->Show;
 		$filename =~ s/^.*\///;		# Pfadangaben entfernen
@@ -617,7 +617,7 @@ sub do_file_general {
 		return 1 if (CheckForOVFJList());			# Abbruch durch Benutzer
 		my $types = [['Text Files','.txt'],['All Files','*',]];
 		my $filename = $fr1->getOpenFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten importieren");
-		return 1 if ($filename eq undef || $filename eq "");
+		return 1 if (!defined($filename) || $filename eq "");
 		#my $FSref = $fr1->FileSelect(-directory => $configpath);
 		#$genfilename = $FSref->Show;
 		$meldung->insert('end',"Importiere ".$filename);
@@ -682,7 +682,7 @@ sub do_file_general {
 		my $filename = $fr1->getSaveFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten laden");
 		#my $FSref = $fr1->FileSelect(-directory => $configpath);
 		#$tempname = $FSref->Show;
-		return 1 if ($filename eq undef || $filename eq "");
+		return 1 if (!defined($filename) || $filename eq "");
 		$filename =~ s/^.*\///;		# Pfadangaben entfernen
 		$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
 		$genfilename = $filename;
@@ -915,7 +915,7 @@ sub do_edit_ovfj {
 #Prüfen, ob OVFJ Veranstaltung verändert wurde, ohne gespeichert worden zu
 #sein
 sub CheckForOverwriteOVFJ {
-	return 0 if !defined(%ovfjhash);
+	return 0 unless (%ovfjhash);		# wenn Hash leer ist
 	return 0 if (update_ovfjhash(1)==0);
 	my $response = $mw->messageBox(-icon => 'question', 
 											-message => "Kopfdaten zum OV Wettbewerb ".$ovfjname." wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
