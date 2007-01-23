@@ -35,6 +35,7 @@ use lib "lib";	# FIXME: relativ zum Programverzeichnis ermitteln
 
 use Tk;
 use OVJ::Inifile;
+use OVJ::GUI;
 
 '$Id$' =~ / (\d+) (\d{4})-(\d{2})-(\d{2}) /;
 my $ovjdate = "$4.$3.$2";
@@ -86,24 +87,13 @@ my $meldung;
 my $mw;
 my $anztlnmanuell;
 my $band;
-my $call;
 my $check_ExcludeTln;
 my $copy_pattern_button;
 my $datum;
-my $distrikt;
-my $distriktskenner;
-my $dok;
-my $email;
 my $exp_eval_button;
 my $fjfile;
 my $fjlistbox;
-my $fr1;
 my $fr3;
-my $gendatalabel;
-my $homebbs;
-my $jahr;
-my $name;
-my $nickfile;
 my $ovfj_eval_button;
 my $ovfj_fileset_button;
 my $ovfjnamelabel;
@@ -112,16 +102,12 @@ my $ovjpattern;
 my $ovname;
 my $ovnum;
 my $patterns;
-my $pmaj;
-my $pmvj;
 my $reset_eval_button;
-my $telefon;
 my $verantcall;
 my $verantdok;
 my $verantgeb;
 my $verantname;
 my $verantvorname;
-my $vorname;
 
 hello_world();
 make_window();
@@ -153,83 +139,7 @@ sub make_window {
 	        -command => \&Leave)->pack(-side => 'right');
 	$menu_bar->Label(-text => "OVJ $ovjvers by DL3SDO, $ovjdate")->pack;
 	    
-	# Generelle Daten
-	$fr1 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
-	$fr1->pack;
-	$gendatalabel = $fr1->Label(-text => 'Generelle Daten:')->pack;
-	my $fr11 = $fr1->Frame->pack(-side => 'left');
-	my $fr111 = $fr11->Frame->pack;
-	$fr111->Button(
-	        -text => 'Importieren',
-	        -command => sub{do_file_general(3)}
-	    )->pack(-side => 'right',-padx => 1);
-	$fr111->Button(
-	        -text => 'Speichern als',
-	        -command => sub{do_file_general(4)}
-	    )->pack(-side => 'right',-padx => 1);
-	$fr111->Button(
-	        -text => 'Speichern',
-	        -command => sub{do_file_general(0)}
-	    )->pack(-side => 'right',-padx => 1);
-	$fr111->Button(
-	        -text => 'Laden',
-	        -command => sub{do_file_general(1)}
-	    )->pack(-side => 'right',-padx => 1);
-	
-	my $fr112 = $fr11->Frame->pack;
-	$fr112->Label(-text => 'Distrikt')->pack(-side => 'left');
-	$distrikt = $fr112->Entry()->pack(-side => 'left');
-	
-	my $fr113 = $fr11->Frame->pack;
-	$fr113->Label(-text => 'Distriktskenner')->pack(-side => 'left');
-	$distriktskenner = $fr113->Entry(-width => 1)->pack(-side => 'left');
-	
-	$fr113->Label(-text => 'Jahr')->pack(-side => 'left');
-	$jahr = $fr113->Entry(-width => 4)->pack(-side => 'left');
-	
-	my $fr12 = $fr1->Frame->pack(-side => 'left');
-	my $fr121 = $fr12->Frame->pack;
-	$name = $fr121->Entry(-width => 16)->pack(-side => 'right');
-	$fr121->Label(-text => 'Name')->pack(-side => 'left');
-	my $fr122 = $fr12->Frame->pack;
-	$vorname = $fr122->Entry(-width => 16)->pack(-side => 'right');
-	$fr122->Label(-text => 'Vorname')->pack(-side => 'left');
-	my $fr123 = $fr12->Frame->pack;
-	$fr123->Label(-text => 'CALL')->pack(-side => 'left');
-	$call = $fr123->Entry(-width => 8)->pack(-side => 'left');
-	$dok = $fr123->Entry(-width => 4)->pack(-side => 'right');
-	$fr123->Label(-text => 'DOK')->pack(-side => 'left');
-	
-	my $fr13 = $fr1->Frame->pack(-side => 'left');
-	my $fr131 = $fr13->Frame->pack;
-	$telefon = $fr131->Entry()->pack(-side => 'right');
-	$fr131->Label(-text => 'Telefon')->pack(-side => 'left');
-	my $fr132 = $fr13->Frame->pack;
-	$homebbs = $fr132->Entry()->pack(-side => 'right');
-	$fr132->Label(-text => 'Home-BBS')->pack(-side => 'left');
-	my $fr133 = $fr13->Frame->pack;
-	$email = $fr133->Entry()->pack(-side => 'right');
-	$fr133->Label(-text => 'E-Mail')->pack(-side => 'left');
-	
-	my $fr14 = $fr1->Frame->pack(-side => 'left');
-	my $fr141 = $fr14->Frame->pack;
-	$pmvj = $fr141->Entry(-width => 15)->pack(-side => 'right');
-	$fr141->Button(
-	        -text => 'PM Vorjahr',
-	        -command => sub{do_select_pmfile(0)}
-	    )->pack(-side => 'left');
-	my $fr142 = $fr14->Frame->pack;
-	$pmaj = $fr142->Entry(-width => 15)->pack(-side => 'right');
-	$fr142->Button(
-	        -text => 'PM akt. Jahr',
-	        -command => sub{do_select_pmfile(1)}
-	    )->pack(-side => 'left');
-	my $fr143 = $fr14->Frame->pack;
-	$nickfile = $fr143->Entry(-width => 15)->pack(-side => 'right');
-	$fr143->Button(
-	        -text => 'Spitznamen',
-	        -command => sub{do_get_nickfile()}
-	    )->pack(-side => 'left');
+	OVJ::GUI::make_general($mw);
 	     
 	# Liste der OV-Wettbewerbe
 	my $fr2 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
@@ -486,18 +396,6 @@ sub do_select_fjfile {
 	close (INFILE) || die "close: $!";
 }
 
-#Auswahl der Spitznamen Datei per Button
-sub do_get_nickfile {
-	#my $FSref = $fr1->FileSelect(-directory => '.');
-	#my $selfile = $FSref->Show;
-	#return if ($selfile eq "");
-	my $types = [['Text Files','.txt'],['All Files','*',]];
-	my $selfile = $fr1->getOpenFile(-initialdir => '.', -filetypes => $types, -title => "Spitznamen Datei auswählen");
-	return if (!defined($selfile) || $selfile eq "");
-	$selfile =~ s/^.*\///;
-	$nickfile->delete(0,"end");
-	$nickfile->insert(0,$selfile);
-}
 
 #Speichern der Pattern Datei
 sub do_save_patterns {
@@ -548,27 +446,6 @@ sub CheckForUnsavedPatterns {
 	return 0;
 }
 
-#Auswahl der PMVorjahr (0) oder aktuellen (else) PM Datei per Button
-sub do_select_pmfile {
-	my ($choice) = @_;
-	#my $FSref = $fr1->FileSelect(-directory => '.');
-	#my $selfile = $FSref->Show;
-	my $types = [['Text Files','.txt'],['All Files','*',]];
-	my $selfile = $fr1->getOpenFile(-initialdir => '.', -filetypes => $types, -title => ($choice == 0 ? "PM Vorjahr Datei auswählen" : "aktuelle PM Datei auswählen"));
-	return if (!defined($selfile) || $selfile eq "");
-	$selfile =~ s/^.*\///;
-	if ($choice == 0)
-	{
-		$pmvj->delete(0,"end");
-		$pmvj->insert(0,$selfile);
-	}
-	else
-	{
-		$pmaj->delete(0,"end");
-		$pmaj->insert(0,$selfile);
-	}
-}
-
 #Kopieren des markierten Patterns in die Patternzeile des OV Wettbewerbs
 sub do_copy_pattern {
 	$_ = $patterns->Contents(); # erstmal
@@ -602,9 +479,9 @@ sub do_file_general {
 		return 1 if (CheckForSaveGenfile());		# Abbruch durch Benutzer
 		return 1 if (CheckForOVFJList());			# Abbruch durch Benutzer
 		my $types = [['Text Files','.txt'],['All Files','*',]];
-		my $filename = $fr1->getOpenFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten laden");
+		my $filename = $mw->getOpenFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten laden");
 		return 1 if (!defined($filename) || $filename eq "");
-		#my $FSref = $fr1->FileSelect(-directory => $configpath);
+		#my $FSref = $mw->FileSelect(-directory => $configpath);
 		#$tempname = $FSref->Show;
 		$filename =~ s/^.*\///;		# Pfadangaben entfernen
 		$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
@@ -613,7 +490,7 @@ sub do_file_general {
 		if ($retstate == 0)	# Erfolgreich geladen
 		{
 			$genfilename = $filename;
-			$gendatalabel->configure(-text => "Generelle Daten: ".$genfilename);
+			OVJ::GUI::set_general_data_label($genfilename);
 			$config{"LastGenFile"} = $genfilename;
 		}
 		return($retstate);
@@ -624,16 +501,16 @@ sub do_file_general {
 		return 1 if (CheckForSaveGenfile());		# Abbruch durch Benutzer
 		return 1 if (CheckForOVFJList());			# Abbruch durch Benutzer
 		my $types = [['Text Files','.txt'],['All Files','*',]];
-		my $filename = $fr1->getOpenFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten importieren");
+		my $filename = $mw->getOpenFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten importieren");
 		return 1 if (!defined($filename) || $filename eq "");
-		#my $FSref = $fr1->FileSelect(-directory => $configpath);
+		#my $FSref = $mw->FileSelect(-directory => $configpath);
 		#$genfilename = $FSref->Show;
 		$meldung->insert('end',"Importiere ".$filename);
 		$retstate = read_genfile(1,$filename);
 		if ($retstate == 0)	# Erfolgreich geladen
 		{
 			$genfilename = "";	# Beim Importieren wird kein Name festgelegt
-			$gendatalabel->configure(-text => "Generelle Daten: ");
+			OVJ::GUI::set_general_data_label();
 			$config{"LastGenFile"} = $genfilename;
 		}
 		return($retstate);
@@ -647,7 +524,7 @@ sub do_file_general {
 		{
 			$genfilename = $config{"LastGenFile"};
 			$meldung->insert('end',"Lade ".$genfilename);
-			$gendatalabel->configure(-text => "Generelle Daten: ".$genfilename);
+			OVJ::GUI::set_general_data_label($genfilename);
 			return(read_genfile(0,$genfilename));
 		}
 		else
@@ -687,8 +564,8 @@ sub do_file_general {
 	if ($choice == 4)	# Speichern als
 	{
 		my $types = [['Text Files','.txt'],['All Files','*',]];
-		my $filename = $fr1->getSaveFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten laden");
-		#my $FSref = $fr1->FileSelect(-directory => $configpath);
+		my $filename = $mw->getSaveFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten laden");
+		#my $FSref = $mw->FileSelect(-directory => $configpath);
 		#$tempname = $FSref->Show;
 		return 1 if (!defined($filename) || $filename eq "");
 		$filename =~ s/^.*\///;		# Pfadangaben entfernen
@@ -710,7 +587,7 @@ sub do_file_general {
 		{ $meldung->insert('end',"Überschreibe ".$genfilename); }
 		else { $meldung->insert('end',"Erzeuge ".$genfilename); }
 #		}
-		$gendatalabel->configure(-text => "Generelle Daten: ".$genfilename);
+		OVJ::GUI::set_general_data_label($genfilename);
 		$config{"LastGenFile"} = $genfilename;
 		return(write_genfile());
 	}
@@ -743,7 +620,7 @@ sub write_genfile {
 		$meldung->insert('end',"FEHLER: Kann ".$genfilename." nicht schreiben");
 		return 1;	# Fehler
 	}
-	update_auswertung(0);	# Hash aktualisieren auf Basis der Felder
+	%auswertung=OVJ::GUI::get_general();	# Hash aktualisieren auf Basis der Felder
 	printf OUTFILE "#OVJ Toplevel-Datei für ".$auswertung{Jahr}."\n\n";
 	my $key;
 	foreach $key (keys %auswertung) {
@@ -762,45 +639,12 @@ sub write_genfile {
 	return 0;	# kein Fehler
 }
 
-#Aktualisieren der aktuellen Generellen Daten im Hash
-sub update_auswertung {
-	my $mode = shift;	# 0 = Update, 1 = Vergleich mit gespeicherten Daten
-	my %auswertung_temp;
-	my ($key,$value);
-		
-	%auswertung_temp = (
-		"Jahr" => $jahr->get,
-		"Distrikt" => $distrikt->get,
-		"Distriktskenner" => $distriktskenner->get,
-		"Name" => $name->get,
-		"Vorname" => $vorname->get,
-		"Call" => $call->get,
-		"DOK" => $dok->get,
-		"Telefon" => $telefon->get,
-		"Home-BBS" => $homebbs->get,
-		"E-Mail" => $email->get,
-		"PMVorjahr" => $pmvj->get,
-		"PMaktJahr" => $pmaj->get,
-		"Spitznamen" => $nickfile->get,
-		"Exclude_Checkmark" => $check_ExcludeTln->{'Value'},
-	);
-	if ($mode == 0)
-	{
-		%auswertung = %auswertung_temp;
-		return 0;
-	}
-	while (($key,$value) = each(%auswertung_temp))
-	{
-		return 1 if ($auswertung_saved{$key} ne $value); # Diskrepanz, also 1 zurückgeben
-	}
-	return 0;	# alles ok
-}
 
 #Lesen der Generellen Daten aus der Genfile Datei
 sub read_genfile {
 	my ($choice,$filename) = @_;	# 0 = Laden, 1 = Importieren
 
-	if (!open (INFILE,"<",($choice == 0 ? $configpath.$pathsep.$filename.$pathsep : "").$filename.($choice == 0 ? ".txt" : "")))
+	if (!open (INFILE,"<",($choice == 0 ? $configpath.$pathsep.$filename.$pathsep : "").$filename.($choice == 0 ? ".txt" : ""))) # FIXME: Endung nach $choice gewählt?
 	{
 	$meldung->insert('end',"FEHLER: Kann ".$filename." nicht lesen");
 	return 1;	# Fehler
@@ -808,6 +652,7 @@ sub read_genfile {
 
 	$fjlistbox->selectAll();
 	$fjlistbox->deleteSelected();
+	my %auswertung_alt = OVJ::GUI::get_general();
 	while (<INFILE>)
 	{
 		next if /^#/;
@@ -826,38 +671,16 @@ sub read_genfile {
 		}
 	}
 	close (INFILE) || die "close: $!";
-	$jahr->delete(0,"end");
-	$jahr->insert(0,$auswertung{"Jahr"}) if ($choice == 0);
-	$auswertung{Jahr} = $auswertung{"Jahr"};
-	$distrikt->delete(0,"end");
-	$distrikt->insert(0,$auswertung{"Distrikt"});
-	$distriktskenner->delete(0,"end");
-	$distriktskenner->insert(0,$auswertung{"Distriktskenner"});
-	$name->delete(0,"end");
-	$name->insert(0,$auswertung{"Name"});
-	$vorname->delete(0,"end");
-	$vorname->insert(0,$auswertung{"Vorname"});
-	$call->delete(0,"end");
-	$call->insert(0,$auswertung{"Call"});
-	$dok->delete(0,"end");
-	$dok->insert(0,$auswertung{"DOK"});
-	$telefon->delete(0,"end");
-	$telefon->insert(0,$auswertung{"Telefon"});
-	$homebbs->delete(0,"end");
-	$homebbs->insert(0,$auswertung{"Home-BBS"});
-	$email->delete(0,"end");
-	$email->insert(0,$auswertung{"E-Mail"});
-	$pmvj->delete(0,"end");
-	$pmvj->insert(0,$auswertung{"PMVorjahr"}) if ($choice == 0);
-	$pmaj->delete(0,"end");
-	$pmaj->insert(0,$auswertung{"PMaktJahr"}) if ($choice == 0);
-	$nickfile->delete(0,"end");
-	$nickfile->insert(0,$auswertung{"Spitznamen"});
+	if ($choice != 0) {
+		$auswertung{PMVorjahr} = $auswertung_alt{PMVorjahr};
+		$auswertung{PMaktJahr} = $auswertung_alt{PMaktJahr};
+	}
+	OVJ::GUI::set_general(%auswertung);
 	$check_ExcludeTln->{'Value'} = $auswertung{"Exclude_Checkmark"};
 	
 	%auswertung_saved = %auswertung;
 	$fjlistsaved = $fjlistbox->Contents();
-	update_auswertung(0) if ($choice == 1);	# einige Hashwerte löschen
+	# %auswertung = OVJ::GUI::get_general() if ($choice == 1);	# einige Hashwerte löschen
 	do_reset_eval();	# evtl. vorhandene Auswertungen löschen
 	undef %ovfjhash;	# OVFJ Daten löschen
 	undef %ovfjhashsaved;
@@ -873,7 +696,7 @@ sub read_genfile {
 #Prüfen, ob Generelle Daten verändert wurde, ohne gespeichert worden zu
 #sein
 sub CheckForSaveGenfile {
-	return 0 if (update_auswertung(1)==0);
+	return 0 if ! OVJ::GUI::general_modified(%auswertung);
 	my $response = $mw->messageBox(-icon => 'question', 
 											-message => "Generelle Daten \'$genfilename\' wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
 											-title => "Generelle Daten \'$genfilename\' speichern?", 
@@ -1683,7 +1506,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 	my $TlnIstAusrichter;	# Teilnehmer ist auch Ausrichter
 	
 	#Auswertung
-	update_auswertung(0) if ($mode == 0);	# Generelle Hashdaten aktualisieren auf Basis der Felder
+	%auswertung = OVJ::GUI::get_general() if ($mode == 0);	# Generelle Hashdaten aktualisieren auf Basis der Felder
 	update_ovfjhash(0) if ($mode == 0);	# Hashdaten aktualisieren
 	
 	if ($auswertung{Jahr} !~ /^\d{4}$/)
