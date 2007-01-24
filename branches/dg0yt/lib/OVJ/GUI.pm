@@ -382,6 +382,14 @@ sub clear_ovfj {
 	}
 }
 
+sub get_patterns {
+	return $patterns->Contents( shift );
+}
+
+sub set_patterns {
+	$patterns->Contents( shift );
+}
+
 # FIXME: Unify file selection code
 
 #Auswahl der Spitznamen Datei per Button
