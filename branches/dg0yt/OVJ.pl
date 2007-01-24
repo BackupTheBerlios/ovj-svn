@@ -30,12 +30,15 @@
 #
 #
 
-use strict;		# Deklarationen erzwingen
+use strict qw(vars);		# Deklarationen erzwingen
 use lib "lib";	# FIXME: relativ zum Programverzeichnis ermitteln
 
-use Tk;
 use OVJ::Inifile;
 use OVJ::GUI;
+
+'$Id$' =~ /Id: [^ ]+ (\d+) (\d{4})-(\d{2})-(\d{2}) /;
+my $ovjdate = "$4.$3.$2";
+my $ovjvers = "0.96-dg0yt-$1";
 
 use constant {
 	INFO    => 'Information',
@@ -44,18 +47,9 @@ use constant {
 	FEHLER  => 'Fehler',
 };
 
-'$Id$' =~ / (\d+) (\d{4})-(\d{2})-(\d{2}) /;
-my $ovjdate = "$4.$3.$2";
-my $ovjvers = "0.96 rev $1";
-
-my %config  = ();			# Konfigurationsdaten
-# my %stammdaten;			# Hash für Generelle Einstellungen -> %stammdaten
-my %stammdaten = (			# Generelle Einstellungen
-	Jahr => $2,
-);
-my %stammdaten_saved;		# gespeicherter Hash fuer Generelle Einstellungen
-my %ovfj;			# Hash für eine OV Veranstaltung, Kopfdaten
-my %ovfj_saved;	# gespeicherter Hash fuer eine OV Veranstaltung, Kopfdaten
+my %config  = ();		# Konfigurationsdaten
+my %stammdaten = ();	# Generelle Einstellungen
+my %ovfj;				# Hash für eine OV Veranstaltung, Kopfdaten
 my $ovfjname;			# Name der aktiven OV Veranstaltung
 
 my $patternfilename = "OVFJ_Muster.txt";
@@ -89,37 +83,12 @@ my $overrides=undef;	# Overrides
 my @pmvjarray;			# Array mit PMVJ Daten
 my @pmaktarray;		# Array mit aktuellen PM Daten
 
-
-#my $meldung;
-my $mw;
-#my $anztlnmanuell;
-#my $band;
-#my $check_ExcludeTln;
-#my $copy_pattern_button;
-#my $datum;
-#my $exp_eval_button;
-#my $fjfile;
-#my $fjlistbox;
-#my $fr3;
-#my $ovfj_eval_button;
-#my $ovfj_fileset_button;
-#my $ovfjnamelabel;
-#my $ovfj_save_button;
-#my $ovjpattern;
-#my $ovname;
-#my $ovnum;
-#my $patterns;
-#my $reset_eval_button;
-#my $verantcall;
-#my $verantdok;
-#my $verantgeb;
-#my $verantname;
-#my $verantvorname;
+my $gui;
 
 hello_world();
-$mw = OVJ::GUI::make_window();
+$gui = OVJ::GUI::init();
 init();
-MainLoop();
+OVJ::GUI::run;
 exit 0;
 
 sub hello_world {
@@ -187,7 +156,7 @@ sub do_select_fjfile {
 		return;
 	}
 	my $types = [['Text Files','.txt'],['All Files','*',]];
-	my $selfile = $mw->getOpenFile(-initialdir => $inputpath.$pathsep.$genfilename, -filetypes => $types, -title => "FJ Datei auswählen");
+	my $selfile = $gui->getOpenFile(-initialdir => $inputpath.$pathsep.$genfilename, -filetypes => $types, -title => "FJ Datei auswählen");
 	return if (!defined($selfile) || $selfile eq "");
 	my $tp;
 	my @fi;
@@ -294,7 +263,8 @@ sub CheckForUnsavedPatterns {
 	$_= $OVJ::GUI::patterns->Contents();
 	chomp;
 	return 0 if ($_ eq $patternsaved);
-	my $response = $mw->messageBox(-icon => 'question', 
+warn "Fixme: Direct Tk access";
+	my $response = $gui->messageBox(-icon => 'question', 
 											-message => "Liste der Auswertungsmuster wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
 											-title => 'Auswertungsmuster speichern?', 
 											-type => 'YesNoCancel', 
@@ -337,9 +307,9 @@ sub do_file_general {
 		return 1 if (CheckForSaveGenfile());		# Abbruch durch Benutzer
 		return 1 if (CheckForOVFJList());			# Abbruch durch Benutzer
 		my $types = [['Text Files','.txt'],['All Files','*',]];
-		my $filename = $mw->getOpenFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten laden");
+		my $filename = $gui->getOpenFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten laden");
 		return 1 if (!defined($filename) || $filename eq "");
-		#my $FSref = $mw->FileSelect(-directory => $configpath);
+		#my $FSref = $gui->FileSelect(-directory => $configpath);
 		#$tempname = $FSref->Show;
 		$filename =~ s/^.*\///;		# Pfadangaben entfernen
 		$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
@@ -359,9 +329,9 @@ sub do_file_general {
 		return 1 if (CheckForSaveGenfile());		# Abbruch durch Benutzer
 		return 1 if (CheckForOVFJList());			# Abbruch durch Benutzer
 		my $types = [['Text Files','.txt'],['All Files','*',]];
-		my $filename = $mw->getOpenFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten importieren");
+		my $filename = $gui->getOpenFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten importieren");
 		return 1 if (!defined($filename) || $filename eq "");
-		#my $FSref = $mw->FileSelect(-directory => $configpath);
+		#my $FSref = $gui->FileSelect(-directory => $configpath);
 		#$genfilename = $FSref->Show;
 		OVJ_meldung(HINWEIS,"Importiere ".$filename);
 		$retstate = read_genfile(1,$filename);
@@ -422,8 +392,8 @@ sub do_file_general {
 	if ($choice == 4)	# Speichern als
 	{
 		my $types = [['Text Files','.txt'],['All Files','*',]];
-		my $filename = $mw->getSaveFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten laden");
-		#my $FSref = $mw->FileSelect(-directory => $configpath);
+		my $filename = $gui->getSaveFile(-initialdir => $configpath, -filetypes => $types, -title => "Generelle Daten laden");
+		#my $FSref = $gui->FileSelect(-directory => $configpath);
 		#$tempname = $FSref->Show;
 		return 1 if (!defined($filename) || $filename eq "");
 		$filename =~ s/^.*\///;		# Pfadangaben entfernen
@@ -431,7 +401,7 @@ sub do_file_general {
 		$genfilename = $filename;
 #		if (-e $configpath.$pathsep.$genfilename.".txt")
 #		{
-#			my $response = $mw->messageBox(-icon => 'question', 
+#			my $response = $gui->messageBox(-icon => 'question', 
 #													-message => "Datei ".$genfilename.".txt existiert bereits\n\nÜberschreiben?", 
 #													-title => 'Generelle Daten Datei überschreiben?', 
 #													-type => 'YesNo', 
@@ -491,7 +461,6 @@ sub write_genfile {
 	{
 		printf OUTFILE "ovfj_link = ".$str."\n";
 	}
-	%stammdaten_saved = %stammdaten;
 	$fjlistsaved = $_;
 	close (OUTFILE) || die "close: $!";
 	return 0;	# kein Fehler
@@ -535,12 +504,10 @@ sub read_genfile {
 	}
 	OVJ::GUI::set_general(%stammdaten);
 	
-	%stammdaten_saved = %stammdaten;
 	$fjlistsaved = $OVJ::GUI::fjlistbox->Contents();
 	# %stammdaten = OVJ::GUI::get_general() if ($choice == 1);	# einige Hashwerte löschen
 	do_reset_eval();	# evtl. vorhandene Auswertungen löschen
 	undef %ovfj;	# OVFJ Daten löschen
-	undef %ovfj_saved;
 	OVJ::GUI::clear_ovfj();	# und anzeigen
 	$OVJ::GUI::ovfj_eval_button->configure(-state => 'disabled');
 	$OVJ::GUI::ovfj_fileset_button->configure(-state => 'disabled');
@@ -554,7 +521,8 @@ sub read_genfile {
 #sein
 sub CheckForSaveGenfile {
 	return 0 if ! OVJ::GUI::general_modified(%stammdaten);
-	my $response = $mw->messageBox(-icon => 'question', 
+warn "Fixme: Direct Tk access";
+	my $response = $gui->messageBox(-icon => 'question', 
 											-message => "Generelle Daten \'$genfilename\' wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
 											-title => "Generelle Daten \'$genfilename\' speichern?", 
 											-type => 'YesNoCancel', 
@@ -568,7 +536,8 @@ sub CheckForSaveGenfile {
 #ohne gespeichert worden zu sein
 sub CheckForOVFJList {
 	return 0 if ($fjlistsaved eq $OVJ::GUI::fjlistbox->Contents());
-	my $response = $mw->messageBox(-icon => 'question', 
+warn "Fixme: Direct Tk access";
+	my $response = $gui->messageBox(-icon => 'question', 
 											-message => "Liste der OV Wettbewerbe wurde geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
 											-title => "Generelle Daten \'$genfilename\' speichern?", 
 											-type => 'YesNoCancel', 
@@ -605,7 +574,8 @@ sub do_edit_ovfj {
 sub CheckForOverwriteOVFJ {
 	return 0 unless (%ovfj);		# wenn Hash leer ist
 	return 0 if (! OVJ::GUI::ovfj_modified(%ovfj));
-	my $response = $mw->messageBox(-icon => 'question', 
+warn "Fixme: Direct Tk access";
+	my $response = $gui->messageBox(-icon => 'question', 
 											-message => "Kopfdaten zum OV Wettbewerb ".$ovfjname." wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
 											-title => 'OVFJ Daten speichern?', 
 											-type => 'YesNoCancel', 
@@ -687,7 +657,6 @@ sub read_ovfjfile { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 	}
 	close (INFILE) || die "close: $!";
 	OVJ::GUI::set_ovfj(%ovfj);
-	%ovfj_saved = %ovfj;
 	return 0; # Erfolg
 }
 
@@ -706,7 +675,6 @@ sub do_write_ovfjfile {
 		printf OUTFILE $key." = ".$ovfj{$key}."\n";
 	}
 	close (OUTFILE) || die "close: $!";
-	%ovfj_saved = %ovfj;
 }
 
 #Löschen aller Auswertungen im Speicher

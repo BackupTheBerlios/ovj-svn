@@ -55,7 +55,11 @@ use vars qw(
 	$ovfjnamelabel
 );
 
-sub make_window {
+sub run {
+	MainLoop();
+}
+
+sub init {
 	$root = MainWindow->new;
 	make_menu($root);
 	make_general($root);
