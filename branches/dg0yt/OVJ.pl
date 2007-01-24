@@ -233,7 +233,7 @@ sub do_select_fjfile {
 			@fi = split(/\s+/,$tp);
 			$ovfj_temp{Verantw_Vorname} = $fi[0] if (@fi >= 1);
 			$ovfj_temp{Verantw_Name} = $fi[0] if (@fi >= 2);
-			$ovfj_temp{Verantw_Call} = $fi[0] if (@fi >= 3);
+			$ovfj_temp{Verantw_CALL} = $fi[0] if (@fi >= 3);
 			$ovfj_temp{Verantw_DOK} = $fi[0] if (@fi >= 4);
 			$ovfj_temp{Verantw_GebJahr} = $fi[0] if (@fi >= 5);
 			next;
@@ -604,7 +604,7 @@ sub do_edit_ovfj {
 #sein
 sub CheckForOverwriteOVFJ {
 	return 0 unless (%ovfj);		# wenn Hash leer ist
-	return 0 if (! OVJ::GUI::ovfj_modified());
+	return 0 if (! OVJ::GUI::ovfj_modified(%ovfj));
 	my $response = $mw->messageBox(-icon => 'question', 
 											-message => "Kopfdaten zum OV Wettbewerb ".$ovfjname." wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
 											-title => 'OVFJ Daten speichern?', 
@@ -1754,8 +1754,7 @@ sub Export {
 					  "wwbw",length("Wettbewerbe"));
 	my ($sec,$min,$hour,$mday,$mon,$myear,$wday,$yday,$isdst) = localtime(time);
 
-#	$ExcludeTln = $check_ExcludeTln->{'Value'};
-	warn "ExcludeTln not initialized";
+	$ExcludeTln = $auswertung{Exclude_Checkmark};
 
 	$rawresultfilename = "OVJ_Ergebnisse_".$auswertung{"Distriktskenner"}."_".$auswertung{Jahr}."raw.txt";
 	

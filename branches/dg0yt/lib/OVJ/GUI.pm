@@ -287,7 +287,7 @@ sub make_ovfj_detail {
 	$fr325->Label(-text => 'Vorname')->pack(-side => 'left');
 	my $fr322 = $fr32->Frame->pack;
 	$fr322->Label(-text => 'CALL')->pack(-side => 'left');
-	$gui_ovfj{Verantw_Call} = $fr322->Entry(-width => 8)->pack(-side => 'left');
+	$gui_ovfj{Verantw_CALL} = $fr322->Entry(-width => 8)->pack(-side => 'left');
 	$fr322->Label(-text => 'DOK')->pack(-side => 'left');
 	$gui_ovfj{Verantw_DOK} = $fr322->Entry(-width => 4)->pack(-side => 'left');
 	$gui_ovfj{Verantw_GebJahr} = $fr322->Entry(-width => 4)->pack(-side => 'right');
