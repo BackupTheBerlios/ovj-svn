@@ -49,11 +49,11 @@ my $ovjdate = "$4.$3.$2";
 my $ovjvers = "0.96 rev $1";
 
 my %config  = ();			# Konfigurationsdaten
-# my %auswertung;			# Hash für Generelle Einstellungen -> %auswertung
-my %auswertung = (			# Generelle Einstellungen
+# my %stammdaten;			# Hash für Generelle Einstellungen -> %stammdaten
+my %stammdaten = (			# Generelle Einstellungen
 	Jahr => $2,
 );
-my %auswertung_saved;		# gespeicherter Hash fuer Generelle Einstellungen
+my %stammdaten_saved;		# gespeicherter Hash fuer Generelle Einstellungen
 my %ovfj;			# Hash für eine OV Veranstaltung, Kopfdaten
 my %ovfj_saved;	# gespeicherter Hash fuer eine OV Veranstaltung, Kopfdaten
 my $ovfjname;			# Name der aktiven OV Veranstaltung
@@ -478,11 +478,11 @@ sub write_genfile {
 		OVJ_meldung(FEHLER,"Kann ".$genfilename." nicht schreiben");
 		return 1;	# Fehler
 	}
-	%auswertung=OVJ::GUI::get_general();	# Hash aktualisieren auf Basis der Felder
-	printf OUTFILE "#OVJ Toplevel-Datei für ".$auswertung{Jahr}."\n\n";
+	%stammdaten=OVJ::GUI::get_general();	# Hash aktualisieren auf Basis der Felder
+	printf OUTFILE "#OVJ Toplevel-Datei für ".$stammdaten{Jahr}."\n\n";
 	my $key;
-	foreach $key (keys %auswertung) {
-		printf OUTFILE $key." = ".$auswertung{$key}."\n";
+	foreach $key (keys %stammdaten) {
+		printf OUTFILE $key." = ".$stammdaten{$key}."\n";
 	}
 	printf OUTFILE "\n";
 	$_ = $OVJ::GUI::fjlistbox->Contents();
@@ -491,7 +491,7 @@ sub write_genfile {
 	{
 		printf OUTFILE "ovfj_link = ".$str."\n";
 	}
-	%auswertung_saved = %auswertung;
+	%stammdaten_saved = %stammdaten;
 	$fjlistsaved = $_;
 	close (OUTFILE) || die "close: $!";
 	return 0;	# kein Fehler
@@ -510,7 +510,7 @@ sub read_genfile {
 
 	$OVJ::GUI::fjlistbox->selectAll();
 	$OVJ::GUI::fjlistbox->deleteSelected();
-	my %auswertung_alt = OVJ::GUI::get_general();
+	my %stammdaten_alt = OVJ::GUI::get_general();
 	while (<INFILE>)
 	{
 		next if /^#/;
@@ -524,20 +524,20 @@ sub read_genfile {
 				push(@fjlist,$2);
 				$OVJ::GUI::fjlistbox->insert("end",$2."\n");
 			}
-			$auswertung{$1} = $2;
+			$stammdaten{$1} = $2;
 			#print $1."=".$2;
 		}
 	}
 	close (INFILE) || die "close: $!";
 	if ($choice != 0) {
-		$auswertung{PMVorjahr} = $auswertung_alt{PMVorjahr};
-		$auswertung{PMaktJahr} = $auswertung_alt{PMaktJahr};
+		$stammdaten{PMVorjahr} = $stammdaten_alt{PMVorjahr};
+		$stammdaten{PMaktJahr} = $stammdaten_alt{PMaktJahr};
 	}
-	OVJ::GUI::set_general(%auswertung);
+	OVJ::GUI::set_general(%stammdaten);
 	
-	%auswertung_saved = %auswertung;
+	%stammdaten_saved = %stammdaten;
 	$fjlistsaved = $OVJ::GUI::fjlistbox->Contents();
-	# %auswertung = OVJ::GUI::get_general() if ($choice == 1);	# einige Hashwerte löschen
+	# %stammdaten = OVJ::GUI::get_general() if ($choice == 1);	# einige Hashwerte löschen
 	do_reset_eval();	# evtl. vorhandene Auswertungen löschen
 	undef %ovfj;	# OVFJ Daten löschen
 	undef %ovfj_saved;
@@ -553,7 +553,7 @@ sub read_genfile {
 #Prüfen, ob Generelle Daten verändert wurde, ohne gespeichert worden zu
 #sein
 sub CheckForSaveGenfile {
-	return 0 if ! OVJ::GUI::general_modified(%auswertung);
+	return 0 if ! OVJ::GUI::general_modified(%stammdaten);
 	my $response = $mw->messageBox(-icon => 'question', 
 											-message => "Generelle Daten \'$genfilename\' wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
 											-title => "Generelle Daten \'$genfilename\' speichern?", 
@@ -724,15 +724,15 @@ sub do_reset_eval {
 
 #Lesen der Spitznamen Datei
 sub get_nicknames {
-	if ($auswertung{"Spitznamen"} eq "")
+	if ($stammdaten{"Spitznamen"} eq "")
 	{
 		OVJ_meldung(HINWEIS,"Keine Spitznamen Datei spezifiziert");
 		return;
 	}	
 	
-	if (!open (INFILE,"<",$auswertung{"Spitznamen"}))
+	if (!open (INFILE,"<",$stammdaten{"Spitznamen"}))
 	{
-		OVJ_meldung(FEHLER,"Kann Spitznamen Datei ".$auswertung{"Spitznamen"}." nicht lesen");
+		OVJ_meldung(FEHLER,"Kann Spitznamen Datei ".$stammdaten{"Spitznamen"}." nicht lesen");
 		return;
 	}
 	else
@@ -1225,32 +1225,32 @@ sub ReadPMDaten {
 	my ($pmname,$pmvorname,$pmcall,$pmdok,$pmgebjahr,$pmpm,$pmdatum);
 	if ($mode == 0)
 	{
-		if ($auswertung{"PMVorjahr"} eq "")
+		if ($stammdaten{"PMVorjahr"} eq "")
 		{
 			RepMeld($OUTFILE,"FEHLER: Keine PMVorjahr Datei spezifiziert");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 
-		if (!open (INFILE2,"<",$auswertung{"PMVorjahr"}))
+		if (!open (INFILE2,"<",$stammdaten{"PMVorjahr"}))
 		{
-			RepMeld($OUTFILE,"FEHLER: Kann PMVorjahr Datei ".$auswertung{"PMVorjahr"}." nicht lesen");
+			RepMeld($OUTFILE,"FEHLER: Kann PMVorjahr Datei ".$stammdaten{"PMVorjahr"}." nicht lesen");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 	}
 	else
 	{
-		if ($auswertung{"PMaktJahr"} eq "")
+		if ($stammdaten{"PMaktJahr"} eq "")
 		{
 			RepMeld($OUTFILE,"FEHLER: Keine aktuelle PM Datei spezifiziert");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 
-		if (!open (INFILE2,"<",$auswertung{"PMaktJahr"}))
+		if (!open (INFILE2,"<",$stammdaten{"PMaktJahr"}))
 		{
-			RepMeld($OUTFILE,"FEHLER: Kann aktuelle PM Datei ".$auswertung{"PMaktJahr"}." nicht lesen");
+			RepMeld($OUTFILE,"FEHLER: Kann aktuelle PM Datei ".$stammdaten{"PMaktJahr"}." nicht lesen");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
@@ -1303,10 +1303,10 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 	my $TlnIstAusrichter;	# Teilnehmer ist auch Ausrichter
 	
 	#Auswertung
-	%auswertung = OVJ::GUI::get_general() if ($mode == 0);	# Generelle Hashdaten aktualisieren auf Basis der Felder
+	%stammdaten = OVJ::GUI::get_general() if ($mode == 0);	# Generelle Hashdaten aktualisieren auf Basis der Felder
 	%ovfj = OVJ::GUI::get_ovfj() if ($mode == 0);	# Hashdaten aktualisieren
 	
-	if ($auswertung{Jahr} !~ /^\d{4}$/)
+	if ($stammdaten{Jahr} !~ /^\d{4}$/)
 	{
 		OVJ_meldung(FEHLER,"Jahr ist keine gültige Zahl");
 		return 2;	# Fehler mit Schleifenabbruch
@@ -1616,7 +1616,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 					RepMeld(*OUTFILE,$str2);
 				}
 				$aktJahr = 1;	# zwar gefunden, aber keine Teilnahme im aktuellen Jahr (kann nachfolgend ueberschrieben werden)
-				$aktJahr = 2 if ($pmdatum =~ /^$auswertung{Jahr}\d{4}$/);
+				$aktJahr = 2 if ($pmdatum =~ /^$stammdaten{Jahr}\d{4}$/);
 			}		
 			
 			if ($IsPM == 0 && $AddedVerant == 1 && $Helfermode == 0 && $HelferInKopf == 0 && $KeineSonderpunkte == 0)
@@ -1754,9 +1754,9 @@ sub Export {
 					  "wwbw",length("Wettbewerbe"));
 	my ($sec,$min,$hour,$mday,$mon,$myear,$wday,$yday,$isdst) = localtime(time);
 
-	$ExcludeTln = $auswertung{Exclude_Checkmark};
+	$ExcludeTln = $stammdaten{Exclude_Checkmark};
 
-	$rawresultfilename = "OVJ_Ergebnisse_".$auswertung{"Distriktskenner"}."_".$auswertung{Jahr}."raw.txt";
+	$rawresultfilename = "OVJ_Ergebnisse_".$stammdaten{"Distriktskenner"}."_".$stammdaten{Jahr}."raw.txt";
 	
 	unless (-e $outputpath.$pathsep.$genfilename && -d $outputpath.$pathsep.$genfilename)
 	{
@@ -1773,34 +1773,34 @@ sub Export {
 		OVJ_meldung(FEHLER,"Kann ".$rawresultfilename." nicht schreiben");
 		return;
 	}
-	$asciiresultfilename = "OVJ".$auswertung{"Distriktskenner"}.$auswertung{Jahr}.".txt";
+	$asciiresultfilename = "OVJ".$stammdaten{"Distriktskenner"}.$stammdaten{Jahr}.".txt";
 	if (!open (AOUTFILE,">",$outputpath.$pathsep.$genfilename.$pathsep.$asciiresultfilename))
 	{
 		OVJ_meldung(FEHLER,"Kann ".$asciiresultfilename." nicht schreiben");
 		return;
 	}
-	$htmlresultfilename = "OVJ_Ergebnisse_".$auswertung{"Distriktskenner"}."_".$auswertung{Jahr}.".htm";
+	$htmlresultfilename = "OVJ_Ergebnisse_".$stammdaten{"Distriktskenner"}."_".$stammdaten{Jahr}.".htm";
 	if (!open (HOUTFILE,">",$outputpath.$pathsep.$genfilename.$pathsep.$htmlresultfilename))
 	{
 		OVJ_meldung(FEHLER,"Kann ".$htmlresultfilename." nicht schreiben");
 		return;
 	}
 	
-	printf AOUTFILE "             OV Jahresauswertung ".$auswertung{Jahr}." des Distrikts ".$auswertung{"Distrikt"}."\n\n";
-	printf AOUTFILE "OV-Wettbewerbe des Distriktes   ".$auswertung{"Distrikt"}."\n";
-	printf AOUTFILE "für das Jahr                    ".$auswertung{Jahr}."\n";
+	printf AOUTFILE "             OV Jahresauswertung ".$stammdaten{Jahr}." des Distrikts ".$stammdaten{"Distrikt"}."\n\n";
+	printf AOUTFILE "OV-Wettbewerbe des Distriktes   ".$stammdaten{"Distrikt"}."\n";
+	printf AOUTFILE "für das Jahr                    ".$stammdaten{Jahr}."\n";
 	printf AOUTFILE "Distriktspeilreferent\n";
-	printf AOUTFILE "Name, Vorname                   ".$auswertung{"Name"}.", ".$auswertung{"Vorname"}."\n";
-	printf AOUTFILE "Call                            ".$auswertung{"Call"}."\n";
-	printf AOUTFILE "DOK                             ".$auswertung{"DOK"}."\n";
-	printf AOUTFILE "Telefon                         ".$auswertung{"Telefon"}."\n";
-	printf AOUTFILE "Home-BBS                        ".$auswertung{"Home-BBS"}."\n";
-	printf AOUTFILE "E-Mail                          ".$auswertung{"E-Mail"}."\n";
+	printf AOUTFILE "Name, Vorname                   ".$stammdaten{"Name"}.", ".$stammdaten{"Vorname"}."\n";
+	printf AOUTFILE "Call                            ".$stammdaten{"Call"}."\n";
+	printf AOUTFILE "DOK                             ".$stammdaten{"DOK"}."\n";
+	printf AOUTFILE "Telefon                         ".$stammdaten{"Telefon"}."\n";
+	printf AOUTFILE "Home-BBS                        ".$stammdaten{"Home-BBS"}."\n";
+	printf AOUTFILE "E-Mail                          ".$stammdaten{"E-Mail"}."\n";
 	printf AOUTFILE "Auswertung mit                  OVJ (Version ".$ovjvers." vom ".$ovjdate.")\n";
 	printf AOUTFILE ("am                              %i.%i.%i\n",$mday,$mon+1,$myear+1900);
 	if ($ExcludeTln == 1)
 	{
-		printf AOUTFILE "Hinweis                         Teilnehmer ohne Teilnahme an offiziellen Wettbewerb in ".$auswertung{Jahr}."\n";
+		printf AOUTFILE "Hinweis                         Teilnehmer ohne Teilnahme an offiziellen Wettbewerb in ".$stammdaten{Jahr}."\n";
 		printf AOUTFILE "                                wurden von OVJ entfernt\n";
 	}
 
@@ -1810,27 +1810,27 @@ sub Export {
 	printf AOUTFILE "Nr. Ausrichtender OV           DOK  Verantwortlicher          Call    DOK  Datum       Band  Teilnehmer\n";
 	printf AOUTFILE "-------------------------------------------------------------------------------------------------------\n";
 
-	printf HOUTFILE "<html>\n<head>\n<title>OV Jahresauswertung ".$auswertung{Jahr}." des Distrikts ".$auswertung{"Distrikt"}."</title>\n</head>\n";
+	printf HOUTFILE "<html>\n<head>\n<title>OV Jahresauswertung ".$stammdaten{Jahr}." des Distrikts ".$stammdaten{"Distrikt"}."</title>\n</head>\n";
 	printf HOUTFILE "<body>\n";
 	printf HOUTFILE "<h1>Jahresauswertung der OV-Peilveranstaltungen</h1>\n";
 	printf HOUTFILE "<table border=\"0\"><tbody align=\"left\">\n";
 	printf HOUTFILE "<tr><td>OV-Wettbewerbe des Distriktes&nbsp;&nbsp;&nbsp;</td>\n";
-	printf HOUTFILE "<td><b>".$auswertung{"Distrikt"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten{"Distrikt"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>für das Jahr</td>\n";
-	printf HOUTFILE "<td><b>".$auswertung{Jahr}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten{Jahr}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td><b>Distriktspeilreferent</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Name, Vorname</td>\n";
-	printf HOUTFILE "<td><b>".$auswertung{"Name"}.", ".$auswertung{"Vorname"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten{"Name"}.", ".$stammdaten{"Vorname"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Call</td>\n";
-	printf HOUTFILE "<td><b>".$auswertung{"Call"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten{"Call"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>DOK</td>\n";
-	printf HOUTFILE "<td><b>".$auswertung{"DOK"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten{"DOK"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Telefon</td>\n";
-	printf HOUTFILE "<td><b>".$auswertung{"Telefon"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten{"Telefon"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Home-BBS</td>\n";
-	printf HOUTFILE "<td><b>".$auswertung{"Home-BBS"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten{"Home-BBS"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>E-Mail</td>\n";
-	printf HOUTFILE "<td><b>".$auswertung{"E-Mail"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten{"E-Mail"}."</b></td></tr>\n";
 	printf HOUTFILE "</tbody></table><br><br>\n";
 
 	printf HOUTFILE "<table border=\"1\">\n";
@@ -1905,7 +1905,7 @@ sub Export {
 
 		if ($ExcludeTln == 1 && $tn{$tnkey}->{aktjahr} == 1)
 		{
-			$addoutput .= "Schliesse ".$tn{$tnkey}->{nachname}.", ".$tn{$tnkey}->{vorname}." aus, da kein offizieller Wettbewerb in ".$auswertung{Jahr}."\n";
+			$addoutput .= "Schliesse ".$tn{$tnkey}->{nachname}.", ".$tn{$tnkey}->{vorname}." aus, da kein offizieller Wettbewerb in ".$stammdaten{Jahr}."\n";
 			next;
 		}
 
