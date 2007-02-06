@@ -36,7 +36,7 @@ use Carp;
 
 use Tk;
 
-my $root;
+my $mw;
 my %gui_general;
 my $gui_general_label;
 my %gui_ovfj;
@@ -60,14 +60,14 @@ sub run {
 }
 
 sub init {
-	$root = MainWindow->new;
-	make_menu($root);
-	make_general($root);
-	make_ovfj_list($root);
-	make_muster($root);
-	make_ovfj_detail($root);
-	make_meldungen($root);
-	return $root;
+	$mw = MainWindow->new;
+	make_menu($mw);
+	make_general($mw);
+	make_ovfj_list($mw);
+	make_muster($mw);
+	make_ovfj_detail($mw);
+	make_meldungen($mw);
+	return $mw;
 }
 
 
@@ -395,7 +395,7 @@ sub set_patterns {
 #Auswahl der Spitznamen Datei per Button
 sub do_get_nickfile {
 	my $types = [['Text Files','.txt'],['All Files','*',]];
-	my $selfile = $root->getOpenFile(-initialdir => '.', -filetypes => $types, -title => "Spitznamen Datei auswählen");
+	my $selfile = $mw->getOpenFile(-initialdir => '.', -filetypes => $types, -title => "Spitznamen Datei auswählen");
 	return if (!defined($selfile) || $selfile eq "");
 	$selfile =~ s/^.*\///;
 	$gui_general{Spitznamen}->delete(0,"end");
@@ -406,7 +406,7 @@ sub do_get_nickfile {
 sub do_select_pmfile {
 	my ($choice) = @_;
 	my $types = [['Text Files','.txt'],['All Files','*',]];
-	my $selfile = $root->getOpenFile(-initialdir => '.', -filetypes => $types, -title => ($choice == 0 ? "PM Vorjahr Datei auswählen" : "aktuelle PM Datei auswählen"));
+	my $selfile = $mw->getOpenFile(-initialdir => '.', -filetypes => $types, -title => ($choice == 0 ? "PM Vorjahr Datei auswählen" : "aktuelle PM Datei auswählen"));
 	return if (!defined($selfile) || $selfile eq "");
 	$selfile =~ s/^.*\///;
 	if ($choice == 0)
@@ -433,7 +433,7 @@ sub add_meldung {
 
 #Über Box aus dem 'Hilfe' Menu
 sub About {
-	$root->messageBox(-icon => 'info', 
+	$mw->messageBox(-icon => 'info', 
 						-message => "OV Jahresauswertung\n\n".
 						"by Matthias Kühlewein, DL3SDO\n".
 						"Version: $::ovjvers - Datum: $::ovjdate",
