@@ -1,4 +1,4 @@
-# $Id: GUI.pm 293 2007-01-24 23:33:44Z kpa $
+# $Id$
 #
 # Some portions (C) 2007 Kai Pastor, DG0YT <dg0yt AT darc DOT de>
 #
@@ -40,11 +40,10 @@ use vars qw(
 	$error
 );
 
-'$Id: OVJ.pl 293 2007-01-24 23:33:44Z kpa $' =~ /Id: [^ ]+ (\d+) (\d{4})-(\d{2})-(\d{2}) /;
+'$Id$' =~ /Id: [^ ]+ (\d+) (\d{4})-(\d{2})-(\d{2}) /;
 $ovjdate = "$4.$3.$2";
 $ovjvers = "0.96-dg0yt-$1";
 
-=old
 use constant {
 	INFO    => 'Information',
 	HINWEIS => 'Hinweis',
@@ -52,12 +51,15 @@ use constant {
 	FEHLER  => 'Fehler',
 };
 
+my $sep = ($^O =~ /Win/i) ? '\\' : '/';	# Kai, fuer Linux und Win32 Portabilitaet
+my $patternfilename = "OVFJ_Muster.txt";
+
+=old
 my %config  = ();		# Konfigurationsdaten
 my %stammdaten = ();	# Generelle Einstellungen
 my %ovfj;				# Hash für eine OV Veranstaltung, Kopfdaten
 my $ovfjname;			# Name der aktiven OV Veranstaltung
 
-my $patternfilename = "OVFJ_Muster.txt";
 my $overridefilename = "Override.txt";
 my $inifilename = "OVJini.txt";
 my $inputpath = "input";		# Pfad für die Eingangsdaten
@@ -65,7 +67,6 @@ my $outputpath = "output";		# Pfad für die Ergebnisdaten
 my $reportpath = "report";		# Pfad für die Reportdaten
 my $configpath = "config";		# Pfad für die Konfigurationsdaten
 										# Generelle Daten, sowie die OVFJ Dateien (*_ovj.txt))
-my $sep = ($^O =~ /Win/i) ? '\\' : '/';	# Kai, fuer Linux und Win32 Portabilitaet
 
 my ($genfilename,$ovfjfilename,$ovfjrepfilename);
 my @fjlist;				# Liste der OV Veranstaltungen, nur die Namen, keine Details
@@ -88,7 +89,6 @@ my $overrides=undef;	# Overrides
 my @pmvjarray;			# Array mit PMVJ Daten
 my @pmaktarray;		# Array mit aktuellen PM Daten
 
-=cut
 
 
 
@@ -1014,6 +1014,7 @@ sub ReadPMDaten {
 	return 0;	# ok
 }
 
+
 #Auswertung der aktuellen OVFJ
 sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der auesseren Schleife
 	my ($mode) = @_;	# 0 = erster Start, >0 = Aufruf aus Auswertung und Export aller OVFJ heraus
@@ -1485,8 +1486,17 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 	return 0;	# kein Fehler
 }
 
+=cut
+
 #Export der Auswertung(en) im Speicher in die verschiedenen Formate
-sub Export {
+sub export {
+	my $stammdaten = shift;
+	my $tn = shift;
+	my $ovfjlist = shift;
+	my $ovfjanztlnlist = shift;
+	my $outputpath = shift;
+	my $genfilename = shift;
+
 	my ($rawresultfilename,$asciiresultfilename,$htmlresultfilename);
 	my ($tnkey,$tndatakey);
 	my $addoutput;
@@ -1498,53 +1508,53 @@ sub Export {
 					  "wwbw",length("Wettbewerbe"));
 	my ($sec,$min,$hour,$mday,$mon,$myear,$wday,$yday,$isdst) = localtime(time);
 
-	$ExcludeTln = $stammdaten{Exclude_Checkmark};
+	$ExcludeTln = $stammdaten->{Exclude_Checkmark};
 
-	$rawresultfilename = "OVJ_Ergebnisse_".$stammdaten{"Distriktskenner"}."_".$stammdaten{Jahr}."raw.txt";
+	$rawresultfilename = "OVJ_Ergebnisse_".$stammdaten->{"Distriktskenner"}."_".$stammdaten->{Jahr}."raw.txt";
 	
-	unless (-e $outputpath.$sep.$genfilename && -d $outputpath.$sep.$genfilename)
+	unless (-e $outputpath.$::sep.$genfilename && -d $outputpath.$::sep.$genfilename)
 	{
-		OVJ_meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$outputpath."\'");
-		unless (mkdir($outputpath.$sep.$genfilename))
+		::OVJ_meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$outputpath."\'");
+		unless (mkdir($outputpath.$::sep.$genfilename))
 		{
-			OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$outputpath.$sep.$genfilename."\' nicht erstellen".$!);
+			::OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$outputpath.$::sep.$genfilename."\' nicht erstellen".$!);
 			return;
 		}
 	}	
 	
-	if (!open (ROUTFILE,">",$outputpath.$sep.$genfilename.$sep.$rawresultfilename))
+	if (!open (ROUTFILE,">",$outputpath.$::sep.$genfilename.$::sep.$rawresultfilename))
 	{
-		OVJ_meldung(FEHLER,"Kann ".$rawresultfilename." nicht schreiben");
+		::OVJ_meldung(FEHLER,"Kann ".$rawresultfilename." nicht schreiben");
 		return;
 	}
-	$asciiresultfilename = "OVJ".$stammdaten{"Distriktskenner"}.$stammdaten{Jahr}.".txt";
-	if (!open (AOUTFILE,">",$outputpath.$sep.$genfilename.$sep.$asciiresultfilename))
+	$asciiresultfilename = "OVJ".$stammdaten->{"Distriktskenner"}.$stammdaten->{Jahr}.".txt";
+	if (!open (AOUTFILE,">",$outputpath.$::sep.$genfilename.$::sep.$asciiresultfilename))
 	{
-		OVJ_meldung(FEHLER,"Kann ".$asciiresultfilename." nicht schreiben");
+		::OVJ_meldung(FEHLER,"Kann ".$asciiresultfilename." nicht schreiben");
 		return;
 	}
-	$htmlresultfilename = "OVJ_Ergebnisse_".$stammdaten{"Distriktskenner"}."_".$stammdaten{Jahr}.".htm";
-	if (!open (HOUTFILE,">",$outputpath.$sep.$genfilename.$sep.$htmlresultfilename))
+	$htmlresultfilename = "OVJ_Ergebnisse_".$stammdaten->{"Distriktskenner"}."_".$stammdaten->{Jahr}.".htm";
+	if (!open (HOUTFILE,">",$outputpath.$::sep.$genfilename.$::sep.$htmlresultfilename))
 	{
-		OVJ_meldung(FEHLER,"Kann ".$htmlresultfilename." nicht schreiben");
+		::OVJ_meldung(FEHLER,"Kann ".$htmlresultfilename." nicht schreiben");
 		return;
 	}
 	
-	printf AOUTFILE "             OV Jahresauswertung ".$stammdaten{Jahr}." des Distrikts ".$stammdaten{"Distrikt"}."\n\n";
-	printf AOUTFILE "OV-Wettbewerbe des Distriktes   ".$stammdaten{"Distrikt"}."\n";
-	printf AOUTFILE "für das Jahr                    ".$stammdaten{Jahr}."\n";
+	printf AOUTFILE "             OV Jahresauswertung ".$stammdaten->{Jahr}." des Distrikts ".$stammdaten->{"Distrikt"}."\n\n";
+	printf AOUTFILE "OV-Wettbewerbe des Distriktes   ".$stammdaten->{"Distrikt"}."\n";
+	printf AOUTFILE "für das Jahr                    ".$stammdaten->{Jahr}."\n";
 	printf AOUTFILE "Distriktspeilreferent\n";
-	printf AOUTFILE "Name, Vorname                   ".$stammdaten{"Name"}.", ".$stammdaten{"Vorname"}."\n";
-	printf AOUTFILE "Call                            ".$stammdaten{"Call"}."\n";
-	printf AOUTFILE "DOK                             ".$stammdaten{"DOK"}."\n";
-	printf AOUTFILE "Telefon                         ".$stammdaten{"Telefon"}."\n";
-	printf AOUTFILE "Home-BBS                        ".$stammdaten{"Home-BBS"}."\n";
-	printf AOUTFILE "E-Mail                          ".$stammdaten{"E-Mail"}."\n";
+	printf AOUTFILE "Name, Vorname                   ".$stammdaten->{"Name"}.", ".$stammdaten->{"Vorname"}."\n";
+	printf AOUTFILE "Call                            ".$stammdaten->{"Call"}."\n";
+	printf AOUTFILE "DOK                             ".$stammdaten->{"DOK"}."\n";
+	printf AOUTFILE "Telefon                         ".$stammdaten->{"Telefon"}."\n";
+	printf AOUTFILE "Home-BBS                        ".$stammdaten->{"Home-BBS"}."\n";
+	printf AOUTFILE "E-Mail                          ".$stammdaten->{"E-Mail"}."\n";
 	printf AOUTFILE "Auswertung mit                  OVJ (Version ".$ovjvers." vom ".$ovjdate.")\n";
 	printf AOUTFILE ("am                              %i.%i.%i\n",$mday,$mon+1,$myear+1900);
 	if ($ExcludeTln == 1)
 	{
-		printf AOUTFILE "Hinweis                         Teilnehmer ohne Teilnahme an offiziellen Wettbewerb in ".$stammdaten{Jahr}."\n";
+		printf AOUTFILE "Hinweis                         Teilnehmer ohne Teilnahme an offiziellen Wettbewerb in ".$stammdaten->{Jahr}."\n";
 		printf AOUTFILE "                                wurden von OVJ entfernt\n";
 	}
 
@@ -1554,27 +1564,27 @@ sub Export {
 	printf AOUTFILE "Nr. Ausrichtender OV           DOK  Verantwortlicher          Call    DOK  Datum       Band  Teilnehmer\n";
 	printf AOUTFILE "-------------------------------------------------------------------------------------------------------\n";
 
-	printf HOUTFILE "<html>\n<head>\n<title>OV Jahresauswertung ".$stammdaten{Jahr}." des Distrikts ".$stammdaten{"Distrikt"}."</title>\n</head>\n";
+	printf HOUTFILE "<html>\n<head>\n<title>OV Jahresauswertung ".$stammdaten->{Jahr}." des Distrikts ".$stammdaten->{"Distrikt"}."</title>\n</head>\n";
 	printf HOUTFILE "<body>\n";
 	printf HOUTFILE "<h1>Jahresauswertung der OV-Peilveranstaltungen</h1>\n";
 	printf HOUTFILE "<table border=\"0\"><tbody align=\"left\">\n";
 	printf HOUTFILE "<tr><td>OV-Wettbewerbe des Distriktes&nbsp;&nbsp;&nbsp;</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"Distrikt"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten->{"Distrikt"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>für das Jahr</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{Jahr}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten->{Jahr}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td><b>Distriktspeilreferent</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Name, Vorname</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"Name"}.", ".$stammdaten{"Vorname"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten->{"Name"}.", ".$stammdaten->{"Vorname"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Call</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"Call"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten->{"Call"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>DOK</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"DOK"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten->{"DOK"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Telefon</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"Telefon"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten->{"Telefon"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Home-BBS</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"Home-BBS"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten->{"Home-BBS"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>E-Mail</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"E-Mail"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".$stammdaten->{"E-Mail"}."</b></td></tr>\n";
 	printf HOUTFILE "</tbody></table><br><br>\n";
 
 	printf HOUTFILE "<table border=\"1\">\n";
@@ -1584,19 +1594,19 @@ sub Export {
 	printf HOUTFILE "</thead><tbody>\n";
 
 	$i = 1;
-	foreach $ovfjlistelement (@ovfjlist)
+	foreach $ovfjlistelement (@$ovfjlist)
 	{
 		printf AOUTFILE substr(" ".$i."  ",0,4).substr($ovfjlistelement->{"AusrichtOV"}." "x27,0,27).substr($ovfjlistelement->{"AusrichtDOK"}."     ",0,5);
 		printf AOUTFILE substr($ovfjlistelement->{"Verantw_Name"}.", ".$ovfjlistelement->{"Verantw_Vorname"}." "x26,0,26);
 		printf AOUTFILE substr($ovfjlistelement->{"Verantw_CALL"}." "x8,0,8).substr($ovfjlistelement->{"Verantw_DOK"}." "x5,0,5);
-		printf AOUTFILE substr($ovfjlistelement->{"Datum"}." "x13,0,13).substr($ovfjlistelement->{"Band"}." "x9,0,9).$ovfjanztlnlist[$i-1]."\n";
+		printf AOUTFILE substr($ovfjlistelement->{"Datum"}." "x13,0,13).substr($ovfjlistelement->{"Band"}." "x9,0,9).@$ovfjanztlnlist[$i-1]."\n";
 
 		printf HOUTFILE "<tr><td>".$i."</td><td>".$ovfjlistelement->{"AusrichtOV"}."</td><td>".$ovfjlistelement->{"AusrichtDOK"}."</td>";
 		printf HOUTFILE "<td>".$ovfjlistelement->{"Verantw_Name"}.", ".$ovfjlistelement->{"Verantw_Vorname"}."</td>\n";
 		printf HOUTFILE "<td>".($ovfjlistelement->{"Verantw_CALL"} eq "" ? "&nbsp;" : $ovfjlistelement->{"Verantw_CALL"})."</td>";
 		printf HOUTFILE "<td>".($ovfjlistelement->{"Verantw_DOK"} eq "" ? "&nbsp;" : $ovfjlistelement->{"Verantw_DOK"})."</td>";
 		printf HOUTFILE "<td>".$ovfjlistelement->{"Datum"}."</td><td>".$ovfjlistelement->{"Band"}."</td>";
-		printf HOUTFILE "<td>".$ovfjanztlnlist[$i-1]."</td></tr>\n";
+		printf HOUTFILE "<td>".@$ovfjanztlnlist[$i-1]."</td></tr>\n";
 		$i++;
 	}
 
@@ -1608,26 +1618,26 @@ sub Export {
 	printf HOUTFILE "<th>PM im Vorjahr</th><th>Wettbewerbe</th><th>Anzahl OV FJ</th>";
 	printf HOUTFILE "<th>Anz. Platz 1</th><th>Anz. Platz 2</th><th>Anz. Ausrichter</th><th>Anz. Helfer</th></tr></thead>\n<tbody>\n";
 
-	foreach $tnkey (sort keys %tn)
+	foreach $tnkey (sort keys %$tn)
 	{
-		foreach $tndatakey (keys %{$tn{$tnkey}})
+		foreach $tndatakey (keys %{$tn->{$tnkey}})
 		{
 			if (exists($maxlen{$tndatakey}))
 			{
-				if (length($tn{$tnkey}->{$tndatakey})>$maxlen{$tndatakey})
+				if (length($tn->{$tnkey}->{$tndatakey})>$maxlen{$tndatakey})
 				{
-					$maxlen{$tndatakey} = length($tn{$tnkey}->{$tndatakey});
+					$maxlen{$tndatakey} = length($tn->{$tnkey}->{$tndatakey});
 				}
 			}
 			else
 			{
-				$maxlen{$tndatakey} = length($tn{$tnkey}->{$tndatakey});
+				$maxlen{$tndatakey} = length($tn->{$tnkey}->{$tndatakey});
 			}
 		}
 		# die Längeninfo für die Kombination beider Namen muss speziell erzeugt werden
-		if (length($tn{$tnkey}->{nachname}.$tn{$tnkey}->{vorname})>$maxlen{kombiname})
+		if (length($tn->{$tnkey}->{nachname}.$tn->{$tnkey}->{vorname})>$maxlen{kombiname})
 		{
-			$maxlen{kombiname} = length($tn{$tnkey}->{nachname}.$tn{$tnkey}->{vorname});
+			$maxlen{kombiname} = length($tn->{$tnkey}->{nachname}.$tn->{$tnkey}->{vorname});
 		}
 	}
 
@@ -1635,7 +1645,7 @@ sub Export {
 	printf AOUTFILE "* Teilnehmer der OV-Wettbewerbe *\n";
 	printf AOUTFILE "*********************************\n";
 
-	$str = "Name, Vorname"." "x($maxlen{kombiname}-length("Name, Vorname")+4)."Call"." "x($maxlen{call}-length("Call")+2);
+	my $str = "Name, Vorname"." "x($maxlen{kombiname}-length("Name, Vorname")+4)."Call"." "x($maxlen{call}-length("Call")+2);
 	$str .= "DOK"." "x($maxlen{dok}-length("DOK")+2)."GebJahr  "."PMVJ?  "."Wettbewerbe"." "x($maxlen{wwbw}-length("Wettbewerbe")+1);
 	$str .= "AnzFJ  "."Platz1  "."Platz2  "."Ausrichter  "."Helfer";
 	$str2 = $str;
@@ -1645,43 +1655,43 @@ sub Export {
 	printf ROUTFILE "-"x(length($str))."\n";
 	printf AOUTFILE $str2."\n";
 	printf AOUTFILE "-"x(length($str2))."\n";
-	foreach $tnkey (sort keys %tn) {
+	foreach $tnkey (sort keys %$tn) {
 
-		if ($ExcludeTln == 1 && $tn{$tnkey}->{aktjahr} == 1)
+		if ($ExcludeTln == 1 && $tn->{$tnkey}->{aktjahr} == 1)
 		{
-			$addoutput .= "Schliesse ".$tn{$tnkey}->{nachname}.", ".$tn{$tnkey}->{vorname}." aus, da kein offizieller Wettbewerb in ".$stammdaten{Jahr}."\n";
+			$addoutput .= "Schliesse ".$tn->{$tnkey}->{nachname}.", ".$tn->{$tnkey}->{vorname}." aus, da kein offizieller Wettbewerb in ".$stammdaten->{Jahr}."\n";
 			next;
 		}
 
-		if ($ExcludeTln == 1 && $tn{$tnkey}->{aktjahr} == 0)
+		if ($ExcludeTln == 1 && $tn->{$tnkey}->{aktjahr} == 0)
 		{
-			$addoutput .= "Schliesse ".$tn{$tnkey}->{nachname}.", ".$tn{$tnkey}->{vorname}." aus, da Name nicht in aktueller PM Datei\n";
+			$addoutput .= "Schliesse ".$tn->{$tnkey}->{nachname}.", ".$tn->{$tnkey}->{vorname}." aus, da Name nicht in aktueller PM Datei\n";
 			next;
 		}
 
-		$str = $tn{$tnkey}->{nachname}.", ".
-		$tn{$tnkey}->{vorname}." "x($maxlen{kombiname}-length($tn{$tnkey}->{nachname}.$tn{$tnkey}->{vorname})+2).
-		$tn{$tnkey}->{call}." "x($maxlen{call}-length($tn{$tnkey}->{call})+2).
-		$tn{$tnkey}->{dok}." "x($maxlen{dok}-length($tn{$tnkey}->{dok})+2).
-		$tn{$tnkey}->{gebjahr}." "x($maxlen{gebjahr}-length($tn{$tnkey}->{gebjahr})+1).
-		($tn{$tnkey}->{pmvj} ? "JA" : "--")."    ".
-		$tn{$tnkey}->{wwbw}." "x($maxlen{wwbw}-length($tn{$tnkey}->{wwbw})+3).
-		$tn{$tnkey}->{anzwwbw}."      ".($tn{$tnkey}->{anzwwbw}<10 ? " " : "").
-		$tn{$tnkey}->{anzpl1}."       ".
-		$tn{$tnkey}->{anzpl2}."        ".
-		$tn{$tnkey}->{anzausr}."         ".
-		$tn{$tnkey}->{anzhelf};
+		$str = $tn->{$tnkey}->{nachname}.", ".
+		$tn->{$tnkey}->{vorname}." "x($maxlen{kombiname}-length($tn->{$tnkey}->{nachname}.$tn->{$tnkey}->{vorname})+2).
+		$tn->{$tnkey}->{call}." "x($maxlen{call}-length($tn->{$tnkey}->{call})+2).
+		$tn->{$tnkey}->{dok}." "x($maxlen{dok}-length($tn->{$tnkey}->{dok})+2).
+		$tn->{$tnkey}->{gebjahr}." "x($maxlen{gebjahr}-length($tn->{$tnkey}->{gebjahr})+1).
+		($tn->{$tnkey}->{pmvj} ? "JA" : "--")."    ".
+		$tn->{$tnkey}->{wwbw}." "x($maxlen{wwbw}-length($tn->{$tnkey}->{wwbw})+3).
+		$tn->{$tnkey}->{anzwwbw}."      ".($tn->{$tnkey}->{anzwwbw}<10 ? " " : "").
+		$tn->{$tnkey}->{anzpl1}."       ".
+		$tn->{$tnkey}->{anzpl2}."        ".
+		$tn->{$tnkey}->{anzausr}."         ".
+		$tn->{$tnkey}->{anzhelf};
 		$str2 = $str;
-		$str .= ($tn{$tnkey}->{aktjahr} != 2 ? "       Nein" : "");
+		$str .= ($tn->{$tnkey}->{aktjahr} != 2 ? "       Nein" : "");
 		
 		printf ROUTFILE $str."\n";
 		printf AOUTFILE $str2."\n";
 		
-		printf HOUTFILE "<tr><td>".$tn{$tnkey}->{nachname}.", ".$tn{$tnkey}->{vorname}."</td>";
-		printf HOUTFILE "<td>".($tn{$tnkey}->{call} eq "" ? "&nbsp;" : $tn{$tnkey}->{call})."</td><td>".($tn{$tnkey}->{dok} eq "" ? "&nbsp;" : $tn{$tnkey}->{dok})."</td>\n";
-		printf HOUTFILE "<td>".($tn{$tnkey}->{gebjahr} eq "" ? "&nbsp;" : $tn{$tnkey}->{gebjahr})."</td><td>".($tn{$tnkey}->{pmvj} ? "JA" : "--")."</td>";
-		printf HOUTFILE "<td>".$tn{$tnkey}->{wwbw}."</td><td>".$tn{$tnkey}->{anzwwbw}."</td>\n";
-		printf HOUTFILE "<td>".$tn{$tnkey}->{anzpl1}."</td><td>".$tn{$tnkey}->{anzpl2}."</td><td>".$tn{$tnkey}->{anzausr}."</td><td>".$tn{$tnkey}->{anzhelf}."</td></tr>\n";
+		printf HOUTFILE "<tr><td>".$tn->{$tnkey}->{nachname}.", ".$tn->{$tnkey}->{vorname}."</td>";
+		printf HOUTFILE "<td>".($tn->{$tnkey}->{call} eq "" ? "&nbsp;" : $tn->{$tnkey}->{call})."</td><td>".($tn->{$tnkey}->{dok} eq "" ? "&nbsp;" : $tn->{$tnkey}->{dok})."</td>\n";
+		printf HOUTFILE "<td>".($tn->{$tnkey}->{gebjahr} eq "" ? "&nbsp;" : $tn->{$tnkey}->{gebjahr})."</td><td>".($tn->{$tnkey}->{pmvj} ? "JA" : "--")."</td>";
+		printf HOUTFILE "<td>".$tn->{$tnkey}->{wwbw}."</td><td>".$tn->{$tnkey}->{anzwwbw}."</td>\n";
+		printf HOUTFILE "<td>".$tn->{$tnkey}->{anzpl1}."</td><td>".$tn->{$tnkey}->{anzpl2}."</td><td>".$tn->{$tnkey}->{anzausr}."</td><td>".$tn->{$tnkey}->{anzhelf}."</td></tr>\n";
 	}
 	
 	if ($addoutput ne "")
@@ -1704,7 +1714,7 @@ sub RepMeld {
 	printf FH $_[0]."\n";
 	local $_ = $_[0];
 	tr/\n//d;							# entferne alle CRs
-	OVJ_meldung(HINWEIS,$_);
+	::OVJ_meldung(HINWEIS,$_);
 }
 
 #Ausgabe einer Meldung in der Report-Datei
@@ -1713,3 +1723,34 @@ sub RepMeldFile {
 	printf FH $_[0]."\n";
 }
 
+
+#Speichern der Pattern Datei
+sub save_patterns {
+	my $patterns = shift;
+	open (my $patternfile, '>', $patternfilename)
+	  or return OVJ_meldung(FEHLER, "Kann Datei '$patternfilename' nicht schreiben: $!");
+	print $patternfile $patterns;
+	close $patternfile
+	  or return OVJ_meldung(FEHLER, "Kann Datei '$patternfilename' nicht schließen: $!");
+}
+
+#Lesen der Pattern Datei
+sub read_patterns {
+	my $patterns = '';
+	if (-e $patternfilename) {
+		if (open (my $patternfile, '<', $patternfilename)) {
+			read $patternfile, $patterns, -s $patternfilename;
+			close $patternfile
+			  or OVJ_meldung(FEHLER, "Kann Datei '$patternfilename' nicht schließen: $!");
+			$patterns =~ s/\r//g;
+		} else {
+			return OVJ_meldung(FEHLER, "Kann Datei '$patternfilename' nicht öffnen: $!");
+		}
+	}
+	return $patterns;
+}
+
+
+sub OVJ_meldung { ::OVJ_meldung(@_) } # FIXME: refactor
+
+1;

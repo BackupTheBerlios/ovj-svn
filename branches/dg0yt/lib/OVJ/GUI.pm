@@ -35,17 +35,20 @@ use strict;
 use Carp;
 
 use Tk;
+use OVJ;
 
 my $mw;
 my %gui_general;
 my $gui_general_label;
 my %gui_ovfj;
+my $gui_patterns;
 my $meldung;
 my $check_ExcludeTln;
 
+my $orig_patterns;
+
 use vars qw(
 	$fjlistbox 
-	$patterns
 	$reset_eval_button
 	$exp_eval_button
 	$ovfj_eval_button
@@ -223,15 +226,15 @@ sub make_muster {
 	$fr4->pack;
 	$fr4->Label(-text => 'Liste der Auswertungsmuster')->pack;
 	my $fr41 = $fr4->Frame->pack(-side => 'left');
-	$patterns = $fr41->Scrolled('Text',-scrollbars =>'oe',-width => 91, -height => 4)->pack();
+	$gui_patterns = $fr41->Scrolled('Text',-scrollbars =>'oe',-width => 91, -height => 4)->pack();
 	my $fr42 = $fr4->Frame->pack(-side => 'right');
 	$fr42->Button(
 	        -text => 'Speichern',
-	        -command => sub{::do_save_patterns()}
+	        -command => sub{OVJ::save_patterns(get_patterns())}
 	    )->pack();
 	$copy_pattern_button = $fr42->Button(
 	        -text => 'Kopiere',
-	        -command => sub{::do_copy_pattern()},
+	        -command => sub{do_copy_pattern()},
 	        -state => 'disabled'
 	    )->pack();
 }
@@ -382,14 +385,6 @@ sub clear_ovfj {
 	}
 }
 
-sub get_patterns {
-	return $patterns->Contents( shift );
-}
-
-sub set_patterns {
-	$patterns->Contents( shift );
-}
-
 # FIXME: Unify file selection code
 
 #Auswahl der Spitznamen Datei per Button
@@ -438,6 +433,61 @@ sub About {
 						"by Matthias Kühlewein, DL3SDO\n".
 						"Version: $::ovjvers - Datum: $::ovjdate",
 						-title => 'Über', -type => 'Ok');
+}
+
+
+sub get_patterns {
+	return $gui_patterns->Contents();
+}
+
+sub set_patterns {
+	$orig_patterns = shift;
+	$gui_patterns->Contents($orig_patterns);
+}
+
+sub patterns_modified {
+	return $orig_patterns ne $gui_patterns->Contents();
+}
+
+
+#Ueberpruefen beim Beenden des Programms, ob aktuelle Auswertungsmuster
+#gespeichert wurden, und falls nicht, was passieren soll
+sub CheckForUnsavedPatterns {
+	if (patterns_modified()) {
+		my $response = $mw->messageBox(
+			-icon    => 'question', 
+			-title   => 'Auswertungsmuster speichern?', 
+			-message => "Liste der Auswertungsmuster wurden geändert\n".
+			            "und noch nicht gespeichert.\n\n".
+						"Speichern?", 
+			-type    => 'YesNoCancel', 
+			-default => 'Yes');
+		if    ($response eq 'Cancel') { return 1 }
+		elsif ($response eq 'Yes')    { return OVJ::save_patterns(get_patterns()) }
+	}
+	
+	return 0;
+}
+
+#Kopieren des markierten Patterns in die Patternzeile des OV Wettbewerbs
+sub do_copy_pattern {
+	my @patlist = split(/\n/, get_patterns()); # die Daten im Speicher aktualisieren
+	my @patlines = split(/\n/, $gui_patterns->getSelected());
+	if ($#patlines > 0)
+	{
+		::OVJ_meldung(OVJ::FEHLER,"Nur eine Zeile markieren!");
+		return;
+	}
+	if (!grep {$_ eq $patlines[0]} @patlist)
+	{
+		::OVJ_meldung(OVJ::FEHLER,"Ganze Zeile markieren!");
+		return;
+	}
+	$patlines[0] =~ s/\/\/.*$//;	# Entferne Kommentare beim Kopieren
+	$patlines[0] =~ s/\s+$//;		# Entferne immer Leerzeichen nach dem Muster
+	my %ovfj_tmp = get_ovfj();
+	$gui_ovfj{Auswertungsmuster}->delete(0, "end");
+	$gui_ovfj{Auswertungsmuster}->insert(0, $patlines[0]);
 }
 
 1;

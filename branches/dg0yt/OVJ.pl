@@ -35,6 +35,7 @@ use lib "lib";	# FIXME: relativ zum Programverzeichnis ermitteln
 
 use OVJ::Inifile;
 use OVJ::GUI;
+use OVJ;
 
 '$Id$' =~ /Id: [^ ]+ (\d+) (\d{4})-(\d{2})-(\d{2}) /;
 my $ovjdate = "$4.$3.$2";
@@ -76,9 +77,6 @@ my @ovfjlist;			# Liste aller ausgewerteten OV FJ mit Details der Kopfdaten
                   	# Elemente sind die %ovfj Daten
 my @ovfjanztlnlist;	# Liste aller ausgewerteten OV FJ mit der Info über die Anzahl 
                      # der Teilnehmer, wird parallel zur @ovfjlist Liste geführt
-my $patterns;		# Auswertungsmuster, die gespeichert wurden. Abgleich der aktuellen
-                     # Auswertungsmuster mit diesen, falls das Programm beendet werden soll,
-                     # um Datenverluste zu verhindern
 my $overrides=undef;	# Overrides
 my @pmvjarray;			# Array mit PMVJ Daten
 my @pmaktarray;		# Array mit aktuellen PM Daten
@@ -107,8 +105,7 @@ sub init {
 	  or OVJ_meldung(WARNUNG,"Kann INI-Datei '$inifilename' nicht lesen: $!");
 #	do_file_general(2);	# Lade Generelle Daten Datei falls vorhanden
 	init_stammdaten();	# Lade Generelle Daten Datei falls vorhanden
-	do_read_patterns();	# Lade die Musterdatei (sollte vorhanden sein, ansonsten bleibt die Liste
-								# halt leer
+	OVJ::GUI::set_patterns(OVJ::read_patterns());
 	
 	# FIXME: use loop
 	unless (-e $configpath && -d $configpath)
@@ -224,71 +221,6 @@ sub do_select_fjfile {
 	OVJ::GUI::set_ovfj(%ovfj_temp);
 }
 
-
-#Speichern der Pattern Datei
-sub do_save_patterns {
-	$patterns = OVJ::GUI::get_patterns();
-	open (my $patternfile, '>', $patternfilename)
-	  or return OVJ_meldung(FEHLER, "Kann '$patternfilename' nicht schreiben: $!");
-	print $patternfile $patterns;
-	close $patternfile
-	  or OVJ_meldung(FEHLER, "Kann Datei '$patternfilename' nicht schließen: $!");
-}
-
-#Lesen der Pattern Datei
-sub do_read_patterns {
-	if (-e $patternfilename) {
-		open (my $patternfile,'<',$patternfilename)
-		  or return OVJ_meldung(FEHLER, "Kann $patternfilename nicht öffnen: $!");
-		read $patternfile, $patterns, -s $patternfilename;
-		close $patternfile
-		  or OVJ_meldung(FEHLER, "Kann Datei '$patternfilename' nicht schließen: $!");
-		$patterns =~ s/\r//g;
-		OVJ::GUI::set_patterns($patterns);
-	}
-	else {
-		return 1;
-	}
-}
-
-#Ueberpruefen beim Beenden des Programms, ob aktuelle Auswertungsmuster
-#gespeichert wurden, und falls nicht, was passieren soll
-sub CheckForUnsavedPatterns {
-	$_= $OVJ::GUI::patterns->Contents();
-	chomp;
-	return 0 if ($_ eq $patterns);
-warn "Fixme: Direct Tk access";
-	my $response = $gui->messageBox(-icon => 'question', 
-											-message => "Liste der Auswertungsmuster wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
-											-title => 'Auswertungsmuster speichern?', 
-											-type => 'YesNoCancel', 
-											-default => 'Yes');
-	return 1 if ($response eq "Cancel");
-	do_save_patterns() if ($response eq "Yes");
-	return 0;
-}
-
-#Kopieren des markierten Patterns in die Patternzeile des OV Wettbewerbs
-sub do_copy_pattern {
-	$_ = $OVJ::GUI::patterns->Contents(); # erstmal
-	my @patlist = split(/\n/); # die Daten im Speicher aktualisieren
-	$_ = $OVJ::GUI::patterns->getSelected();
-	my @patlines = split(/\n/);
-	if ($#patlines > 0)
-		{
-			OVJ_meldung(FEHLER,"Nur eine Zeile markieren !");
-			return;
-		}
-	if (!grep {$_ eq $patlines[0]} @patlist)
-	{
-			OVJ_meldung(FEHLER,"Ganze Zeilen markieren !");
-			return;
-	}
-	$patlines[0] =~ s/\/\/.*$//;	# Entferne Kommentare beim Kopieren
-	$patlines[0] =~ s/\s+$//;		# Entferne immer Leerzeichen nach dem Muster
-	my %ovfj_tmp = OVJ::GUI::get_ovfj();
-	$ovfj_tmp{Auswertungsmuster} = $patlines[0];
-}
 
 sub init_stammdaten {
 	if (exists $config{LastGenFile}) {
@@ -982,7 +914,7 @@ sub do_eval_allovfj {
 		$success = 1 if ($retval == 0);	# Stelle fest, ob wenigstens eine Auswertung erfolgreich war
 		last if ($retval == 2);	# systematischer Fehler, Abbruch der Schleife
 	}
-	Export() if ($success);
+	OVJ::export(\%stammdaten,\%tn,\@ovfjlist,\@ovfjanztlnlist,$outputpath,$genfilename) if ($success);
 }
 
 #Suche in PM Daten
@@ -1000,7 +932,7 @@ sub SucheTlnInPM {
 	
 	if ($override_IsInPmvj == 2)
 	{
-		RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." durch Override 'NichtInPMVJ' von Suche in ".$PMJahr." ausgeschlossen");
+		OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." durch Override 'NichtInPMVJ' von Suche in ".$PMJahr." ausgeschlossen");
 		return (0,"Ausschluss wegen Override 'NichtInPMVJ'");
 	}
 	
@@ -1029,19 +961,19 @@ sub SucheTlnInPM {
 							$_ = $1;
 							if (/\"$vname\"/)
 							{
-							RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." als ".$$nachname.", ".$vname." ueber Rufzeichen und Spitznamen in ".$PMJahr." gefunden, verwende neuen Vornamen");
+							OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." als ".$$nachname.", ".$vname." ueber Rufzeichen und Spitznamen in ".$PMJahr." gefunden, verwende neuen Vornamen");
 							$$vorname = $vname;
 							return (5,"Call,Nachname;Vorname ersetzt",$rest);		# Gefunden ueber Rufzeichen, Nachname und ersetzten Vorname
 							}
 						}
-					RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." als ".$$nachname.", ".$vname." ueber Rufzeichen in ".$PMJahr." gefunden, verwende neuen Vornamen");
+					OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." als ".$$nachname.", ".$vname." ueber Rufzeichen in ".$PMJahr." gefunden, verwende neuen Vornamen");
 					$$vorname = $vname;
 					return (5,"Call,Nachname;Vorname ersetzt",$rest);		# Gefunden ueber Rufzeichen, Nachname und ersetzten Vorname				
 				}
 			
 				if ($vname eq $$vorname)
 				{ # Vorname stimmt, aber nicht der Nachname
-					RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." als ".$nname.", ".$$vorname." ueber Rufzeichen in ".$PMJahr." gefunden, verwende neuen Nachnamen");
+					OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." als ".$nname.", ".$$vorname." ueber Rufzeichen in ".$PMJahr." gefunden, verwende neuen Nachnamen");
 					$$nachname = $nname;
 					return (11,"Call,Vorname;Nachname ersetzt",$rest);		# Gefunden ueber Rufzeichen, Vorname; Nachname passt nicht
 				}
@@ -1050,20 +982,20 @@ sub SucheTlnInPM {
 				{
 					if ($rest =~ /^\"$call\",\"$dok\"/)
 					{# Vorname und Nachname stimmen nicht, aber DOK !
-						RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." als ".$nname.", ".$vname." ueber Rufzeichen und DOK in ".$PMJahr." gefunden, verwende neue Namen");
+						OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." als ".$nname.", ".$vname." ueber Rufzeichen und DOK in ".$PMJahr." gefunden, verwende neue Namen");
 						$$nachname = $nname;
 						$$vorname = $vname;
 						return (12,"Call,DOK",$rest);		# Gefunden ueber Rufzeichen, DOK; Vorname, Nachname passen nicht
 					}
 					else
 					{# Vorname und Nachname und DOK stimmen nicht
-						RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." als ".$nname.", ".$vname." ueber Rufzeichen aber mit falschem DOK in PMVorjahr gefunden, verwende Daten nicht") if ($CheckInAktPM == 0);
+						OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." als ".$nname.", ".$vname." ueber Rufzeichen aber mit falschem DOK in PMVorjahr gefunden, verwende Daten nicht") if ($CheckInAktPM == 0);
 						return (0,"Call",$rest);		# Gefunden ueber Rufzeichen; DOK, Vorname, Nachname passen nicht
 					}
 				}
 				else
 				{
-					RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." als ".$nname.", ".$vname." ueber Rufzeichen (kein DOK in OVFJ) in PMVorjahr gefunden, verwende Daten nicht") if ($CheckInAktPM == 0);
+					OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." als ".$nname.", ".$vname." ueber Rufzeichen (kein DOK in OVFJ) in PMVorjahr gefunden, verwende Daten nicht") if ($CheckInAktPM == 0);
 					return (0,"Call",$rest);		# Gefunden ueber Rufzeichen; Vorname, Nachname passen nicht; DOK nicht vorhanden zum Pruefen
 				}
 			}
@@ -1139,14 +1071,14 @@ sub SucheTlnInPM {
 		{
 			if ($foundbydokgeb == 1)
 			{
-				RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." mit passendem DOK in PMVorjahr gefunden, aber Call: ".$call." stimmt nicht, verwende trotzdem PM Eintrag") if ($CheckInAktPM == 0);
-				RepMeld(*FH,"INFO: ".join(',',@{$mlist3[0]})) if ($CheckInAktPM == 0);
+				OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." mit passendem DOK in PMVorjahr gefunden, aber Call: ".$call." stimmt nicht, verwende trotzdem PM Eintrag") if ($CheckInAktPM == 0);
+				OVJ::RepMeld(*FH,"INFO: ".join(',',@{$mlist3[0]})) if ($CheckInAktPM == 0);
 				return (1,"Nachname,Vorname,DOK;Call stimmt nicht",$rest) 		# Gefunden ueber Nachname, Vorname und DOK; Call stimmt nicht!
 			}
 			if ($foundbydokgeb == 2)
 			{
-				RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." mit passendem Geb.jahr in PMVorjahr gefunden, aber Call: ".$call." stimmt nicht, verwende trotzdem PM Eintrag") if ($CheckInAktPM == 0);
-				RepMeld(*FH,"INFO: ".join(',',@{$mlist3[0]})) if ($CheckInAktPM == 0);
+				OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." mit passendem Geb.jahr in PMVorjahr gefunden, aber Call: ".$call." stimmt nicht, verwende trotzdem PM Eintrag") if ($CheckInAktPM == 0);
+				OVJ::RepMeld(*FH,"INFO: ".join(',',@{$mlist3[0]})) if ($CheckInAktPM == 0);
 				return (1,"Nachname,Vorname,Geb.jahr;Call stimmt nicht",$rest) 		# Gefunden ueber Nachname, Vorname und Geb.jahr; Call stimmt nicht!
 			}
 		}
@@ -1159,11 +1091,11 @@ sub SucheTlnInPM {
 		{
 			if ($callmismatch == 1)
 			{
-				RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." in PMVorjahr gefunden, aber DOK: ".$dok." und Call: ".$call." stimmen nicht, verwende Daten aufgrund von 'IstInPMVJ Override'") if ($CheckInAktPM == 0);
+				OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." in PMVorjahr gefunden, aber DOK: ".$dok." und Call: ".$call." stimmen nicht, verwende Daten aufgrund von 'IstInPMVJ Override'") if ($CheckInAktPM == 0);
 			}
 			else
 			{
-				RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." in PMVorjahr gefunden, aber DOK: ".$dok." stimmt nicht, verwende Daten aufgrund von 'IstInPMVJ Override'") if ($CheckInAktPM == 0);
+				OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." in PMVorjahr gefunden, aber DOK: ".$dok." stimmt nicht, verwende Daten aufgrund von 'IstInPMVJ Override'") if ($CheckInAktPM == 0);
 			}
 			$rest = $mlist2[0];
 			return (1,"Nachname,Vorname,! 'IstInPMVJ' Override !",$rest);		# Gefunden ueber Nachname, Vorname und 'IstInPMVJ' Override
@@ -1171,21 +1103,21 @@ sub SucheTlnInPM {
 		
 		if ($callmismatch == 1)
 		{
-			RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." in PMVorjahr gefunden, aber DOK: ".$dok." und Call: ".$call." stimmen nicht, verwende Daten nicht") if ($CheckInAktPM == 0);
+			OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." in PMVorjahr gefunden, aber DOK: ".$dok." und Call: ".$call." stimmen nicht, verwende Daten nicht") if ($CheckInAktPM == 0);
 		}
 		else
 		{
-			RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." in PMVorjahr gefunden, aber DOK: ".$dok." stimmt nicht, verwende Daten nicht") if ($CheckInAktPM == 0);
+			OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." in PMVorjahr gefunden, aber DOK: ".$dok." stimmt nicht, verwende Daten nicht") if ($CheckInAktPM == 0);
 		}
-		RepMeld(*FH,"INFO: mögliche Teilnehmer: ") if ($CheckInAktPM == 0);
+		OVJ::RepMeld(*FH,"INFO: mögliche Teilnehmer: ") if ($CheckInAktPM == 0);
 		foreach $listelem (@mlist2) {
-			RepMeld(*FH,join(',',@$listelem)) if ($CheckInAktPM == 0);
+			OVJ::RepMeld(*FH,join(',',@$listelem)) if ($CheckInAktPM == 0);
 		}
 		return (0,"Nachname,Vorname",undef);		# Gefunden ueber Nachname, Vorname, aber DOK stimmt nicht, verwerfe Eintrag
 	}
-	RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." mit DOK ".$dok." bzw. Geb.jahr ".$gebjahr." mehrmals in PMVorjahr gefunden, verwende Daten nicht") if ($CheckInAktPM == 0);
+	OVJ::RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." mit DOK ".$dok." bzw. Geb.jahr ".$gebjahr." mehrmals in PMVorjahr gefunden, verwende Daten nicht") if ($CheckInAktPM == 0);
 	foreach $listelem (@mlist3) {
-		RepMeld(*FH,join(',',@$listelem)) if ($CheckInAktPM == 0);
+		OVJ::RepMeld(*FH,join(',',@$listelem)) if ($CheckInAktPM == 0);
 	}
 	return (0,"Nachname,Vorname,DOK",undef);		# Gefunden ueber Nachname, Vorname, DOK, aber mehrmals vorhanden, verwerfe Eintrag
 }
@@ -1201,14 +1133,14 @@ sub ReadPMDaten {
 	{
 		if ($stammdaten{"PMVorjahr"} eq "")
 		{
-			RepMeld($OUTFILE,"FEHLER: Keine PMVorjahr Datei spezifiziert");
+			OVJ::RepMeld($OUTFILE,"FEHLER: Keine PMVorjahr Datei spezifiziert");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 
 		if (!open (INFILE2,"<",$stammdaten{"PMVorjahr"}))
 		{
-			RepMeld($OUTFILE,"FEHLER: Kann PMVorjahr Datei ".$stammdaten{"PMVorjahr"}." nicht lesen");
+			OVJ::RepMeld($OUTFILE,"FEHLER: Kann PMVorjahr Datei ".$stammdaten{"PMVorjahr"}." nicht lesen");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
@@ -1217,14 +1149,14 @@ sub ReadPMDaten {
 	{
 		if ($stammdaten{"PMaktJahr"} eq "")
 		{
-			RepMeld($OUTFILE,"FEHLER: Keine aktuelle PM Datei spezifiziert");
+			OVJ::RepMeld($OUTFILE,"FEHLER: Keine aktuelle PM Datei spezifiziert");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 
 		if (!open (INFILE2,"<",$stammdaten{"PMaktJahr"}))
 		{
-			RepMeld($OUTFILE,"FEHLER: Kann aktuelle PM Datei ".$stammdaten{"PMaktJahr"}." nicht lesen");
+			OVJ::RepMeld($OUTFILE,"FEHLER: Kann aktuelle PM Datei ".$stammdaten{"PMaktJahr"}." nicht lesen");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
@@ -1327,7 +1259,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 
 	if ($ovfj{"OVFJDatei"} eq "")
 	{
-		RepMeld(*OUTFILE,"FEHLER: Keine OVFJ Datei spezifiziert");
+		OVJ::RepMeld(*OUTFILE,"FEHLER: Keine OVFJ Datei spezifiziert");
 		close (OUTFILE) || die "close: $!";
 		return 1;	# Fehler
 	}	
@@ -1341,7 +1273,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 	
 	if (!open (INFILE,"<",$inputpath.$sep.$genfilename.$sep.$ovfj{"OVFJDatei"}))
 	{
-		RepMeld(*OUTFILE,"FEHLER: Kann OVFJ Datei ".$ovfj{"OVFJDatei"}." nicht lesen");
+		OVJ::RepMeld(*OUTFILE,"FEHLER: Kann OVFJ Datei ".$ovfj{"OVFJDatei"}." nicht lesen");
 		close (OUTFILE) || die "close: $!";
 		return 1;	# Fehler
 	}
@@ -1373,12 +1305,12 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 					if ($1 eq '/')
 					{
 						$Ignoriermode = 0;
-						RepMeldFile(*OUTFILE,"\n<Ende Ignorierabschnitt>");
+						OVJ::RepMeldFile(*OUTFILE,"\n<Ende Ignorierabschnitt>");
 					}
 					else
 					{
 						$Ignoriermode = 1;
-						RepMeldFile(*OUTFILE,"\n<Beginn Ignorierabschnitt>");
+						OVJ::RepMeldFile(*OUTFILE,"\n<Beginn Ignorierabschnitt>");
 					}
 				}
 				next if ($Ignoriermode == 1);		# Ignoriere alles was sonst sein koennte
@@ -1388,12 +1320,12 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 					if ($1 eq '/')
 					{
 						$Helfermode = 0;
-						RepMeldFile(*OUTFILE,"\n<Ende Helferabschnitt>");
+						OVJ::RepMeldFile(*OUTFILE,"\n<Ende Helferabschnitt>");
 					}
 					else
 					{
 						$Helfermode = 1;
-						RepMeldFile(*OUTFILE,"\n<Beginn Helferabschnitt>");
+						OVJ::RepMeldFile(*OUTFILE,"\n<Beginn Helferabschnitt>");
 					}
 				}
 				if ($2 eq "Keine Sonderpunkte")
@@ -1401,12 +1333,12 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 					if ($1 eq '/')
 					{
 						$KeineSonderpunkte = 0;
-						RepMeldFile(*OUTFILE,"\n<Ende Abschnitt ohne Sonderpunkte>");
+						OVJ::RepMeldFile(*OUTFILE,"\n<Ende Abschnitt ohne Sonderpunkte>");
 					}
 					else
 					{
 						$KeineSonderpunkte = 1;
-						RepMeldFile(*OUTFILE,"\n<Beginn Abschnitt ohne Sonderpunkte>");
+						OVJ::RepMeldFile(*OUTFILE,"\n<Beginn Abschnitt ohne Sonderpunkte>");
 					}
 				}
 #				if ($2 eq "TODO")
@@ -1414,12 +1346,12 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 #					if ($1 eq '/')
 #					{
 #						$KeineSonderpunkte = 0;
-#						RepMeldFile(*OUTFILE,"\n<Ende Abschnitt ohne Sonderpunkte>");
+#						OVJ::RepMeldFile(*OUTFILE,"\n<Ende Abschnitt ohne Sonderpunkte>");
 #					}
 #					else
 #					{
 #						$KeineSonderpunkte = 1;
-#						RepMeldFile(*OUTFILE,"\n<Beginn Abschnitt ohne Sonderpunkte>");
+#						OVJ::RepMeldFile(*OUTFILE,"\n<Beginn Abschnitt ohne Sonderpunkte>");
 #					}
 #				}
 				next;
@@ -1467,7 +1399,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 		if ($patmatched)
 		{
 			$str2 .= $ev_nachname.", ".$ev_vorname.", ".$ev_gebjahr.", ".$ev_call.", ".$ev_dok;
-			RepMeldFile(*OUTFILE,$str2);
+			OVJ::RepMeldFile(*OUTFILE,$str2);
 			$override_call = 0;
 			$override_dok = 0;
 			$override_gebjahr = 0;
@@ -1476,7 +1408,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 			{
 				if ($overrides =~ /^$ev_nachname,$ev_vorname,([^,]*),([^,]*),(\d*),(\w*)$/m)
 				{
-					RepMeldFile(*OUTFILE,"INFO: Overridedatensatz für ".$ev_nachname.", ".$ev_vorname." gefunden");
+					OVJ::RepMeldFile(*OUTFILE,"INFO: Overridedatensatz für ".$ev_nachname.", ".$ev_vorname." gefunden");
 					if ($1 ne "")
 					{
 						$ev_call = $1;		# Override des Rufzeichens
@@ -1501,7 +1433,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 			}
 			if ($AddedVerant == 1 && $HelferInKopf == 0 && $evermatched == 0)
 			{
-				RepMeld(*OUTFILE,"INFO: Erster Match mit: ".$_);
+				OVJ::RepMeld(*OUTFILE,"INFO: Erster Match mit: ".$_);
 				$evermatched = 1;
 			}
 			#print $ev_nachname." ".$ev_vorname."\n";
@@ -1513,7 +1445,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 				 ($ev_vorname eq $ovfj{"Verantw_Vorname"}) &&
 				 ($AddedVerant == 1) )
 				{
-				 	RepMeld(*OUTFILE,"WARNUNG: Verantwortlicher ($ev_nachname,$ev_vorname) ist in Teilnehmer Liste");
+				 	OVJ::RepMeld(*OUTFILE,"WARNUNG: Verantwortlicher ($ev_nachname,$ev_vorname) ist in Teilnehmer Liste");
 				 	$TlnIstAusrichter = 1;
 				}
 
@@ -1524,11 +1456,11 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 			($match,$SText,$rest) = SucheTlnInPM(*OUTFILE,\@pmvjarray,\$ev_nachname,\$ev_vorname,$ev_gebjahr,$ev_call,$ev_dok,$override_IsInPmvj,0);
 			if ($match > 0)
 			{
-				RepMeldFile(*OUTFILE,"In PMVorjahr gefunden da Übereinstimmung von: ".$SText);
+				OVJ::RepMeldFile(*OUTFILE,"In PMVorjahr gefunden da Übereinstimmung von: ".$SText);
 			}
 			else
 			{
-				RepMeldFile(*OUTFILE,"Nicht in PMVorjahr gefunden da nur Übereinstimmung von: ".$SText);
+				OVJ::RepMeldFile(*OUTFILE,"Nicht in PMVorjahr gefunden da nur Übereinstimmung von: ".$SText);
 			}
 		
 
@@ -1540,8 +1472,8 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 
 				if ($ev_gebjahr ne "" && ($ev_gebjahr ne $pmgebjahr))
 				{
-					RepMeld(*OUTFILE,"INFO: Geb.jahr unterschiedlich mit PMVorjahr: ");
-					RepMeld(*OUTFILE,$ev_nachname.", ".$ev_vorname." :".$ev_gebjahr." <-> ".$pmgebjahr);
+					OVJ::RepMeld(*OUTFILE,"INFO: Geb.jahr unterschiedlich mit PMVorjahr: ");
+					OVJ::RepMeld(*OUTFILE,$ev_nachname.", ".$ev_vorname." :".$ev_gebjahr." <-> ".$pmgebjahr);
 				}
 			}
 
@@ -1587,7 +1519,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 				if ($str2 ne "")
 				{
 					$str2 = "INFO: ".$ev_nachname.", ".$ev_vorname.":".$str2;
-					RepMeld(*OUTFILE,$str2);
+					OVJ::RepMeld(*OUTFILE,$str2);
 				}
 				$aktJahr = 1;	# zwar gefunden, aber keine Teilnahme im aktuellen Jahr (kann nachfolgend ueberschrieben werden)
 				$aktJahr = 2 if ($pmdatum =~ /^$stammdaten{Jahr}\d{4}$/);
@@ -1611,11 +1543,11 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 				{
 					if ($TlnIstAusrichter == 0)
 					{
-						RepMeld(*OUTFILE,"FEHLER: ".$ev_nachname.", ".$ev_vorname." ist bereits in laufender Auswertung");
+						OVJ::RepMeld(*OUTFILE,"FEHLER: ".$ev_nachname.", ".$ev_vorname." ist bereits in laufender Auswertung");
 					}
 					else
 					{
-						RepMeld(*OUTFILE,"INFO: ".$ev_nachname.", ".$ev_vorname." ist als Ausrichter bereits in laufender Auswertung, ignoriere Teilnahme als Teilnehmer");
+						OVJ::RepMeld(*OUTFILE,"INFO: ".$ev_nachname.", ".$ev_vorname." ist als Ausrichter bereits in laufender Auswertung, ignoriere Teilnahme als Teilnehmer");
 					}
 					next;
 				}					
@@ -1634,21 +1566,21 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 				$tn{$tnkey}->{call} = $ev_call if (($tn{$tnkey}->{call} eq "---" || $tn{$tnkey}->{call} eq "") && ($ev_call ne "---" && $ev_call ne ""));
 				if ($tn{$tnkey}->{call} ne "---" && $tn{$tnkey}->{call} ne "" && $ev_call ne $tn{$tnkey}->{call})
 				{
-					RepMeld(*OUTFILE,"INFO: ".$ev_nachname.", ".$ev_vorname.": Rufzeichen unterschiedlich: ".$tn{$tnkey}->{call}." (alt, bleibt)<->(OVFJ) ".$ev_call);
+					OVJ::RepMeld(*OUTFILE,"INFO: ".$ev_nachname.", ".$ev_vorname.": Rufzeichen unterschiedlich: ".$tn{$tnkey}->{call}." (alt, bleibt)<->(OVFJ) ".$ev_call);
 				}
 
 				# Abgleich DOK
 				$tn{$tnkey}->{dok} = $ev_dok if ($tn{$tnkey}->{dok} eq "" && $ev_dok ne "");
 				if ($tn{$tnkey}->{dok} ne "" && $ev_dok ne "" && $ev_dok ne $tn{$tnkey}->{dok})
 				{
-					RepMeld(*OUTFILE,"INFO: ".$ev_nachname.", ".$ev_vorname.": DOK unterschiedlich: ".$tn{$tnkey}->{dok}." (alt, bleibt)<->(OVFJ) ".$ev_dok);
+					OVJ::RepMeld(*OUTFILE,"INFO: ".$ev_nachname.", ".$ev_vorname.": DOK unterschiedlich: ".$tn{$tnkey}->{dok}." (alt, bleibt)<->(OVFJ) ".$ev_dok);
 				}
 
 				# Abgleich Geburtsjahr
 				$tn{$tnkey}->{gebjahr} = $ev_gebjahr if ($tn{$tnkey}->{gebjahr} eq "" && $ev_gebjahr ne "");
 				if ($tn{$tnkey}->{gebjahr} ne "" && $ev_gebjahr ne "" && $ev_gebjahr ne $tn{$tnkey}->{gebjahr})
 				{
-					RepMeld(*OUTFILE,"INFO: ".$ev_nachname.", ".$ev_vorname.": Geburtsjahr unterschiedlich: ".$tn{$tnkey}->{gebjahr}." (alt, bleibt)<->(OVFJ) ".$ev_gebjahr);
+					OVJ::RepMeld(*OUTFILE,"INFO: ".$ev_nachname.", ".$ev_vorname.": Geburtsjahr unterschiedlich: ".$tn{$tnkey}->{gebjahr}." (alt, bleibt)<->(OVFJ) ".$ev_gebjahr);
 				}
 				
 			}
@@ -1676,14 +1608,14 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 			$str2 .= "1 Extrapunkt für Platz 2 als Nicht-PM" if ($nichtpm == 2 && $SPunktePlatz == 1);
 			$str2 .= "2 Extrapunkte für Platz 1 als Nicht-PM" if ($nichtpm == 1 && $SPunktePlatz == 1);
 			$str2 .= "PM im Vorjahr" if ($IsPM && $Helfermode == 0 && $HelferInKopf == 0 && $AddedVerant == 1);
-			RepMeldFile(*OUTFILE,$str2);
+			OVJ::RepMeldFile(*OUTFILE,$str2);
 		}
 		else
 		{
 			if ($evermatched == 1)
 			{
-				RepMeld(*OUTFILE,"\nINFO: kein Match (Ursache: ".$matcherrortext.") bei:") if ($oldline+1 < $line);
-				RepMeld(*OUTFILE,$_);
+				OVJ::RepMeld(*OUTFILE,"\nINFO: kein Match (Ursache: ".$matcherrortext.") bei:") if ($oldline+1 < $line);
+				OVJ::RepMeld(*OUTFILE,$_);
 				$oldline = $line;
 			}
 		}
@@ -1695,7 +1627,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 		}
 	} # Ende von while (<INFILE>)
 
-	RepMeld(*OUTFILE,"INFO: kein einziger Match! Letzte Ursache: ".$matcherrortext) if ($evermatched == 0);
+	OVJ::RepMeld(*OUTFILE,"INFO: kein einziger Match! Letzte Ursache: ".$matcherrortext) if ($evermatched == 0);
 
 	%ovfjcopy = %ovfj;
 	push (@ovfjlist,\%ovfjcopy);
@@ -1718,7 +1650,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 #Exit Box aus dem 'Datei' Menu und 'Exit' Button
 sub Leave {
 	return if (CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
-	return if (CheckForUnsavedPatterns());	# Abbruch durch Benutzer
+	return if (OVJ::GUI::CheckForUnsavedPatterns());	# Abbruch durch Benutzer
 	return if (CheckForSaveGenfile());		# Abbruch durch Benutzer
 	return if (CheckForOVFJList());			# Abbruch durch Benutzer
 	OVJ::Inifile::write($inifilename,%config)		# Speichern der Inidaten
@@ -1733,243 +1665,4 @@ sub OVJ_meldung {
 	OVJ::GUI::add_meldung($message) if $gui;
 	return 0;
 }
-
-#==============================================================
-# refactored
-
-#Ausgabe einer Meldung im Meldungsfenster und der Report-Datei
-sub RepMeld {
-	local *FH = shift;
-	my $msg = shift;
-	print FH "$msg\n";
-	$msg =~ tr/\r?\n//d;							# entferne alle CRs
-	OVJ_meldung(HINWEIS,$msg);
-}
-
-#Ausgabe einer Meldung in der Report-Datei
-sub RepMeldFile {
-	local *FH = shift;
-	my $msg = shift;
-	print FH "$msg\n";
-}
-
-#==========================
-
-#Export der Auswertung(en) im Speicher in die verschiedenen Formate
-sub Export {
-	my ($rawresultfilename,$asciiresultfilename,$htmlresultfilename);
-	my ($tnkey,$tndatakey);
-	my $addoutput;
-	my $ExcludeTln;
-	my $ovfjlistelement;
-	my ($i,$str2);
-	my %maxlen = (
-		kombiname => 0, #Vorbelegen um Abfrage unten zu sparen
-		gebjahr   => length("GebJahr  "),
-		wwbw      => length("Wettbewerbe"),
-	);
-	my ($sec,$min,$hour,$mday,$mon,$myear,$wday,$yday,$isdst) = localtime(time);
-
-	$ExcludeTln = $stammdaten{Exclude_Checkmark};
-
-	$rawresultfilename = "OVJ_Ergebnisse_".$stammdaten{"Distriktskenner"}."_".$stammdaten{Jahr}."raw.txt";
-	
-	# FIXME: mkdir genfilename
-	unless (-e $outputpath.$sep.$genfilename && -d $outputpath.$sep.$genfilename)
-	{
-		OVJ_meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$outputpath."\'");
-		unless (mkdir($outputpath.$sep.$genfilename))
-		{
-			OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$outputpath.$sep.$genfilename."\' nicht erstellen: $!");
-			return;
-		}
-	}	
-	
-	# FIXME: open ROUTFILE, rawresultfilename
-	if (!open (ROUTFILE,">",$outputpath.$sep.$genfilename.$sep.$rawresultfilename))
-	{
-		OVJ_meldung(FEHLER,"Kann ".$rawresultfilename." nicht schreiben");
-		return;
-	}
-	$asciiresultfilename = "OVJ".$stammdaten{"Distriktskenner"}.$stammdaten{Jahr}.".txt";
-	if (!open (AOUTFILE,">",$outputpath.$sep.$genfilename.$sep.$asciiresultfilename))
-	{
-		OVJ_meldung(FEHLER,"Kann ".$asciiresultfilename." nicht schreiben");
-		return;
-	}
-	$htmlresultfilename = "OVJ_Ergebnisse_".$stammdaten{"Distriktskenner"}."_".$stammdaten{Jahr}.".htm";
-	if (!open (HOUTFILE,">",$outputpath.$sep.$genfilename.$sep.$htmlresultfilename))
-	{
-		OVJ_meldung(FEHLER,"Kann ".$htmlresultfilename." nicht schreiben");
-		return;
-	}
-	
-	printf AOUTFILE "             OV Jahresauswertung ".$stammdaten{Jahr}." des Distrikts ".$stammdaten{"Distrikt"}."\n\n";
-	printf AOUTFILE "OV-Wettbewerbe des Distriktes   ".$stammdaten{"Distrikt"}."\n";
-	printf AOUTFILE "für das Jahr                    ".$stammdaten{Jahr}."\n";
-	printf AOUTFILE "Distriktspeilreferent\n";
-	printf AOUTFILE "Name, Vorname                   ".$stammdaten{"Name"}.", ".$stammdaten{"Vorname"}."\n";
-	printf AOUTFILE "Call                            ".$stammdaten{"Call"}."\n";
-	printf AOUTFILE "DOK                             ".$stammdaten{"DOK"}."\n";
-	printf AOUTFILE "Telefon                         ".$stammdaten{"Telefon"}."\n";
-	printf AOUTFILE "Home-BBS                        ".$stammdaten{"Home-BBS"}."\n";
-	printf AOUTFILE "E-Mail                          ".$stammdaten{"E-Mail"}."\n";
-	printf AOUTFILE "Auswertung mit                  OVJ (Version ".$ovjvers." vom ".$ovjdate.")\n";
-	printf AOUTFILE ("am                              %i.%i.%i\n",$mday,$mon+1,$myear+1900);
-	if ($ExcludeTln == 1)
-	{
-		printf AOUTFILE "Hinweis                         Teilnehmer ohne Teilnahme an offiziellen Wettbewerb in ".$stammdaten{Jahr}."\n";
-		printf AOUTFILE "                                wurden von OVJ entfernt\n";
-	}
-
-	printf AOUTFILE "\n********************************\n";
-	printf AOUTFILE "* Durchgeführte OV-Wettbewerbe *\n";
-	printf AOUTFILE "********************************\n";
-	printf AOUTFILE "Nr. Ausrichtender OV           DOK  Verantwortlicher          Call    DOK  Datum       Band  Teilnehmer\n";
-	printf AOUTFILE "-------------------------------------------------------------------------------------------------------\n";
-
-	printf HOUTFILE "<html>\n<head>\n<title>OV Jahresauswertung ".$stammdaten{Jahr}." des Distrikts ".$stammdaten{"Distrikt"}."</title>\n</head>\n";
-	printf HOUTFILE "<body>\n";
-	printf HOUTFILE "<h1>Jahresauswertung der OV-Peilveranstaltungen</h1>\n";
-	printf HOUTFILE "<table border=\"0\"><tbody align=\"left\">\n";
-	printf HOUTFILE "<tr><td>OV-Wettbewerbe des Distriktes&nbsp;&nbsp;&nbsp;</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"Distrikt"}."</b></td></tr>\n";
-	printf HOUTFILE "<tr><td>für das Jahr</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{Jahr}."</b></td></tr>\n";
-	printf HOUTFILE "<tr><td><b>Distriktspeilreferent</b></td></tr>\n";
-	printf HOUTFILE "<tr><td>Name, Vorname</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"Name"}.", ".$stammdaten{"Vorname"}."</b></td></tr>\n";
-	printf HOUTFILE "<tr><td>Call</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"Call"}."</b></td></tr>\n";
-	printf HOUTFILE "<tr><td>DOK</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"DOK"}."</b></td></tr>\n";
-	printf HOUTFILE "<tr><td>Telefon</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"Telefon"}."</b></td></tr>\n";
-	printf HOUTFILE "<tr><td>Home-BBS</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"Home-BBS"}."</b></td></tr>\n";
-	printf HOUTFILE "<tr><td>E-Mail</td>\n";
-	printf HOUTFILE "<td><b>".$stammdaten{"E-Mail"}."</b></td></tr>\n";
-	printf HOUTFILE "</tbody></table><br><br>\n";
-
-	printf HOUTFILE "<table border=\"1\">\n";
-	printf HOUTFILE "<thead><tr><th colspan=\"9\">Durchgeführte OV-Wettbewerbe</b></th></tr>\n";
-	printf HOUTFILE "<tr><th>Nr.</th><th>Ausrichtender OV</th><th>DOK</th><th>Verantwortlicher</th>";
-	printf HOUTFILE "<th>Call</th><th>DOK</th><th>Datum</th><th>Band</th><th>Teilnehmer</th></tr>\n";
-	printf HOUTFILE "</thead><tbody>\n";
-
-	$i = 1;
-	foreach $ovfjlistelement (@ovfjlist)
-	{
-		printf AOUTFILE substr(" ".$i."  ",0,4).substr($ovfjlistelement->{"AusrichtOV"}." "x27,0,27).substr($ovfjlistelement->{"AusrichtDOK"}."     ",0,5);
-		printf AOUTFILE substr($ovfjlistelement->{"Verantw_Name"}.", ".$ovfjlistelement->{"Verantw_Vorname"}." "x26,0,26);
-		printf AOUTFILE substr($ovfjlistelement->{"Verantw_CALL"}." "x8,0,8).substr($ovfjlistelement->{"Verantw_DOK"}." "x5,0,5);
-		printf AOUTFILE substr($ovfjlistelement->{"Datum"}." "x13,0,13).substr($ovfjlistelement->{"Band"}." "x9,0,9).$ovfjanztlnlist[$i-1]."\n";
-
-		printf HOUTFILE "<tr><td>".$i."</td><td>".$ovfjlistelement->{"AusrichtOV"}."</td><td>".$ovfjlistelement->{"AusrichtDOK"}."</td>";
-		printf HOUTFILE "<td>".$ovfjlistelement->{"Verantw_Name"}.", ".$ovfjlistelement->{"Verantw_Vorname"}."</td>\n";
-		printf HOUTFILE "<td>".($ovfjlistelement->{"Verantw_CALL"} eq "" ? "&nbsp;" : $ovfjlistelement->{"Verantw_CALL"})."</td>";
-		printf HOUTFILE "<td>".($ovfjlistelement->{"Verantw_DOK"} eq "" ? "&nbsp;" : $ovfjlistelement->{"Verantw_DOK"})."</td>";
-		printf HOUTFILE "<td>".$ovfjlistelement->{"Datum"}."</td><td>".$ovfjlistelement->{"Band"}."</td>";
-		printf HOUTFILE "<td>".$ovfjanztlnlist[$i-1]."</td></tr>\n";
-		$i++;
-	}
-
-	printf HOUTFILE "</tbody></table><br>\n";
-
-	printf HOUTFILE "<br><table border=\"1\">\n";
-	printf HOUTFILE "<thead><tr><th colspan=\"11\">Teilnehmer der OV-Wettbewerbe</b></th></tr>\n";
-	printf HOUTFILE "<tr><th>Name, Vorname</th><th>Call</th><th>DOK</th><th>Geburtsjahr</th>";
-	printf HOUTFILE "<th>PM im Vorjahr</th><th>Wettbewerbe</th><th>Anzahl OV FJ</th>";
-	printf HOUTFILE "<th>Anz. Platz 1</th><th>Anz. Platz 2</th><th>Anz. Ausrichter</th><th>Anz. Helfer</th></tr></thead>\n<tbody>\n";
-
-	foreach $tnkey (sort keys %tn)
-	{
-		foreach $tndatakey (keys %{$tn{$tnkey}})
-		{
-			if (exists($maxlen{$tndatakey}))
-			{
-				if (length($tn{$tnkey}->{$tndatakey})>$maxlen{$tndatakey})
-				{
-					$maxlen{$tndatakey} = length($tn{$tnkey}->{$tndatakey});
-				}
-			}
-			else
-			{
-				$maxlen{$tndatakey} = length($tn{$tnkey}->{$tndatakey});
-			}
-		}
-		# die Längeninfo für die Kombination beider Namen muss speziell erzeugt werden
-		if (length($tn{$tnkey}->{nachname}.$tn{$tnkey}->{vorname})>$maxlen{kombiname})
-		{
-			$maxlen{kombiname} = length($tn{$tnkey}->{nachname}.$tn{$tnkey}->{vorname});
-		}
-	}
-
-	printf AOUTFILE "\n*********************************\n";
-	printf AOUTFILE "* Teilnehmer der OV-Wettbewerbe *\n";
-	printf AOUTFILE "*********************************\n";
-
-	$str = "Name, Vorname"." "x($maxlen{kombiname}-length("Name, Vorname")+4)."Call"." "x($maxlen{call}-length("Call")+2);
-	$str .= "DOK"." "x($maxlen{dok}-length("DOK")+2)."GebJahr  "."PMVJ?  "."Wettbewerbe"." "x($maxlen{wwbw}-length("Wettbewerbe")+1);
-	$str .= "AnzFJ  "."Platz1  "."Platz2  "."Ausrichter  "."Helfer";
-	$str2 = $str;
-	$str .= "  akt.Jahr" if ($ExcludeTln == 0);
-
-	printf ROUTFILE $str."\n";
-	printf ROUTFILE "-"x(length($str))."\n";
-	printf AOUTFILE $str2."\n";
-	printf AOUTFILE "-"x(length($str2))."\n";
-	foreach $tnkey (sort keys %tn) {
-
-		if ($ExcludeTln == 1 && $tn{$tnkey}->{aktjahr} == 1)
-		{
-			$addoutput .= "Schliesse ".$tn{$tnkey}->{nachname}.", ".$tn{$tnkey}->{vorname}." aus, da kein offizieller Wettbewerb in ".$stammdaten{Jahr}."\n";
-			next;
-		}
-
-		if ($ExcludeTln == 1 && $tn{$tnkey}->{aktjahr} == 0)
-		{
-			$addoutput .= "Schliesse ".$tn{$tnkey}->{nachname}.", ".$tn{$tnkey}->{vorname}." aus, da Name nicht in aktueller PM Datei\n";
-			next;
-		}
-
-		$str = $tn{$tnkey}->{nachname}.", ".
-		$tn{$tnkey}->{vorname}." "x($maxlen{kombiname}-length($tn{$tnkey}->{nachname}.$tn{$tnkey}->{vorname})+2).
-		$tn{$tnkey}->{call}." "x($maxlen{call}-length($tn{$tnkey}->{call})+2).
-		$tn{$tnkey}->{dok}." "x($maxlen{dok}-length($tn{$tnkey}->{dok})+2).
-		$tn{$tnkey}->{gebjahr}." "x($maxlen{gebjahr}-length($tn{$tnkey}->{gebjahr})+1).
-		($tn{$tnkey}->{pmvj} ? "JA" : "--")."    ".
-		$tn{$tnkey}->{wwbw}." "x($maxlen{wwbw}-length($tn{$tnkey}->{wwbw})+3).
-		$tn{$tnkey}->{anzwwbw}."      ".($tn{$tnkey}->{anzwwbw}<10 ? " " : "").
-		$tn{$tnkey}->{anzpl1}."       ".
-		$tn{$tnkey}->{anzpl2}."        ".
-		$tn{$tnkey}->{anzausr}."         ".
-		$tn{$tnkey}->{anzhelf};
-		$str2 = $str;
-		$str .= ($tn{$tnkey}->{aktjahr} != 2 ? "       Nein" : "");
-		
-		printf ROUTFILE $str."\n";
-		printf AOUTFILE $str2."\n";
-		
-		printf HOUTFILE "<tr><td>".$tn{$tnkey}->{nachname}.", ".$tn{$tnkey}->{vorname}."</td>";
-		printf HOUTFILE "<td>".($tn{$tnkey}->{call} eq "" ? "&nbsp;" : $tn{$tnkey}->{call})."</td><td>".($tn{$tnkey}->{dok} eq "" ? "&nbsp;" : $tn{$tnkey}->{dok})."</td>\n";
-		printf HOUTFILE "<td>".($tn{$tnkey}->{gebjahr} eq "" ? "&nbsp;" : $tn{$tnkey}->{gebjahr})."</td><td>".($tn{$tnkey}->{pmvj} ? "JA" : "--")."</td>";
-		printf HOUTFILE "<td>".$tn{$tnkey}->{wwbw}."</td><td>".$tn{$tnkey}->{anzwwbw}."</td>\n";
-		printf HOUTFILE "<td>".$tn{$tnkey}->{anzpl1}."</td><td>".$tn{$tnkey}->{anzpl2}."</td><td>".$tn{$tnkey}->{anzausr}."</td><td>".$tn{$tnkey}->{anzhelf}."</td></tr>\n";
-	}
-	
-	if ($addoutput ne "")
-	{
-		printf ROUTFILE "\n".$addoutput."\n";
-	}
-	
-	printf HOUTFILE "</tbody></table>\n";
-	printf HOUTFILE "<h5>erzeugt durch OVJ  (Version ".$ovjvers." vom ".$ovjdate.")</h5>\n";
-	printf HOUTFILE "</body>\n</html>\n";
-	
-	close (ROUTFILE) || die "close: $!";
-	close (AOUTFILE) || die "close: $!";
-	close (HOUTFILE) || die "close: $!";
-}
-
 
