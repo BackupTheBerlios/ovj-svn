@@ -37,10 +37,6 @@ use OVJ::Inifile;
 use OVJ::GUI;
 use OVJ;
 
-'$Id$' =~ /Id: [^ ]+ (\d+) (\d{4})-(\d{2})-(\d{2}) /;
-my $ovjdate = "$4.$3.$2";
-my $ovjvers = "0.96-dg0yt-$1";
-
 use constant {
 	INFO    => 'Information',
 	HINWEIS => 'Hinweis',
@@ -49,7 +45,7 @@ use constant {
 };
 
 my %config  = ();		# Konfigurationsdaten
-my %stammdaten = ();	# Generelle Einstellungen
+my %general = ();	# Generelle Einstellungen
 my %ovfj;				# Hash für eine OV Veranstaltung, Kopfdaten
 my $ovfjname;			# Name der aktiven OV Veranstaltung
 
@@ -83,28 +79,29 @@ my @pmaktarray;		# Array mit aktuellen PM Daten
 
 my $gui;
 
-hello_world();
+
+
+intro();
 $gui = OVJ::GUI::init();
 init();
 OVJ::GUI::run;
 exit 0;
 
-sub hello_world {
-	my $str = "*  OVJ $ovjvers by DL3SDO, $ovjdate  *";
+
+
+sub intro {
+	my $str = "*  OVJ $OVJ::ovjvers by DL3SDO, $OVJ::ovjdate  *";
 	my $sep = '*' x length($str);
-	print << "HELLO_WORLD";
-$sep
-$str
-$sep
-HELLO_WORLD
+	print "$sep\n$str\n$sep\n";
 }
 
 
 sub init {
+# FIXME: local var
 	%config = OVJ::Inifile::read($inifilename)
-	  or OVJ_meldung(WARNUNG,"Kann INI-Datei '$inifilename' nicht lesen: $!");
+	  or OVJ_meldung(OVJ::WARNUNG,"Kann INI-Datei '$inifilename' nicht lesen: $!");
 #	do_file_general(2);	# Lade Generelle Daten Datei falls vorhanden
-	init_stammdaten();	# Lade Generelle Daten Datei falls vorhanden
+	init_general();	# Lade Generelle Daten Datei falls vorhanden
 	OVJ::GUI::set_patterns(OVJ::read_patterns());
 	
 	# FIXME: use loop
@@ -222,7 +219,7 @@ sub do_select_fjfile {
 }
 
 
-sub init_stammdaten {
+sub init_general {
 	if (exists $config{LastGenFile}) {
 		$genfilename = $config{LastGenFile};
 		OVJ_meldung(HINWEIS,"Lade $genfilename...");
@@ -304,7 +301,7 @@ sub do_file_general {
 
 	if ($choice == 2)	# Laden der im Inifile angegebenen Datei, wird beim Programmstart ausgeführt
 	{	
-		die "Refactored: use init_stammdaten";
+		die "Refactored: use init_general";
 	}
 
 	if ($choice == 0)	# Speichern
@@ -361,89 +358,34 @@ sub do_file_general {
 
 #Schreiben der Generellen Daten in die Genfile Datei
 sub write_genfile {
-	unless (-e $configpath.$sep.$genfilename && -d $configpath.$sep.$genfilename)
-	{
-		OVJ_meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$configpath."\'");
-		unless (mkdir($configpath.$sep.$genfilename))
-		{
-			OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$configpath.$sep.$genfilename."\' nicht erstellen".$!);
-			return 1;	# Fehler
-		}
-	}
-
-	unless (-e $inputpath.$sep.$genfilename && -d $inputpath.$sep.$genfilename)
-	{
-		OVJ_meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$inputpath."\'");
-		unless (mkdir($inputpath.$sep.$genfilename))
-		{
-			OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$inputpath.$sep.$genfilename."\' nicht erstellen".$!);
-			return 1;	# Fehler
-		}
-	}
-	
-	if (!open (OUTFILE,">",$configpath.$sep.$genfilename.$sep.$genfilename.".txt"))
-	{
-		OVJ_meldung(FEHLER,"Kann ".$genfilename." nicht schreiben");
-		return 1;	# Fehler
-	}
-	%stammdaten=OVJ::GUI::get_general();	# Hash aktualisieren auf Basis der Felder
-	printf OUTFILE "#OVJ Toplevel-Datei für ".$stammdaten{Jahr}."\n\n";
-	my $key;
-	foreach $key (keys %stammdaten) {
-		printf OUTFILE $key." = ".$stammdaten{$key}."\n";
-	}
-	printf OUTFILE "\n";
-	$_ = $OVJ::GUI::fjlistbox->Contents();
-	my @fjlines = split(/\n/);
-	foreach $str (@fjlines)
-	{
-		printf OUTFILE "ovfj_link = ".$str."\n";
-	}
-	$fjlistsaved = $_;
-	close (OUTFILE) || die "close: $!";
+# FIXME: has side-effects
+	%general = OVJ::GUI::get_general();	# Hash aktualisieren auf Basis der Felder
+	OVJ::write_genfile($genfilename, $configpath, %general) or return 1; # FIXME:
+	$fjlistsaved = $OVJ::GUI::fjlistbox->Contents(); # FIXME: Remove if obsolete
 	return 0;	# kein Fehler
 }
 
 
 #Lesen der Generellen Daten aus der Genfile Datei
 sub read_genfile {
+# FIXME: has side-effects, access TK
 	my ($choice,$filename) = @_;	# 0 = Laden, 1 = Importieren
-
-	if (!open (INFILE,"<",($choice == 0 ? $configpath.$sep.$filename.$sep : "").$filename.($choice == 0 ? ".txt" : ""))) # FIXME: Endung nach $choice gewählt?
-	{
-	OVJ_meldung(FEHLER,"Kann ".$filename." nicht lesen");
-	return 1;	# Fehler
-	}
-
-	$OVJ::GUI::fjlistbox->selectAll();
-	$OVJ::GUI::fjlistbox->deleteSelected();
-	my %stammdaten_alt = OVJ::GUI::get_general();
-	while (<INFILE>)
-	{
-		next if /^#/;
-		next if /^\s/;
-		s/\r//;
-		#print $_."\n";
-		if (/^((?:\w|-)+)\s*=\s*(.*?)\s*$/)
-		{
-			if ($1 eq "ovfj_link" && $choice == 0)
-			{
-				push(@fjlist,$2);
-				$OVJ::GUI::fjlistbox->insert("end",$2."\n");
-			}
-			$stammdaten{$1} = $2;
-			#print $1."=".$2;
+	%general = OVJ::read_genfile($filename, $configpath);
+	if ($choice == 0) {
+		foreach (@{$general{ovfj_link}}) {
+			push(@fjlist,$_); # FIXME: Remove if obsolete
 		}
 	}
-	close (INFILE) || die "close: $!";
-	if ($choice != 0) {
-		$stammdaten{PMVorjahr} = $stammdaten_alt{PMVorjahr};
-		$stammdaten{PMaktJahr} = $stammdaten_alt{PMaktJahr};
+	else {
+		my %general_alt = OVJ::GUI::get_general();
+		@{$general{ovfj_link}} = @{$general_alt{ovfj_link}};
+		$general{PMVorjahr} = $general_alt{PMVorjahr};
+		$general{PMaktJahr} = $general_alt{PMaktJahr};
 	}
-	OVJ::GUI::set_general(%stammdaten);
+	OVJ::GUI::set_general(%general);
 	
-	$fjlistsaved = $OVJ::GUI::fjlistbox->Contents();
-	# %stammdaten = OVJ::GUI::get_general() if ($choice == 1);	# einige Hashwerte löschen
+	$fjlistsaved = $OVJ::GUI::fjlistbox->Contents(); # FIXME: Remove if obsolete
+	# %general = OVJ::GUI::get_general() if ($choice == 1);	# einige Hashwerte löschen
 	do_reset_eval();	# evtl. vorhandene Auswertungen löschen
 	undef %ovfj;	# OVFJ Daten löschen
 	OVJ::GUI::clear_ovfj();	# und anzeigen
@@ -458,7 +400,7 @@ sub read_genfile {
 #Prüfen, ob Generelle Daten verändert wurde, ohne gespeichert worden zu
 #sein
 sub CheckForSaveGenfile {
-	return 0 if ! OVJ::GUI::general_modified(%stammdaten);
+	return 0 if ! OVJ::GUI::general_modified(%general);
 warn "Fixme: Direct Tk access";
 	my $response = $gui->messageBox(-icon => 'question', 
 											-message => "Generelle Daten \'$genfilename\' wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
@@ -630,15 +572,15 @@ sub do_reset_eval {
 
 #Lesen der Spitznamen Datei
 sub get_nicknames {
-	if ($stammdaten{"Spitznamen"} eq "")
+	if ($general{"Spitznamen"} eq "")
 	{
 		OVJ_meldung(HINWEIS,"Keine Spitznamen Datei spezifiziert");
 		return;
 	}	
 	
-	if (!open (INFILE,"<",$stammdaten{"Spitznamen"}))
+	if (!open (INFILE,"<",$general{"Spitznamen"}))
 	{
-		OVJ_meldung(FEHLER,"Kann Spitznamen Datei ".$stammdaten{"Spitznamen"}." nicht lesen");
+		OVJ_meldung(FEHLER,"Kann Spitznamen Datei ".$general{"Spitznamen"}." nicht lesen");
 		return;
 	}
 	else
@@ -914,7 +856,7 @@ sub do_eval_allovfj {
 		$success = 1 if ($retval == 0);	# Stelle fest, ob wenigstens eine Auswertung erfolgreich war
 		last if ($retval == 2);	# systematischer Fehler, Abbruch der Schleife
 	}
-	OVJ::export(\%stammdaten,\%tn,\@ovfjlist,\@ovfjanztlnlist,$outputpath,$genfilename) if ($success);
+	OVJ::export(\%general,\%tn,\@ovfjlist,\@ovfjanztlnlist,$outputpath,$genfilename) if ($success);
 }
 
 #Suche in PM Daten
@@ -1131,32 +1073,32 @@ sub ReadPMDaten {
 	my ($pmname,$pmvorname,$pmcall,$pmdok,$pmgebjahr,$pmpm,$pmdatum);
 	if ($mode == 0)
 	{
-		if ($stammdaten{"PMVorjahr"} eq "")
+		if ($general{"PMVorjahr"} eq "")
 		{
 			OVJ::RepMeld($OUTFILE,"FEHLER: Keine PMVorjahr Datei spezifiziert");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 
-		if (!open (INFILE2,"<",$stammdaten{"PMVorjahr"}))
+		if (!open (INFILE2,"<",$general{"PMVorjahr"}))
 		{
-			OVJ::RepMeld($OUTFILE,"FEHLER: Kann PMVorjahr Datei ".$stammdaten{"PMVorjahr"}." nicht lesen");
+			OVJ::RepMeld($OUTFILE,"FEHLER: Kann PMVorjahr Datei ".$general{"PMVorjahr"}." nicht lesen");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 	}
 	else
 	{
-		if ($stammdaten{"PMaktJahr"} eq "")
+		if ($general{"PMaktJahr"} eq "")
 		{
 			OVJ::RepMeld($OUTFILE,"FEHLER: Keine aktuelle PM Datei spezifiziert");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
 
-		if (!open (INFILE2,"<",$stammdaten{"PMaktJahr"}))
+		if (!open (INFILE2,"<",$general{"PMaktJahr"}))
 		{
-			OVJ::RepMeld($OUTFILE,"FEHLER: Kann aktuelle PM Datei ".$stammdaten{"PMaktJahr"}." nicht lesen");
+			OVJ::RepMeld($OUTFILE,"FEHLER: Kann aktuelle PM Datei ".$general{"PMaktJahr"}." nicht lesen");
 			close ($OUTFILE) || die "close: $!";
 			return 1;	# Fehler
 		}
@@ -1209,10 +1151,10 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 	my $TlnIstAusrichter;	# Teilnehmer ist auch Ausrichter
 	
 	#Auswertung
-	%stammdaten = OVJ::GUI::get_general() if ($mode == 0);	# Generelle Hashdaten aktualisieren auf Basis der Felder
+	%general = OVJ::GUI::get_general() if ($mode == 0);	# Generelle Hashdaten aktualisieren auf Basis der Felder
 	%ovfj = OVJ::GUI::get_ovfj() if ($mode == 0);	# Hashdaten aktualisieren
 	
-	if ($stammdaten{Jahr} !~ /^\d{4}$/)
+	if ($general{Jahr} !~ /^\d{4}$/)
 	{
 		OVJ_meldung(FEHLER,"Jahr ist keine gültige Zahl");
 		return 2;	# Fehler mit Schleifenabbruch
@@ -1522,7 +1464,7 @@ sub do_eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der
 					OVJ::RepMeld(*OUTFILE,$str2);
 				}
 				$aktJahr = 1;	# zwar gefunden, aber keine Teilnahme im aktuellen Jahr (kann nachfolgend ueberschrieben werden)
-				$aktJahr = 2 if ($pmdatum =~ /^$stammdaten{Jahr}\d{4}$/);
+				$aktJahr = 2 if ($pmdatum =~ /^$general{Jahr}\d{4}$/);
 			}		
 			
 			if ($IsPM == 0 && $AddedVerant == 1 && $Helfermode == 0 && $HelferInKopf == 0 && $KeineSonderpunkte == 0)

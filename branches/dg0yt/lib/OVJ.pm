@@ -1750,7 +1750,84 @@ sub read_patterns {
 	return $patterns;
 }
 
+#=new
 
-sub OVJ_meldung { ::OVJ_meldung(@_) } # FIXME: refactor
+#Lesen der Generellen Daten aus der Genfile Datei
+sub read_genfile {
+#my ($choice,$filename) = @_;	# 0 = Laden, 1 = Importieren
+	my ($filename, $configpath) = @_;
+	defined $filename or carp "filename required";
+	if ($filename !~ /\/|\\/) {
+		defined $configpath or carp "'configpath' required for '$filename'";
+		$filename = $configpath.$sep.$filename.$sep.$filename.'.txt';
+	}
+
+	open (INFILE, '<', $filename)
+	  or return OVJ_meldung(FEHLER,"Kann '$filename' nicht öffnen: $!");
+
+	my %general;
+#	my @fjlist;
+	while (<INFILE>)
+	{
+		next if /^#/;
+		next if /^\s/;
+		s/\r//;
+		if (/^((?:\w|-)+)\s*=\s*(.*?)\s*$/)
+		{
+#			if ($1 eq "ovfj_link") { push(@fjlist,$2) }
+			if ($1 eq "ovfj_link") { push(@{$general{$1}},$2) }
+			else                   { $general{$1} = $2 }
+		}
+	}
+	close (INFILE) || die "close: $!";
+	return %general;
+}
+
+#Schreiben der Generellen Daten in die Genfile Datei
+sub write_genfile {
+	my ($filename, $configpath, %general) = @_;
+
+	defined $filename or carp "filename required";
+	if ($filename !~ /\/|\\/) {
+		defined $configpath or carp "'configpath' required for '$filename'";
+		unless (-d $configpath.$sep.$filename) {
+			OVJ_meldung(HINWEIS,"Erstelle Verzeichnis '$configpath$sep$filename'");
+			mkdir($configpath.$sep.$filename)
+			  or return OVJ_meldung(FEHLER,"Konnte Verzeichnis '$configpath$sep$filename' nicht erstellen: $!");
+		}
+		$filename = $configpath.$sep.$filename.$sep.$filename.'.txt';
+	}
+
+=pointless here
+
+	unless (-e $inputpath.$sep.$genfilename && -d $inputpath.$sep.$genfilename)
+	{
+		OVJ_meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$inputpath."\'");
+		unless (mkdir($inputpath.$sep.$genfilename))
+		{
+			OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$inputpath.$sep.$genfilename."\' nicht erstellen".$!);
+			return 1;	# Fehler
+		}
+	}
+	
+=cut
+	
+	open (OUTFILE, '>', $filename)
+	  or return OVJ_meldung(FEHLER,"Kann ".$filename." nicht schreiben");
+	print OUTFILE "#OVJ Toplevel-Datei für $general{Jahr}\n\n";
+	my $key;
+	foreach my $key (keys %general) {
+		next if ($key eq 'ovfj_link');
+		print OUTFILE "$key = $general{$key}\n";
+	}
+	print OUTFILE "\n";
+	map { print OUTFILE "ovfj_link = $_\n" } @{$general{ovfj_link}};
+	close (OUTFILE) || die "close: $!";
+}
+
+
+
+sub OVJ_meldung { meldung(@_) }   # FIXME: refactor to meldung( .. )
+sub meldung { ::OVJ_meldung(@_) } # FIXME: refactor
 
 1;

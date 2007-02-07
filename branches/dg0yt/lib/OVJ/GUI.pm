@@ -324,7 +324,9 @@ sub make_meldungen {
 sub set_general {
 	my %general = @_;
 	$check_ExcludeTln->{Value} = $general{Exclude_Checkmark}; 
-	delete $general{Exclude_Checkmark}; 
+	$fjlistbox->selectAll();
+	$fjlistbox->deleteSelected();
+	map { $fjlistbox->insert('end', "$_\n") } @{$general{ovfj_link}};
 	map {
 		$gui_general{$_}->delete(0, "end");
 		$gui_general{$_}->insert(0, $general{$_});
@@ -338,6 +340,7 @@ sub get_general {
 		$general{$key} = $value->get();
 	}
 	$general{Exclude_Checkmark} = $check_ExcludeTln->{Value};
+	@{$general{ovfj_link}} = split "\n", $fjlistbox->Contents();
 	return %general;
 }
 
@@ -346,8 +349,9 @@ sub general_modified {
 	my %general = @_;
 	$general{Exclude_Checkmark} ne $check_ExcludeTln->{Value}
 	or grep {
-		$gui_general{$_}->get ne ($general{$_} || "");
-	} keys %gui_general;
+		$gui_general{$_}->get() ne ($general{$_} || "");
+	} keys %gui_general
+	or join("\n", @{$general{ovfj_link}}) ne $fjlistbox->Contents();
 }
 
 
