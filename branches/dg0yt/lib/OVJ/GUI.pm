@@ -63,6 +63,8 @@ sub run {
 }
 
 sub init {
+	my %config = @_;
+	
 	$mw = MainWindow->new;
 	make_menu($mw);
 	make_general($mw);
@@ -326,7 +328,8 @@ sub set_general {
 	$check_ExcludeTln->{Value} = $general{Exclude_Checkmark}; 
 	$fjlistbox->selectAll();
 	$fjlistbox->deleteSelected();
-	map { $fjlistbox->insert('end', "$_\n") } @{$general{ovfj_link}};
+	$fjlistbox->insert('end', join("\n", @{$general{ovfj_link}}));
+#	map { $fjlistbox->insert('end', "$_\n") } @{$general{ovfj_link}};
 	map {
 		$gui_general{$_}->delete(0, "end");
 		$gui_general{$_}->insert(0, $general{$_});
