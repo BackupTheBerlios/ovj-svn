@@ -49,8 +49,6 @@ my %general = ();	# Generelle Einstellungen
 my %ovfj;				# Hash für eine OV Veranstaltung, Kopfdaten
 my $ovfjname;			# Name der aktiven OV Veranstaltung
 
-#my $patternfilename = "OVFJ_Muster.txt";
-#my $overridefilename = "Override.txt";
 my $inifilename = "OVJini.txt";
 my $inputpath = "input";		# Pfad für die Eingangsdaten
 my $outputpath = "output";		# Pfad für die Ergebnisdaten
@@ -65,7 +63,6 @@ my %tn;					# Hash für die Teilnehmer, Elemente sind wiederum Hashes
 my %auswerthash;		# Hash zur Kontrolle, welche OVFJ schon ausgewertet sind
 my $nicknames;			# Inhalt der Spitznamen Datei
 my ($i,$str);			# temp. Variablen
-my $pattern;			# Das 'richtige' Pattern, das aus dem textuellen erzeugt wird
 my @ovfjlist;			# Liste aller ausgewerteten OV FJ mit Details der Kopfdaten
                   	# Elemente sind die %ovfj Daten
 my @ovfjanztlnlist;	# Liste aller ausgewerteten OV FJ mit der Info über die Anzahl 
@@ -402,21 +399,8 @@ warn "Fixme: Direct Tk access";
 #Auswahl einer Veranstaltung durch den Anwender
 sub do_edit_ovfj {
 	my ($choice) = @_;	# Beim Erzeugen: 0 = neu, 1 = aus aktuellem OV Wettbewerb. Wird durchgereicht.
-
-	$_ = $OVJ::GUI::fjlistbox->getSelected();
-	my @fjlines = split(/\n/);
-	if ($#fjlines > 0)
-		{
-			OVJ_meldung(FEHLER,"Nur eine Veranstaltung markieren !");
-			return;
-		}
-	if (!grep {$_ eq $fjlines[0]} split(/\n/, $OVJ::GUI::fjlist->Contents()))
-	{
-			OVJ_meldung(FEHLER,"Ganze Veranstaltung markieren !");
-			return;
-	}
-	CreateEdit_ovfj($fjlines[0],$choice);
-	$ovfjname = $fjlines[0];
+	$ovfjname = OVJ::GUI::get_selected_ovfj();
+	CreateEdit_ovfj($ovfjname, $choice);
 }
 
 #Prüfen, ob OVFJ Veranstaltung verändert wurde, ohne gespeichert worden zu
@@ -541,7 +525,35 @@ sub do_reset_eval {
 }
 
 
+
+#Auswertung und Export aller OVFJ
+sub do_eval_ovfj {
+	$ovfjname = shift
+	 or return;
+	$ovfjname =~ /\S+/
+	 or return;
+	my $i = 0;
+	my $success = 0;
+	my $retval;
 	
+	do_reset_eval();
+	my %general = OVJ::GUI::get_general();
+	next if (CreateEdit_ovfj($ovfjname,2)==1); # FIXME: ?
+	$retval = OVJ::eval_ovfj($i++,
+	  \%general,
+	  \%tn,
+	  \@ovfjlist,
+	  \@ovfjanztlnlist,
+	  \%ovfj,
+	  $ovfjname,
+	  $inputpath,
+	  $reportpath,
+	  $genfilename,
+	  $ovfjrepfilename
+	);
+	OVJ::export(\%general,\%tn,\@ovfjlist,\@ovfjanztlnlist,$outputpath,$genfilename) if (! $retval);
+}
+
 #Auswertung und Export aller OVFJ
 sub do_eval_allovfj {
 	my $i = 0;

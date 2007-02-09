@@ -258,7 +258,7 @@ sub make_ovfj_detail {
 			->pack(-side => 'left',-padx => 2);
 	$ovfj_eval_button = $fr30->Button(
 	        -text => 'Auswertung',
-	        -command => sub{::do_eval_ovfj(0)},
+	        -command => sub{::do_eval_ovfj(get_selected_ovfj())},
 	        -state => 'disabled'
 	        )
 			->pack(-side => 'left',-padx => 2);
@@ -358,6 +358,16 @@ sub general_modified {
 }
 
 
+sub get_selected_ovfj {
+	my $selected = $fjlistbox->getSelected();
+	$selected !~ /\n/
+	 or return meldung(OVJ::FEHLER,"Nur eine Veranstaltung markieren !");
+	grep {$_ eq $selected} split(/\n/, $fjlistbox->Contents())
+	 or return meldung(OVJ::FEHLER,"Ganze Veranstaltung markieren !");
+	return $selected;
+}
+
+
 sub set_ovfj {
 	my %ovfj = @_;
 	map {
@@ -366,7 +376,6 @@ sub set_ovfj {
 	} keys %gui_ovfj;
 }
 
-#Aktualisieren der aktuellen Generellen Daten im Hash
 sub get_ovfj {
 	my %ovfj;
 	while (my ($key,$value) = each(%gui_ovfj)) {
@@ -495,6 +504,15 @@ sub do_copy_pattern {
 	my %ovfj_tmp = get_ovfj();
 	$gui_ovfj{Auswertungsmuster}->delete(0, "end");
 	$gui_ovfj{Auswertungsmuster}->insert(0, $patlines[0]);
+}
+
+sub meldung {
+	my ($type, $message) = @_;
+	my $response = $mw->messageBox(
+		-icon    => 'error', 
+		-title   => 'Fehler', 
+		-message => $message,
+		-type    => 'Ok');
 }
 
 1;
