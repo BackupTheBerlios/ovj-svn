@@ -59,7 +59,6 @@ my $sep = ($^O =~ /Win/i) ? '\\' : '/';	# Kai, fuer Linux und Win32 Portabilitae
 
 my ($genfilename,$ovfjfilename,$ovfjrepfilename);
 
-my %tn;					# Hash für die Teilnehmer, Elemente sind wiederum Hashes
 my %auswerthash;		# Hash zur Kontrolle, welche OVFJ schon ausgewertet sind
 my $nicknames;			# Inhalt der Spitznamen Datei
 my ($i,$str);			# temp. Variablen
@@ -513,7 +512,7 @@ sub do_write_ovfjfile {
 
 #Löschen aller Auswertungen im Speicher
 sub do_reset_eval {
-	undef %tn;
+#	undef %tn;
 	undef %auswerthash;
 	undef @ovfjlist;
 	undef @ovfjanztlnlist;
@@ -539,6 +538,7 @@ sub do_eval_ovfj {
 	do_reset_eval();
 	my %general = OVJ::GUI::get_general();
 	next if (CreateEdit_ovfj($ovfjname,2)==1); # FIXME: ?
+my %tn;					# Hash für die Teilnehmer, Elemente sind wiederum Hashes
 	$retval = OVJ::eval_ovfj($i++,
 	  \%general,
 	  \%tn,
@@ -562,6 +562,7 @@ sub do_eval_allovfj {
 	
 	do_reset_eval();
 	my %general = OVJ::GUI::get_general();
+my %tn;					# Hash für die Teilnehmer, Elemente sind wiederum Hashes
 	foreach $str (@{$general{ovfj_link}})
 	{
 		$ovfjname = $str;
@@ -599,7 +600,7 @@ sub Leave {
 sub OVJ_meldung {
 	my $level = shift;
 	my $message = "$level: " . shift;
-	OVJ::GUI::add_meldung($message) if $gui;
+	OVJ::GUI::meldung($level, $message) if $gui;
 	return 0;
 }
 

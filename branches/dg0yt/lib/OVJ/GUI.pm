@@ -66,6 +66,7 @@ sub init {
 	my %config = @_;
 	
 	$mw = MainWindow->new;
+	$mw->OnDestroy(sub { ::Leave(); warn "zzz" });
 	make_menu($mw);
 	make_general($mw);
 	make_ovfj_list($mw);
@@ -91,7 +92,7 @@ sub make_menu {
 	$menu_bar->Button(
 	        -text    => 'Exit',
 	        -command => \&::Leave)->pack(-side => 'right');
-	$menu_bar->Label(-text => "OVJ $::ovjvers by DL3SDO, $::ovjdate")->pack();
+	$menu_bar->Label(-text => "OVJ $OVJ::ovjvers by DL3SDO, $OVJ::ovjdate")->pack();
 }
     
 # Allgemeine Daten
@@ -359,12 +360,7 @@ sub general_modified {
 
 
 sub get_selected_ovfj {
-	my $selected = $fjlistbox->getSelected();
-	$selected !~ /\n/
-	 or return meldung(OVJ::FEHLER,"Nur eine Veranstaltung markieren !");
-	grep {$_ eq $selected} split(/\n/, $fjlistbox->Contents())
-	 or return meldung(OVJ::FEHLER,"Ganze Veranstaltung markieren !");
-	return $selected;
+	return get_selected($fjlistbox);
 }
 
 
@@ -438,10 +434,6 @@ sub set_general_data_label {
 	$gui_general_label->configure(-text => $label);
 }
 
-sub add_meldung {
-	$meldung->insert("end", $_[0]);
-}
-
 #Über Box aus dem 'Hilfe' Menu
 sub About {
 	$mw->messageBox(-icon => 'info', 
@@ -487,32 +479,48 @@ sub CheckForUnsavedPatterns {
 
 #Kopieren des markierten Patterns in die Patternzeile des OV Wettbewerbs
 sub do_copy_pattern {
-	my @patlist = split(/\n/, get_patterns()); # die Daten im Speicher aktualisieren
-	my @patlines = split(/\n/, $gui_patterns->getSelected());
-	if ($#patlines > 0)
-	{
-		::OVJ_meldung(OVJ::FEHLER,"Nur eine Zeile markieren!");
-		return;
-	}
-	if (!grep {$_ eq $patlines[0]} @patlist)
-	{
-		::OVJ_meldung(OVJ::FEHLER,"Ganze Zeile markieren!");
-		return;
-	}
-	$patlines[0] =~ s/\/\/.*$//;	# Entferne Kommentare beim Kopieren
-	$patlines[0] =~ s/\s+$//;		# Entferne immer Leerzeichen nach dem Muster
+	my $pattern = get_selected($gui_patterns)
+	 or return;
+	$pattern =~ s/\/\/.*$//;	# Entferne Kommentare beim Kopieren
+	$pattern =~ s/\s+$//;		# Entferne immer Leerzeichen nach dem Muster
 	my %ovfj_tmp = get_ovfj();
 	$gui_ovfj{Auswertungsmuster}->delete(0, "end");
-	$gui_ovfj{Auswertungsmuster}->insert(0, $patlines[0]);
+	$gui_ovfj{Auswertungsmuster}->insert(0, $pattern);
 }
 
+# Meldung anzeigen.
+# Parameter: Typ, Meldung
+# Rückgabe: FALSE bei Fehlermeldung, WAHR sonst
 sub meldung {
 	my ($type, $message) = @_;
-	my $response = $mw->messageBox(
-		-icon    => 'error', 
-		-title   => 'Fehler', 
-		-message => $message,
-		-type    => 'Ok');
+
+	my $err_icon;
+	if    ($type eq OVJ::FEHLER)  { $err_icon = 'error' }
+	elsif ($type eq OVJ::WARNUNG) { $err_icon = 'warning' }
+
+	if ($err_icon) {
+		$mw->messageBox(
+			-icon    => $err_icon, 
+			-title   => $type, 
+			-message => $message,
+			-type    => 'Ok' );
+	}
+	$meldung->insert('end', "$type: $message");
+	return ($type eq OVJ::FEHLER) ? 0 : 1 ; # 0: Fehler, 1: okay 
 }
 
+# Bestimmt einzelne ausgewählte Zeile aus Tk::Text
+# Rückgabe: FALSE bei Fehler, ausgewählte Zeile sonst
+sub get_selected {
+	my $listbox = shift;
+
+	my $selected = $listbox->getSelected();
+	chomp $selected;
+	$selected !~ /\n/
+	 or return meldung(OVJ::FEHLER, 'Nur eine Zeile markieren!');
+	grep {$_ eq $selected} split(/\n/, $listbox->Contents())
+	 or return meldung(OVJ::FEHLER, 'Ganze Zeile markieren!');
+	return $selected;
+}
+	
 1;
