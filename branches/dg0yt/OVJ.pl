@@ -69,7 +69,7 @@ intro();
 $gui = OVJ::GUI::init(%config);
 init();
 OVJ::GUI::run();
-exit 0;
+Leave();
 
 
 
@@ -126,83 +126,6 @@ sub init {
 	}
 }
 
-
-
-#Auswahl der FJ Datei per Button
-#und Pruefen, ob automatisch OVFJ Kopfdaten ausgefuellt werden koennen
-sub do_select_fjfile {
-	unless (-e $inputpath.$sep.$OVJ::genfilename && -d $inputpath.$sep.$OVJ::genfilename)
-	{
-		OVJ_meldung(FEHLER,"Verzeichnis \'".$inputpath.$sep.$OVJ::genfilename."\' nicht vorhanden");
-		return;
-	}
-	my $types = [['Text Files','.txt'],['All Files','*',]];
-	my $selfile = $gui->getOpenFile(-initialdir => $inputpath.$sep.$OVJ::genfilename, -filetypes => $types, -title => "FJ Datei auswählen");
-	return if (!defined($selfile) || $selfile eq "");
-	my $tp;
-	my @fi;
-	$selfile =~ s/^.*\///;
-	my %ovfj_temp = OVJ::GUI::get_ovfj();
-	$ovfj_temp{OVFJDatei} = $selfile;
-
-	if (!open (INFILE,"<",$inputpath.$sep.$OVJ::genfilename.$sep.$selfile))
-	{
-		OVJ_meldung(FEHLER,"Kann OVFJ Datei ".$selfile." nicht lesen");
-		return;
-	}
-	while (<INFILE>)
-	{
-		s/\r//;
-		if (/^Organisation:\s*(.+)$/)
-		{
-			$tp = $1;
-			$tp =~ s/^OV\s+//;
-			$tp =~ s/\s+$//;
-			$ovfj_temp{AusrichtOV} = $tp;
-			next;
-		}
-		if (/^DOK:\s*([A-Z]\d{2})$/i) # Case insensitive
-		{
-			$tp = uc($1);
-			$tp =~ s/\s+$//;
-			$ovfj_temp{AusrichtDOK} = $tp;
-			next;
-		}
-		if (/^Datum:\s*(\d{1,2}\.\d{1,2}\.\d{2,4})$/)
-		{
-			$tp = $1;
-			$tp =~ s/\s+$//;
-			$ovfj_temp{Datum} = $tp;
-			next;
-		}
-		if (/^Verantwortlich:\s*(.+)$/)
-		{
-			$tp = $1;
-			$tp =~ s/\s+$//;
-			$tp =~ tr/,/ /;
-			@fi = split(/\s+/,$tp);
-			$ovfj_temp{Verantw_Vorname} = $fi[0] if (@fi >= 1);
-			$ovfj_temp{Verantw_Name} = $fi[0] if (@fi >= 2);
-			$ovfj_temp{Verantw_CALL} = $fi[0] if (@fi >= 3);
-			$ovfj_temp{Verantw_DOK} = $fi[0] if (@fi >= 4);
-			$ovfj_temp{Verantw_GebJahr} = $fi[0] if (@fi >= 5);
-			next;
-		}
-		if (/^Teilnehmerzahl:\s*(\d+)/)
-		{
-			$ovfj_temp{TlnManuell} = $1;
-			next;
-		}
-		if (/^Band:\s*(\d{1,2})/)
-		{
-			$ovfj_temp{Band} = $1;
-			next;
-		}
-		last if (/^---/);		# Breche bei --- ab 
-	}
-	close (INFILE) || die "close: $!";
-	OVJ::GUI::set_ovfj(%ovfj_temp);
-}
 
 
 sub init_general {

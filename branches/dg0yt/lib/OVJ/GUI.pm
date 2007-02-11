@@ -293,7 +293,7 @@ sub make_ovfj_detail {
 	$ovfj_fileset_button = $fr315->Button(
 	        -text => 'OVFJ Auswertungsdatei',
 	        -state => 'disabled',
-	        -command => sub{::do_select_fjfile()}
+	        -command => sub{ do_select_fjfile() }
 	    )->pack(-side => 'left');
 	$gui_ovfj{OVFJDatei} = $fr315->Entry(-width => 27)->pack(-side => 'right');
 	
@@ -604,7 +604,7 @@ sub do_edit_ovfj {
 sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 	my ($ovfjf_name,$choice) = @_;	# Beim Erzeugen: 0 = neu, 1 = aus aktuellem OV Wettbewerb, 
 												# 2 = explizites Laden aus Auswertungsschleife heraus
-	return if (::CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
+	return if (CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
 	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ".$ovfjf_name);
 	my $ovfjfilename = $ovfjf_name;
 #	$::ovfjrepfilename = $ovfjf_name."_report_ovj.txt";
@@ -628,6 +628,24 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 }
 
 
+#Auswahl der FJ Datei per Button
+#und Pruefen, ob automatisch OVFJ Kopfdaten ausgefuellt werden koennen
+sub do_select_fjfile {
+	my $fjdir = $OVJ::inputpath.$OVJ::sep.$OVJ::genfilename;
+	(-e $fjdir && -d $fjdir)
+	 or return meldung(OVJ::FEHLER, "Verzeichnis '$fjdir' nicht vorhanden");
+	
+	my $types = [['Text Files','.txt'],['All Files','*',]];
+	my $selfile = $mw->getOpenFile(
+		-initialdir => $fjdir,
+		-filetypes  => $types,
+		-title      => "FJ Datei auswählen");
+	return unless ($selfile && $selfile ne "");
 
+	$selfile =~ s/^.*\///;
+	my %ovfj = OVJ::import_fjfile($selfile)
+	 or return;
+	set_ovfj(%ovfj);
+}
 
 1;

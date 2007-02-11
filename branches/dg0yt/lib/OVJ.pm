@@ -54,14 +54,18 @@ use constant {
 
 use vars qw(
 	$configpath
+	$inputpath
 	$genfilename
+	$sep
 );
 
-my $sep = ($^O =~ /Win/i) ? '\\' : '/';	# Kai, fuer Linux und Win32 Portabilitaet
+$sep = ($^O =~ /Win/i) ? '\\' : '/';	# Kai, fuer Linux und Win32 Portabilitaet
+
 my $patternfilename = "OVFJ_Muster.txt";
 my $overridefilename = "Override.txt";
 
 $configpath = "config";		# Pfad für die Konfigurationsdaten
+$inputpath  = "input";		# Pfad für die Eingangsdaten
 
 $lfdauswert = 0; # Nummer der lfd. OVFJ Auswertung
 =old
@@ -71,7 +75,6 @@ my %ovfj;				# Hash für eine OV Veranstaltung, Kopfdaten
 my $ovfjname;			# Name der aktiven OV Veranstaltung
 
 my $inifilename = "OVJini.txt";
-my $inputpath = "input";		# Pfad für die Eingangsdaten
 my $outputpath = "output";		# Pfad für die Ergebnisdaten
 my $reportpath = "report";		# Pfad für die Reportdaten
 										# Generelle Daten, sowie die OVFJ Dateien (*_ovj.txt))
@@ -1422,6 +1425,8 @@ sub meldung {
 	my $level = shift;
 	my $message = "$level: " . shift;
 	carp $message if ($level eq WARNUNG || $level eq FEHLER);
+	return if ($level eq FEHLER); 
+	return 1;
 #	::OVJ_meldung($level, $message, @_) 
 }
 
@@ -1459,6 +1464,61 @@ sub write_ovfjfile {
 	}
 	close $outfile
 	 or die "close: $!";
+}
+
+
+sub import_fjfile {
+	my $filename = shift;
+	my %ovfj = ( OVFJDatei => $filename );
+	open my $infile, '<', $inputpath.$sep.$genfilename.$sep.$filename
+	 or return OVJ_meldung(FEHLER, "Kann OVFJ Datei '$filename' nicht lesen: $!");
+	my $tp;
+	while (<$infile>) {
+		s/\r//;
+		if (/^Organisation:\s*(.+)$/) {
+			$tp = $1;
+			$tp =~ s/^OV\s+//;
+			$tp =~ s/\s+$//;
+			$ovfj{AusrichtOV} = $tp;
+			next;
+		}
+		if (/^DOK:\s*([A-Z]\d{2})$/i) { # Case insensitive
+			$tp = uc($1);
+			$tp =~ s/\s+$//;
+			$ovfj{AusrichtDOK} = $tp;
+			next;
+		}
+		if (/^Datum:\s*(\d{1,2}\.\d{1,2}\.\d{2,4})$/) {
+			$tp = $1;
+			$tp =~ s/\s+$//;
+			$ovfj{Datum} = $tp;
+			next;
+		}
+		if (/^Verantwortlich:\s*(.+)$/)	{
+			$tp = $1;
+			$tp =~ s/\s+$//;
+			$tp =~ tr/,/ /;
+			my @fi = split(/\s+/, $tp);
+			$ovfj{Verantw_Vorname} = $fi[0] if (@fi >= 1);
+			$ovfj{Verantw_Name} = $fi[0] if (@fi >= 2);
+			$ovfj{Verantw_CALL} = $fi[0] if (@fi >= 3);
+			$ovfj{Verantw_DOK} = $fi[0] if (@fi >= 4);
+			$ovfj{Verantw_GebJahr} = $fi[0] if (@fi >= 5);
+			next;
+		}
+		if (/^Teilnehmerzahl:\s*(\d+)/) {
+			$ovfj{TlnManuell} = $1;
+			next;
+		}
+		if (/^Band:\s*(\d{1,2})/) {
+			$ovfj{Band} = $1;
+			next;
+		}
+		last if (/^---/);		# Breche bei --- ab 
+	}
+	close $infile
+	 or die "close: $!";
+	return %ovfj;
 }
 
 
