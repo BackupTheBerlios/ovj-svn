@@ -37,13 +37,6 @@ use OVJ::Inifile;
 use OVJ::GUI;
 use OVJ;
 
-use constant {
-	INFO    => 'Information',
-	HINWEIS => 'Hinweis',
-	WARNUNG => 'Warnung',
-	FEHLER  => 'Fehler',
-};
-
 my %config  = ();		# Konfigurationsdaten
 my %general = ();	# Generelle Einstellungen
 my %ovfj;				# Hash für eine OV Veranstaltung, Kopfdaten
@@ -409,7 +402,7 @@ warn "Fixme: Direct Tk access";
 											-type => 'YesNoCancel', 
 											-default => 'Yes');
 	return 1 if ($response eq "Cancel");
-	write_ovfjfile(OVJ::GUI::get_selected_ovfj()."_ovj.txt") if ($response eq "Yes");
+	write_ovfjfile(OVJ::GUI::get_selected_ovfj()) if ($response eq "Yes");
 	return 0;
 }
 
@@ -434,7 +427,9 @@ sub do_eval_ovfj {
 		$ovfjrepfilename = $str . "_report_ovj.txt";
 		next if ($ovfjname !~ /\S+/);
 #		next if (OVJ::GUI::CreateEdit_ovfj($ovfjname,2)==1);
-		next unless read_ovfjfile($ovfjname."_ovj.txt");
+		%ovfj = OVJ::read_ovfjfile($ovfjname)
+		 or next;
+		OVJ::GUI::set_ovfj(%ovfj);
 		$retval = OVJ::eval_ovfj($i++,
 		  \%general,
 		  \%tn,

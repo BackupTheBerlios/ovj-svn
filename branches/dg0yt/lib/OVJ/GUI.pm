@@ -47,7 +47,7 @@ my $check_ExcludeTln;
 
 my $orig_patterns;
 
-my %auswerthash;		# Hash zur Kontrolle, welche OVFJ schon ausgewertet sind
+# my %auswerthash;		# Hash zur Kontrolle, welche OVFJ schon ausgewertet sind
 
 use vars qw(
 	$fjlistbox 
@@ -259,8 +259,7 @@ sub make_ovfj_detail {
 	        -text => 'Speichern',
 	        -command => sub {
 				my %ovfj = get_ovfj();
-				OVJ::write_ovfjfile(get_selected_ovfj()."_ovj.txt",
-			                        \%ovfj ) 
+				OVJ::write_ovfjfile(get_selected_ovfj(), \%ovfj ) 
 			},
 	        -state => 'disabled'
 	        )
@@ -502,6 +501,9 @@ sub do_copy_pattern {
 sub meldung {
 	my ($type, $message) = @_;
 
+	OVJ::meldung($type, $message);
+	$meldung->insert('end', "$type: $message");
+
 	my $err_icon;
 	if    ($type eq OVJ::FEHLER)  { $err_icon = 'error' }
 	elsif ($type eq OVJ::WARNUNG) { $err_icon = 'warning' }
@@ -513,7 +515,6 @@ sub meldung {
 			-message => $message,
 			-type    => 'Ok' );
 	}
-	$meldung->insert('end', "$type: $message");
 	return ($type eq OVJ::FEHLER) ? 0 : 1 ; # 0: Fehler, 1: okay 
 }
 
@@ -533,7 +534,7 @@ sub get_selected {
 
 #Löschen aller Auswertungen im Speicher
 sub do_reset_eval {
-	undef %auswerthash;
+#	undef %auswerthash;
 	$OVJ::GUI::ovfj_eval_button->configure(-state => 'normal');
 	$OVJ::GUI::exp_eval_button->configure(-state => 'disabled');
 	$OVJ::lfdauswert = 0;
@@ -554,10 +555,9 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 												# 2 = explizites Laden aus Auswertungsschleife heraus
 	return if (::CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
 	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ".$ovfjf_name);
-	my $ovfjfilename = $ovfjf_name."_ovj.txt"; # FIXME
+	my $ovfjfilename = $ovfjf_name;
 #	$::ovfjrepfilename = $ovfjf_name."_report_ovj.txt";
 #	if (-e $configpath.$sep.$OVJ::genfilename.$sep.$ovfjfilename) {
-# FIXME: update gui
 		if (my %ovfj = OVJ::read_ovfjfile($ovfjfilename)) {
 			set_ovfj(%ovfj);
 		}
@@ -565,31 +565,15 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 			clear_ovfj();
 		}
 		else {
-			meldung(OVJ::FEHLER,"Kann ".$ovfjfilename." nicht lesen");
+			# FIXME: Meldung aus OVJ.pm umleiten
+			meldung(OVJ::FEHLER, "Kann '$ovfjfilename' nicht lesen: $!");
 			return 1;
 		}
-#}
-#	else {
-#		if ($choice == 2) {	# kann nicht geladen werden
-#			meldung(FEHLER,"Finde ".$::ovfjfilename." nicht");
-#			return 1;
-#		}
-#		if ($choice == 0) {
-#			clear_ovfj();
-#		}
-#		else {
-#			$datum->delete(0,"end");
-#			$fjfile->delete(0,"end");
-#			warn "Inactive code";
-#		}
-#		%ovfj = get_ovfj(); # FIXME: redundant code
-#		set_ovfj(%ovfj);
-#	}
 	$ovfj_fileset_button->configure(-state => 'normal');
 	$ovfj_save_button->configure(-state => 'normal');
 	$copy_pattern_button->configure(-state => 'normal');
-	$ovfj_eval_button->configure(-state => 
-		exists($auswerthash{$ovfjf_name}) ? 'disabled' : 'normal' );
+	$ovfj_eval_button->configure(-state => 'normal');
+#		exists($auswerthash{$ovfjf_name}) ? 'disabled' : 'normal' );
 }
 
 1;
