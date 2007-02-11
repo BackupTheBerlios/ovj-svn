@@ -52,9 +52,16 @@ use constant {
 	FEHLER  => 'Fehler',
 };
 
+use vars qw(
+	$configpath
+	$genfilename
+);
+
 my $sep = ($^O =~ /Win/i) ? '\\' : '/';	# Kai, fuer Linux und Win32 Portabilitaet
 my $patternfilename = "OVFJ_Muster.txt";
 my $overridefilename = "Override.txt";
+
+$configpath = "config";		# Pfad für die Konfigurationsdaten
 
 $lfdauswert = 0; # Nummer der lfd. OVFJ Auswertung
 =old
@@ -67,7 +74,6 @@ my $inifilename = "OVJini.txt";
 my $inputpath = "input";		# Pfad für die Eingangsdaten
 my $outputpath = "output";		# Pfad für die Ergebnisdaten
 my $reportpath = "report";		# Pfad für die Reportdaten
-my $configpath = "config";		# Pfad für die Konfigurationsdaten
 										# Generelle Daten, sowie die OVFJ Dateien (*_ovj.txt))
 
 my ($genfilename,$ovfjfilename,$ovfjrepfilename);
@@ -111,7 +117,7 @@ sub do_file_general {
 		#$tempname = $FSref->Show;
 		$filename =~ s/^.*\///;		# Pfadangaben entfernen
 		$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
-		OVJ_meldung(HINWEIS,"Lade ".$filename);
+		meldung(HINWEIS,"Lade ".$filename);
 		$retstate = read_genfile(0,$filename);
 		if ($retstate == 0)	# Erfolgreich geladen
 		{
@@ -131,7 +137,7 @@ sub do_file_general {
 		return 1 if (!defined($filename) || $filename eq "");
 		#my $FSref = $gui->FileSelect(-directory => $configpath);
 		#$genfilename = $FSref->Show;
-		OVJ_meldung(HINWEIS,"Importiere ".$filename);
+		meldung(HINWEIS,"Importiere ".$filename);
 		$retstate = read_genfile(1,$filename);
 		if ($retstate == 0)	# Erfolgreich geladen
 		{
@@ -153,11 +159,11 @@ sub do_file_general {
 		{
 			if (-e $configpath.$sep.$genfilename.$sep.$genfilename.".txt")
 			{
-				OVJ_meldung(HINWEIS,"Speichere ".$genfilename);
+				meldung(HINWEIS,"Speichere ".$genfilename);
 			}
 			else
 			{
-				OVJ_meldung(HINWEIS,"Erzeuge ".$genfilename);
+				meldung(HINWEIS,"Erzeuge ".$genfilename);
 			}
 			return(write_genfile());
 		}
@@ -185,13 +191,13 @@ sub do_file_general {
 #													-type => 'YesNo', 
 #													-default => 'Yes');
 #			return 1 if ($response eq "No");
-#			OVJ_meldung(HINWEIS,"Speichere ".$genfilename);
+#			meldung(HINWEIS,"Speichere ".$genfilename);
 #		}
 #		else
 #		{
 		if (-e $configpath.$sep.$genfilename.$sep.$genfilename.".txt")
-		{ OVJ_meldung(HINWEIS,"Überschreibe ".$genfilename); }
-		else { OVJ_meldung(HINWEIS,"Erzeuge ".$genfilename); }
+		{ meldung(HINWEIS,"Überschreibe ".$genfilename); }
+		else { meldung(HINWEIS,"Erzeuge ".$genfilename); }
 #		}
 		OVJ::GUI::set_general_data_label($genfilename);
 		$config{"LastGenFile"} = $genfilename;
@@ -203,27 +209,27 @@ sub do_file_general {
 sub write_genfile {
 	unless (-e $configpath.$sep.$genfilename && -d $configpath.$sep.$genfilename)
 	{
-		OVJ_meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$configpath."\'");
+		meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$configpath."\'");
 		unless (mkdir($configpath.$sep.$genfilename))
 		{
-			OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$configpath.$sep.$genfilename."\' nicht erstellen".$!);
+			meldung(FEHLER,"Konnte Verzeichnis \'".$configpath.$sep.$genfilename."\' nicht erstellen".$!);
 			return 1;	# Fehler
 		}
 	}
 
 	unless (-e $inputpath.$sep.$genfilename && -d $inputpath.$sep.$genfilename)
 	{
-		OVJ_meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$inputpath."\'");
+		meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$inputpath."\'");
 		unless (mkdir($inputpath.$sep.$genfilename))
 		{
-			OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$inputpath.$sep.$genfilename."\' nicht erstellen".$!);
+			meldung(FEHLER,"Konnte Verzeichnis \'".$inputpath.$sep.$genfilename."\' nicht erstellen".$!);
 			return 1;	# Fehler
 		}
 	}
 	
 	if (!open (OUTFILE,">",$configpath.$sep.$genfilename.$sep.$genfilename.".txt"))
 	{
-		OVJ_meldung(FEHLER,"Kann ".$genfilename." nicht schreiben");
+		meldung(FEHLER,"Kann ".$genfilename." nicht schreiben");
 		return 1;	# Fehler
 	}
 	%general=OVJ::GUI::get_general();	# Hash aktualisieren auf Basis der Felder
@@ -251,7 +257,7 @@ sub read_genfile {
 
 	if (!open (INFILE,"<",($choice == 0 ? $configpath.$sep.$filename.$sep : "").$filename.($choice == 0 ? ".txt" : ""))) # FIXME: Endung nach $choice gewählt?
 	{
-	OVJ_meldung(FEHLER,"Kann ".$filename." nicht lesen");
+	meldung(FEHLER,"Kann ".$filename." nicht lesen");
 	return 1;	# Fehler
 	}
 
@@ -335,12 +341,12 @@ sub do_edit_ovfj {
 	my @fjlines = split(/\n/);
 	if ($#fjlines > 0)
 		{
-			OVJ_meldung(FEHLER,"Nur eine Veranstaltung markieren !");
+			meldung(FEHLER,"Nur eine Veranstaltung markieren !");
 			return;
 		}
 	if (!grep {$_ eq $fjlines[0]} @fjlist)
 	{
-			OVJ_meldung(FEHLER,"Ganze Veranstaltung markieren !");
+			meldung(FEHLER,"Ganze Veranstaltung markieren !");
 			return;
 	}
 	CreateEdit_ovfj($fjlines[0],$choice);
@@ -373,11 +379,11 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 	$OVJ::GUI::ovfjnamelabel->configure(-text => "OV Wettbewerb: ".$ovfjf_name);
 	$ovfjfilename = $ovfjf_name."_ovj.txt";
 	$ovfjrepfilename = $ovfjf_name."_report_ovj.txt";
-	if (-e $configpath.$sep.$genfilename.$sep.$ovfjfilename)
+	if (-e $OVJ::configpath.$sep.$genfilename.$sep.$ovfjfilename)
 	{
 		if (read_ovfjfile()==1)	# Rueckgabe bei Fehler
 		{
-			OVJ_meldung(FEHLER,"Kann ".$ovfjfilename." nicht lesen");
+			meldung(FEHLER,"Kann ".$ovfjfilename." nicht lesen");
 			return 1;
 		}
 	}
@@ -385,7 +391,7 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 	{
 		if ($choice == 2)	# kann nicht geladen werden
 		{
-			OVJ_meldung(FEHLER,"Finde ".$ovfjfilename." nicht");
+			meldung(FEHLER,"Finde ".$ovfjfilename." nicht");
 			return 1;
 		}
 		if ($choice == 0)
@@ -418,7 +424,7 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 sub read_ovfjfile { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 	if (!open (INFILE,"<",$configpath.$sep.$genfilename.$sep.$ovfjfilename))
 	{
-		OVJ_meldung(FEHLER,"Kann ".$ovfjfilename." nicht lesen");
+		meldung(FEHLER,"Kann ".$ovfjfilename." nicht lesen");
 		return 1;	# Fehler
 	}
 
@@ -443,7 +449,7 @@ sub read_ovfjfile { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 sub do_write_ovfjfile {
 	if (!open (OUTFILE,">",$configpath.$sep.$genfilename.$sep.$ovfjfilename))
 	{
-		OVJ_meldung(FEHLER,"Kann ".$ovfjfilename." nicht schreiben");
+		meldung(FEHLER,"Kann ".$ovfjfilename." nicht schreiben");
 		return;
 	}
 	%ovfj = OVJ::GUI::get_ovfj();
@@ -937,13 +943,13 @@ sub read_pm_file {
 #Lesen der Spitznamen Datei
 sub get_nicknames {
 	my $filename = shift
-	 or return OVJ_meldung(HINWEIS, "Keine Spitznamen-Datei spezifiziert");
+	 or return meldung(HINWEIS, "Keine Spitznamen-Datei spezifiziert");
 	
 	my $nicknames = '';
 	my $infile;
 	open ($infile, '<', $filename) &&
 	read $infile, $nicknames, -s $filename
-	 or return OVJ_meldung(FEHLER, "Kann Spitznamen-Datei '$filename' nicht lesen: $!");
+	 or return meldung(FEHLER, "Kann Spitznamen-Datei '$filename' nicht lesen: $!");
 	close $infile;
 	$nicknames =~ s/\r//g;
 	$nicknames =~ s/^#.*?$//mg;
@@ -954,14 +960,14 @@ sub get_nicknames {
 #Format: Name,Vorname,Rufzeichen,DOK,Gebjahr,NichtInPMVJ|IstInPMVJ
 sub get_overrides {
 	my $filename = shift
-	 or return OVJ_meldung(HINWEIS, "Keine Override-Datei spezifiziert");
+	 or return meldung(HINWEIS, "Keine Override-Datei spezifiziert");
 
 	return unless (-e $filename);
 
 	my $line = 0;
 	my $overrides = undef;
 	open (my $infile , '<', $filename)
-	 or return OVJ_meldung(FEHLER, "Kann Override Datei '$filename' nicht lesen: $!");
+	 or return meldung(FEHLER, "Kann Override Datei '$filename' nicht lesen: $!");
 	while (<$infile>) {
 		$line++;
 		chomp;
@@ -973,10 +979,10 @@ sub get_overrides {
 			$overrides .= $_."\n";
 		}
 		else {
-			OVJ_meldung(FEHLER, "Formatfehler in Zeile $line der Overridedatei: '$_'");
+			meldung(FEHLER, "Formatfehler in Zeile $line der Overridedatei: '$_'");
 		}
 	}
-	#OVJ_meldung(HINWEIS,"INFO: Override Datei eingelesen");
+	#meldung(HINWEIS,"INFO: Override Datei eingelesen");
 	close $infile || die "close: $!";
 	return $overrides;
 }
@@ -993,7 +999,7 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 	my $ovfjname = shift;
 	my $inputpath = shift;
 	my $reportpath = shift;
-	my $genfilename = shift;
+#	my $genfilename = shift;
 	my $ovfjrepfilename = shift;
 	
 	# FIXME:
@@ -1036,17 +1042,17 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 	
 	if ($general->{Jahr} !~ /^\d{4}$/)
 	{
-		OVJ_meldung(FEHLER,"Jahr ist keine gültige Zahl");
+		meldung(FEHLER,"Jahr ist keine gültige Zahl");
 		return 2;	# Fehler mit Schleifenabbruch
 	}
 	
-	OVJ_meldung(HINWEIS,"***************  ".$ovfjname."  ***************");
+	meldung(HINWEIS,"***************  ".$ovfjname."  ***************");
 	
 	my %ovfj_temp = OVJ::GUI::get_ovfj();
 	$_ = $ovfj_temp{Auswertungsmuster};
 	unless (/Nachname/ && /Vorname/)
 	{
-		OVJ_meldung(FEHLER,"Muster muss 'Nachname' und 'Vorname' beinhalten");
+		meldung(FEHLER,"Muster muss 'Nachname' und 'Vorname' beinhalten");
 		return 1;	# Fehler
 	}
 
@@ -1056,17 +1062,17 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 
 	unless (-e $reportpath.$sep.$genfilename && -d $reportpath.$sep.$genfilename)
 	{
-		OVJ_meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$reportpath."\'");
+		meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$reportpath."\'");
 		unless (mkdir($reportpath.$sep.$genfilename))
 		{
-			OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$reportpath.$sep.$genfilename."\' nicht erstellen".$!);
+			meldung(FEHLER,"Konnte Verzeichnis \'".$reportpath.$sep.$genfilename."\' nicht erstellen".$!);
 			return 1;	# Fehler
 		}
 	}
 	
 	if (!open (OUTFILE,">",$reportpath.$sep.$genfilename.$sep.$ovfjrepfilename))
 	{
-		OVJ_meldung(FEHLER,"Kann '$ovfjrepfilename' nicht schreiben");
+		meldung(FEHLER,"Kann '$ovfjrepfilename' nicht schreiben");
 		return 1;	# Fehler
 	}	
 
@@ -1089,7 +1095,7 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 	
 	unless (-e $inputpath.$sep.$genfilename && -d $inputpath.$sep.$genfilename)
 	{
-		OVJ_meldung(FEHLER,"Verzeichnis \'".$inputpath.$sep.$genfilename."\' nicht vorhanden");
+		meldung(FEHLER,"Verzeichnis \'".$inputpath.$sep.$genfilename."\' nicht vorhanden");
 		close (OUTFILE) || die "close: $!";
 		return 2;	# Fehler mit Schleifenabbruch
 	}
@@ -1463,7 +1469,7 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 		push (@{$ovfjanztlnlist},$anztln);
 	}
 
-	OVJ_meldung(HINWEIS,"");	# Erzeuge Leerzeile zwischen Auswertungen
+	meldung(HINWEIS,"");	# Erzeuge Leerzeile zwischen Auswertungen
 
 	close (OUTFILE) || die "close: $!";
 	close (INFILE) || die "close: $!";
@@ -1478,7 +1484,7 @@ sub export {
 	my $ovfjlist = shift;
 	my $ovfjanztlnlist = shift;
 	my $outputpath = shift;
-	my $genfilename = shift;
+#	my $genfilename = shift;
 
 	my ($rawresultfilename,$asciiresultfilename,$htmlresultfilename);
 	my ($tnkey,$tndatakey);
@@ -1497,29 +1503,29 @@ sub export {
 	
 	unless (-e $outputpath.$sep.$genfilename && -d $outputpath.$sep.$genfilename)
 	{
-		::OVJ_meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$outputpath."\'");
+		::meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$outputpath."\'");
 		unless (mkdir($outputpath.$sep.$genfilename))
 		{
-			::OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$outputpath.$sep.$genfilename."\' nicht erstellen".$!);
+			::meldung(FEHLER,"Konnte Verzeichnis \'".$outputpath.$sep.$genfilename."\' nicht erstellen".$!);
 			return;
 		}
 	}	
 	
 	if (!open (ROUTFILE,">",$outputpath.$sep.$genfilename.$sep.$rawresultfilename))
 	{
-		::OVJ_meldung(FEHLER,"Kann ".$rawresultfilename." nicht schreiben");
+		::meldung(FEHLER,"Kann ".$rawresultfilename." nicht schreiben");
 		return;
 	}
 	$asciiresultfilename = "OVJ".$general->{"Distriktskenner"}.$general->{Jahr}.".txt";
 	if (!open (AOUTFILE,">",$outputpath.$sep.$genfilename.$sep.$asciiresultfilename))
 	{
-		::OVJ_meldung(FEHLER,"Kann ".$asciiresultfilename." nicht schreiben");
+		::meldung(FEHLER,"Kann ".$asciiresultfilename." nicht schreiben");
 		return;
 	}
 	$htmlresultfilename = "OVJ_Ergebnisse_".$general->{"Distriktskenner"}."_".$general->{Jahr}.".htm";
 	if (!open (HOUTFILE,">",$outputpath.$sep.$genfilename.$sep.$htmlresultfilename))
 	{
-		::OVJ_meldung(FEHLER,"Kann ".$htmlresultfilename." nicht schreiben");
+		::meldung(FEHLER,"Kann ".$htmlresultfilename." nicht schreiben");
 		return;
 	}
 	
@@ -1697,7 +1703,7 @@ sub RepMeld {
 	printf FH $_[0]."\n";
 	local $_ = $_[0];
 	tr/\n//d;							# entferne alle CRs
-	::OVJ_meldung(HINWEIS,$_);
+	::meldung(HINWEIS,$_);
 }
 
 #Ausgabe einer Meldung in der Report-Datei
@@ -1711,10 +1717,10 @@ sub RepMeldFile {
 sub save_patterns {
 	my $patterns = shift;
 	open (my $patternfile, '>', $patternfilename)
-	  or return OVJ_meldung(FEHLER, "Kann Datei '$patternfilename' nicht schreiben: $!");
+	  or return meldung(FEHLER, "Kann Datei '$patternfilename' nicht schreiben: $!");
 	print $patternfile $patterns;
 	close $patternfile
-	  or return OVJ_meldung(FEHLER, "Kann Datei '$patternfilename' nicht schließen: $!");
+	  or return meldung(FEHLER, "Kann Datei '$patternfilename' nicht schließen: $!");
 }
 
 #Lesen der Pattern Datei
@@ -1724,10 +1730,10 @@ sub read_patterns {
 		if (open (my $patternfile, '<', $patternfilename)) {
 			read $patternfile, $patterns, -s $patternfilename;
 			close $patternfile
-			  or OVJ_meldung(FEHLER, "Kann Datei '$patternfilename' nicht schließen: $!");
+			  or meldung(FEHLER, "Kann Datei '$patternfilename' nicht schließen: $!");
 			$patterns =~ s/\r//g;
 		} else {
-			return OVJ_meldung(FEHLER, "Kann Datei '$patternfilename' nicht öffnen: $!");
+			return meldung(FEHLER, "Kann Datei '$patternfilename' nicht öffnen: $!");
 		}
 	}
 	return $patterns;
@@ -1738,7 +1744,7 @@ sub read_patterns {
 #Lesen der Generellen Daten aus der Genfile Datei
 sub read_genfile {
 #my ($choice,$filename) = @_;	# 0 = Laden, 1 = Importieren
-	my ($filename, $configpath) = @_;
+	my $filename = shift;
 	defined $filename or carp "filename required";
 	if ($filename !~ /\/|\\/) {
 		defined $configpath or carp "'configpath' required for '$filename'";
@@ -1746,7 +1752,7 @@ sub read_genfile {
 	}
 
 	open (INFILE, '<', $filename)
-	  or return OVJ_meldung(FEHLER,"Kann '$filename' nicht öffnen: $!");
+	  or return meldung(FEHLER,"Kann '$filename' nicht öffnen: $!");
 
 	my %general;
 #	my @fjlist;
@@ -1774,9 +1780,9 @@ sub write_genfile {
 	if ($filename !~ /\/|\\/) {
 		defined $configpath or carp "'configpath' required for '$filename'";
 		unless (-d $configpath.$sep.$filename) {
-			OVJ_meldung(HINWEIS,"Erstelle Verzeichnis '$configpath$sep$filename'");
+			meldung(HINWEIS,"Erstelle Verzeichnis '$configpath$sep$filename'");
 			mkdir($configpath.$sep.$filename)
-			  or return OVJ_meldung(FEHLER,"Konnte Verzeichnis '$configpath$sep$filename' nicht erstellen: $!");
+			  or return meldung(FEHLER,"Konnte Verzeichnis '$configpath$sep$filename' nicht erstellen: $!");
 		}
 		$filename = $configpath.$sep.$filename.$sep.$filename.'.txt';
 	}
@@ -1785,10 +1791,10 @@ sub write_genfile {
 
 	unless (-e $inputpath.$sep.$genfilename && -d $inputpath.$sep.$genfilename)
 	{
-		OVJ_meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$inputpath."\'");
+		meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$inputpath."\'");
 		unless (mkdir($inputpath.$sep.$genfilename))
 		{
-			OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$inputpath.$sep.$genfilename."\' nicht erstellen".$!);
+			meldung(FEHLER,"Konnte Verzeichnis \'".$inputpath.$sep.$genfilename."\' nicht erstellen".$!);
 			return 1;	# Fehler
 		}
 	}
@@ -1796,7 +1802,7 @@ sub write_genfile {
 =cut
 	
 	open (OUTFILE, '>', $filename)
-	  or return OVJ_meldung(FEHLER,"Kann ".$filename." nicht schreiben");
+	  or return meldung(FEHLER,"Kann ".$filename." nicht schreiben");
 	print OUTFILE "#OVJ Toplevel-Datei für $general{Jahr}\n\n";
 	my $key;
 	foreach my $key (keys %general) {
@@ -1809,19 +1815,57 @@ sub write_genfile {
 }
 
 
-
-sub OVJ_meldung { # FIXME: refactor to meldung( .. )
+sub meldung { 
 	my $level = shift;
 	my $message = "$level: " . shift;
 	carp $message if ($level eq WARNUNG || $level eq FEHLER);
 	::OVJ_meldung($level, $message, @_) 
 }
 
-sub meldung { # FIXME: refactor
-	my $level = shift;
-	my $message = "$level: " . shift;
-	carp $message if ($level eq WARNUNG || $level eq FEHLER);
-	::OVJ_meldung($level, $message, @_) 
+
+#Lesen der Daten aus einer OVFJ Datei
+sub read_ovfjfile { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
+	my $ovfjfilename = shift;
+	if (!open (INFILE,"<",$configpath.$sep.$genfilename.$sep.$ovfjfilename))
+	{
+		meldung(FEHLER,"Kann ".$ovfjfilename." nicht lesen");
+		return 1;	# Fehler
+	}
+
+	my %ovfj;
+	while (<INFILE>)
+	{
+		next if /^#/;
+		next if /^\s/;
+		s/\r//;
+		if (/^((?:\w|-)+)\s*=\s*(.*?)\s*$/)
+		{
+			$ovfj{$1} = $2;
+			#print $1."=".$2;
+		}
+	}
+	close (INFILE) || die "close: $!";
+#	OVJ::GUI::set_ovfj(%ovfj);
+	return %ovfj; # Erfolg
 }
+
+
+#Schreiben der aktuellen OVFJ Daten
+sub write_ovfjfile {
+	my $ovfjfilename = shift;
+	my $ovfj = shift;
+	if (!open (OUTFILE,">",$configpath.$sep.$genfilename.$sep.$ovfjfilename))
+	{
+		meldung(FEHLER,"Kann ".$ovfjfilename." nicht schreiben");
+		return;
+	}
+#	%ovfj = OVJ::GUI::get_ovfj();
+	print OUTFILE "#OVFJ Datei\n";
+	foreach my $key (keys %$ovfj) {
+		print OUTFILE "$key = $ovfj->{$key}\n";
+	}
+	close (OUTFILE) || die "close: $!";
+}
+
 
 1;

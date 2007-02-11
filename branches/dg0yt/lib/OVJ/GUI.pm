@@ -47,6 +47,8 @@ my $check_ExcludeTln;
 
 my $orig_patterns;
 
+my %auswerthash;		# Hash zur Kontrolle, welche OVFJ schon ausgewertet sind
+
 use vars qw(
 	$fjlistbox 
 	$reset_eval_button
@@ -193,20 +195,22 @@ sub make_ovfj_list {
 	my $fr21b = $fr21->Frame->pack(-side => 'right');
 	$fr21b->Button(
 	        -text => 'Editieren/Erzeugen',
-	        -command => sub{::do_edit_ovfj(0)}
+	        -command => sub{do_edit_ovfj(0)}
 	    )->pack();
 	$fr21b->Button(
 	        -text => 'Erzeugen aus aktuellem OV Wettbewerb',
-	        -command => sub{::do_edit_ovfj(1)}
+	        -command => sub{do_edit_ovfj(1)}
 	    )->pack();
 	my $fr22 = $fr2->Frame->pack();
 	$fr22->Button(
 	        -text => 'Alle OV Wettbewerbe auswerten und exportieren',
-	        -command => sub{::do_eval_allovfj()}
+	        -command => sub{ 
+				my %general = get_general();
+				::do_eval_ovfj(@{$general{ovfj_link}})}
 	    )->pack(-side => 'left');
 	$reset_eval_button = $fr22->Button(
 	        -text => 'Auswertung im Speicher löschen',
-	        -command => sub{::do_reset_eval()},
+	        -command => sub{do_reset_eval()},
 	        -state => 'disabled'
 	    )->pack(-side => 'left');
 	my $fr23 = $fr2->Frame->pack();
@@ -253,7 +257,11 @@ sub make_ovfj_detail {
 	my $fr30 = $fr3->Frame->pack(-side => 'top');
 	$ovfj_save_button = $fr30->Button(
 	        -text => 'Speichern',
-	        -command => sub{::do_write_ovfjfile()},
+	        -command => sub {
+				my %ovfj = get_ovfj();
+				OVJ::write_ovfjfile(get_selected_ovfj()."_ovj.txt",
+			                        \%ovfj ) 
+			},
 	        -state => 'disabled'
 	        )
 			->pack(-side => 'left',-padx => 2);
@@ -522,5 +530,66 @@ sub get_selected {
 	 or return meldung(OVJ::FEHLER, 'Ganze Zeile markieren!');
 	return $selected;
 }
-	
+
+#Löschen aller Auswertungen im Speicher
+sub do_reset_eval {
+	undef %auswerthash;
+	$OVJ::GUI::ovfj_eval_button->configure(-state => 'normal');
+	$OVJ::GUI::exp_eval_button->configure(-state => 'disabled');
+	$OVJ::lfdauswert = 0;
+	$meldung->delete(0,"end");
+}
+
+#Auswahl einer Veranstaltung durch den Anwender
+sub do_edit_ovfj {
+	my ($choice) = @_;	# Beim Erzeugen: 0 = neu, 1 = aus aktuellem OV Wettbewerb. Wird durchgereicht.
+	my $ovfjname = get_selected_ovfj()
+	 or return;
+	CreateEdit_ovfj($ovfjname, $choice);
+}
+
+#Anlegen bzw. Editieren einer OVFJ Veranstaltung
+sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
+	my ($ovfjf_name,$choice) = @_;	# Beim Erzeugen: 0 = neu, 1 = aus aktuellem OV Wettbewerb, 
+												# 2 = explizites Laden aus Auswertungsschleife heraus
+	return if (::CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
+	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ".$ovfjf_name);
+	my $ovfjfilename = $ovfjf_name."_ovj.txt"; # FIXME
+#	$::ovfjrepfilename = $ovfjf_name."_report_ovj.txt";
+#	if (-e $configpath.$sep.$OVJ::genfilename.$sep.$ovfjfilename) {
+# FIXME: update gui
+		if (my %ovfj = OVJ::read_ovfjfile($ovfjfilename)) {
+			set_ovfj(%ovfj);
+		}
+		elsif ($choice == 0) {
+			clear_ovfj();
+		}
+		else {
+			meldung(OVJ::FEHLER,"Kann ".$ovfjfilename." nicht lesen");
+			return 1;
+		}
+#}
+#	else {
+#		if ($choice == 2) {	# kann nicht geladen werden
+#			meldung(FEHLER,"Finde ".$::ovfjfilename." nicht");
+#			return 1;
+#		}
+#		if ($choice == 0) {
+#			clear_ovfj();
+#		}
+#		else {
+#			$datum->delete(0,"end");
+#			$fjfile->delete(0,"end");
+#			warn "Inactive code";
+#		}
+#		%ovfj = get_ovfj(); # FIXME: redundant code
+#		set_ovfj(%ovfj);
+#	}
+	$ovfj_fileset_button->configure(-state => 'normal');
+	$ovfj_save_button->configure(-state => 'normal');
+	$copy_pattern_button->configure(-state => 'normal');
+	$ovfj_eval_button->configure(-state => 
+		exists($auswerthash{$ovfjf_name}) ? 'disabled' : 'normal' );
+}
+
 1;
