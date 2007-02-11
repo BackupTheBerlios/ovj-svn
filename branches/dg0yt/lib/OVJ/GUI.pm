@@ -46,6 +46,8 @@ my $meldung;
 my $check_ExcludeTln;
 
 my $orig_patterns;
+my %orig_ovfj;
+my %orig_general;
 
 # my %auswerthash;		# Hash zur Kontrolle, welche OVFJ schon ausgewertet sind
 
@@ -68,7 +70,7 @@ sub init {
 	my %config = @_;
 	
 	$mw = MainWindow->new;
-	$mw->OnDestroy(sub { ::Leave(); warn "zzz" });
+	$mw->OnDestroy(sub { Leave(); warn "Fixxxme" });
 	make_menu($mw);
 	make_general($mw);
 	make_ovfj_list($mw);
@@ -86,14 +88,14 @@ sub make_menu {
 	
 	my $menu_bar = $parent->Frame(-relief => 'raised', -borderwidth => 2)->pack(-side => 'top', -anchor => "nw", -fill => "x");
 	$menu_bar->Menubutton(-text => 'Datei', -menuitems => [
-				[ Button => "Exit",-command => \&::Leave]])
+				[ Button => "Exit",-command => \&Leave]])
 								->pack(-side => 'left');
 	$menu_bar->Menubutton(-text => 'Hilfe', , -menuitems => [
 				[ Button => "Über",-command => \&About]])
 								->pack(-side => 'left');
 	$menu_bar->Button(
 	        -text    => 'Exit',
-	        -command => \&::Leave)->pack(-side => 'right');
+	        -command => \&Leave)->pack(-side => 'right');
 	$menu_bar->Label(-text => "OVJ $OVJ::ovjvers by DL3SDO, $OVJ::ovjdate")->pack();
 }
     
@@ -332,15 +334,15 @@ sub make_meldungen {
 }
 
 sub set_general {
-	my %general = @_;
-	$check_ExcludeTln->{Value} = $general{Exclude_Checkmark}; 
+	%orig_general = @_;
+	$check_ExcludeTln->{Value} = $orig_general{Exclude_Checkmark}; 
 	$fjlistbox->selectAll();
 	$fjlistbox->deleteSelected();
-	$fjlistbox->insert('end', join("\n", @{$general{ovfj_link}}));
+	$fjlistbox->insert('end', join("\n", @{$orig_general{ovfj_link}}));
 #	map { $fjlistbox->insert('end', "$_\n") } @{$general{ovfj_link}};
 	map {
 		$gui_general{$_}->delete(0, "end");
-		$gui_general{$_}->insert(0, $general{$_});
+		$gui_general{$_}->insert(0, $orig_general{$_});
 	} keys %gui_general;
 }
 
@@ -357,12 +359,11 @@ sub get_general {
 
 # Test auf Änderungen
 sub general_modified {
-	my %general = @_;
-	$general{Exclude_Checkmark} ne $check_ExcludeTln->{Value}
+	$orig_general{Exclude_Checkmark} ne $check_ExcludeTln->{Value}
 	or grep {
-		$gui_general{$_}->get() ne ($general{$_} || "");
+		$gui_general{$_}->get() ne ($orig_general{$_} || "");
 	} keys %gui_general
-	or join("\n", @{$general{ovfj_link}}) ne $fjlistbox->Contents();
+	or join("\n", @{$orig_general{ovfj_link}}) ne $fjlistbox->Contents();
 }
 
 
@@ -372,10 +373,10 @@ sub get_selected_ovfj {
 
 
 sub set_ovfj {
-	my %ovfj = @_;
+	%orig_ovfj = @_;
 	map {
 		$gui_ovfj{$_}->delete(0, "end");
-		$gui_ovfj{$_}->insert(0, $ovfj{$_});
+		$gui_ovfj{$_}->insert(0, $orig_ovfj{$_});
 	} keys %gui_ovfj;
 }
 
@@ -392,9 +393,8 @@ sub get_ovfj {
 
 # Test auf Änderungen
 sub ovfj_modified {
-	my %ovfj = @_;
 	grep {
-		$gui_ovfj{$_}->get ne ($ovfj{$_} || "");
+		$gui_ovfj{$_}->get ne ($orig_ovfj{$_} || "");
 	} keys %gui_ovfj;
 }
 
@@ -402,6 +402,7 @@ sub clear_ovfj {
 	while (my ($key,$value) = each(%gui_ovfj)) {
 		$value->delete(0, 'end');
 	}
+	%orig_ovfj = ();
 }
 
 # FIXME: Unify file selection code
@@ -446,7 +447,7 @@ sub About {
 	$mw->messageBox(-icon => 'info', 
 						-message => "OV Jahresauswertung\n\n".
 						"by Matthias Kühlewein, DL3SDO\n".
-						"Version: $::ovjvers - Datum: $::ovjdate",
+						"Version: $OVJ::ovjvers - Datum: $OVJ::ovjdate",
 						-title => 'Über', -type => 'Ok');
 }
 
@@ -482,6 +483,56 @@ sub CheckForUnsavedPatterns {
 	}
 	
 	return 0;
+}
+
+
+#Prüfen, ob OVFJ Veranstaltung verändert wurde, ohne gespeichert worden zu
+#sein
+sub CheckForOverwriteOVFJ {
+	if (ovfj_modified()) {
+		my $ovfjname = get_selected_ovfj();
+		my $response = $mw->messageBox(
+			-icon    => 'question', 
+			-title   => 'OVFJ Daten speichern?', 
+			-message => "Kopfdaten zum OV Wettbewerb '$ovfjname' wurden geändert\n".
+			            "und noch nicht gespeichert.\n\n".
+			            "Speichern?", 
+			-type    => 'YesNoCancel', 
+			-default => 'Yes');
+		if    ($response eq 'Cancel') { return 1 }
+		elsif ($response eq 'Yes')    { return OVJ::write_ovfjfile($ovfjname) }
+	}
+	
+	return 0;
+}
+
+
+#Prüfen, ob Generelle Daten verändert wurde, ohne gespeichert worden zu
+#sein
+sub CheckForSaveGenfile {
+	if (general_modified()) {
+		my $response = $mw->messageBox(
+			-icon    => 'question', 
+			-title   => "Generelle Daten '$OVJ::genfilename' speichern?", 
+			-message => "Generelle Daten '$OVJ::genfilename' wurden geändert\n".
+			            "und noch nicht gespeichert.\n\n".
+						"Speichern?", 
+			-type    => 'YesNoCancel', 
+			-default => 'Yes');
+		if    ($response eq 'Cancel') { return 1 }
+		elsif ($response eq 'Yes')    { return OVJ::do_file_general(0) }
+	}
+	
+	return 0;
+}
+
+
+#Exit Box aus dem 'Datei' Menu und 'Exit' Button
+sub Leave {
+	return if (CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
+	return if (CheckForUnsavedPatterns());	# Abbruch durch Benutzer
+	return if (CheckForSaveGenfile());		# Abbruch durch Benutzer
+	::Leave();
 }
 
 #Kopieren des markierten Patterns in die Patternzeile des OV Wettbewerbs
@@ -575,5 +626,8 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 	$ovfj_eval_button->configure(-state => 'normal');
 #		exists($auswerthash{$ovfjf_name}) ? 'disabled' : 'normal' );
 }
+
+
+
 
 1;

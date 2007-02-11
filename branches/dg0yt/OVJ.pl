@@ -374,37 +374,6 @@ sub read_genfile {
 	return 0;	# kein Fehler
 }
 
-#Prüfen, ob Generelle Daten verändert wurde, ohne gespeichert worden zu
-#sein
-sub CheckForSaveGenfile {
-	return 0 if ! OVJ::GUI::general_modified(%general);
-warn "Fixme: Direct Tk access";
-	my $response = $gui->messageBox(-icon => 'question', 
-											-message => "Generelle Daten \'$OVJ::genfilename\' wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
-											-title => "Generelle Daten \'$OVJ::genfilename\' speichern?", 
-											-type => 'YesNoCancel', 
-											-default => 'Yes');
-	return 1 if ($response eq "Cancel");
-	return(do_file_general(0)) if ($response eq "Yes");
-	return 0;
-}
-
-
-#Prüfen, ob OVFJ Veranstaltung verändert wurde, ohne gespeichert worden zu
-#sein
-sub CheckForOverwriteOVFJ {
-	return 0 unless (%ovfj);		# wenn Hash leer ist
-	return 0 if (! OVJ::GUI::ovfj_modified(%ovfj));
-warn "Fixme: Direct Tk access";
-	my $response = $gui->messageBox(-icon => 'question', 
-											-message => "Kopfdaten zum OV Wettbewerb ".$ovfjname." wurden geändert\nund noch nicht gespeichert.\n\nSpeichern?", 
-											-title => 'OVFJ Daten speichern?', 
-											-type => 'YesNoCancel', 
-											-default => 'Yes');
-	return 1 if ($response eq "Cancel");
-	write_ovfjfile(OVJ::GUI::get_selected_ovfj()) if ($response eq "Yes");
-	return 0;
-}
 
 
 # Auswertung und Export von OVFJ
@@ -451,9 +420,6 @@ sub do_eval_ovfj {
 
 #Exit Box aus dem 'Datei' Menu und 'Exit' Button
 sub Leave {
-	return if (CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
-	return if (OVJ::GUI::CheckForUnsavedPatterns());	# Abbruch durch Benutzer
-	return if (CheckForSaveGenfile());		# Abbruch durch Benutzer
 	OVJ::Inifile::write($inifilename,%config)		# Speichern der Inidaten
 	  or warn "Kann INI-Datei '$inifilename' nicht schreiben: $!";
 	exit 0;
