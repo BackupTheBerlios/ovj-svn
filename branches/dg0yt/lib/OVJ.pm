@@ -1380,7 +1380,7 @@ sub read_genfile {
 
 #Schreiben der Generellen Daten in die Genfile Datei
 sub write_genfile {
-	my ($filename, $configpath, %general) = @_;
+	my ($filename, %general) = @_;
 
 	defined $filename or carp "filename required";
 	if ($filename !~ /\/|\\/) {
@@ -1467,6 +1467,7 @@ sub write_ovfjfile {
 }
 
 
+# FIXME: Patterns zusammenfassen
 sub import_fjfile {
 	my $filename = shift;
 	my %ovfj = ( OVFJDatei => $filename );

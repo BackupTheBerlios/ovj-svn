@@ -38,8 +38,6 @@ use OVJ::GUI;
 use OVJ;
 
 my %config  = ();		# Konfigurationsdaten
-my %general = ();	# Generelle Einstellungen
-my %ovfj;				# Hash für eine OV Veranstaltung, Kopfdaten
 my $ovfjname;			# Name der aktiven OV Veranstaltung
 
 my $inifilename = "OVJini.txt";
@@ -47,7 +45,6 @@ my $inputpath = "input";		# Pfad für die Eingangsdaten
 my $outputpath = "output";		# Pfad für die Ergebnisdaten
 my $reportpath = "report";		# Pfad für die Reportdaten
 #my $configpath = "config";		# Pfad für die Konfigurationsdaten
-										# Generelle Daten, sowie die OVFJ Dateien (*_ovj.txt))
 my $sep = ($^O =~ /Win/i) ? '\\' : '/';	# Kai, fuer Linux und Win32 Portabilitaet
 
 #my ($genfilename,$ovfjfilename,$ovfjrepfilename);
@@ -132,10 +129,7 @@ sub init_general {
 	if (exists $config{LastGenFile}) {
 		$OVJ::genfilename = $config{LastGenFile};
 		OVJ_meldung(HINWEIS,"Lade $OVJ::genfilename...");
-		return read_genfile(0, $OVJ::genfilename);
-	}
-	else {
-		return 1;	# KEIN Fehler
+		OVJ::GUI::set_general(OVJ::read_genfile($OVJ::genfilename));
 	}
 }
 		
@@ -160,144 +154,6 @@ sub init_general {
 }
 =cut
 
-#Speichern, Laden bzw. Erzeugen der Generellen Daten Datei
-sub do_file_general {
-	my ($choice) = @_;	# 0 = Speichern, 1 = Laden, 2 = Laden der im Inifile angegebenen, 3 = Importieren, 4 = Speichern als
-	my $retstate;
-	#my $tempname;
-	
-	if ($choice == 1)	# Laden
-	{	
-		return 1 if (CheckForSaveGenfile());		# Abbruch durch Benutzer
-		my $types = [['Text Files','.txt'],['All Files','*',]];
-		my $filename = $gui->getOpenFile(-initialdir => $OVJ::configpath, -filetypes => $types, -title => "Generelle Daten laden");
-		return 1 if (!defined($filename) || $filename eq "");
-		#my $FSref = $gui->FileSelect(-directory => $configpath);
-		#$tempname = $FSref->Show;
-		$filename =~ s/^.*\///;		# Pfadangaben entfernen
-		$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
-		OVJ_meldung(HINWEIS,"Lade ".$filename);
-		$retstate = read_genfile(0,$filename);
-		if ($retstate == 0)	# Erfolgreich geladen
-		{
-			$OVJ::genfilename = $filename;
-			OVJ::GUI::set_general_data_label($OVJ::genfilename);
-			$config{"LastGenFile"} = $OVJ::genfilename;
-		}
-		return($retstate);
-	}
-
-	if ($choice == 3)	# Importieren
-	{	
-		return 1 if (CheckForSaveGenfile());		# Abbruch durch Benutzer
-		my $types = [['Text Files','.txt'],['All Files','*',]];
-		my $filename = $gui->getOpenFile(-initialdir => $OVJ::configpath, -filetypes => $types, -title => "Generelle Daten importieren");
-		return 1 if (!defined($filename) || $filename eq "");
-		#my $FSref = $gui->FileSelect(-directory => $configpath);
-		#$OVJ::genfilename = $FSref->Show;
-		OVJ_meldung(HINWEIS,"Importiere ".$filename);
-		$retstate = read_genfile(1,$filename);
-		if ($retstate == 0)	# Erfolgreich geladen
-		{
-			$OVJ::genfilename = "";	# Beim Importieren wird kein Name festgelegt
-			OVJ::GUI::set_general_data_label();
-			$config{"LastGenFile"} = $OVJ::genfilename;
-		}
-		return($retstate);
-	}
-
-	if ($choice == 2)	# Laden der im Inifile angegebenen Datei, wird beim Programmstart ausgeführt
-	{	
-		die "Refactored: use init_general";
-	}
-
-	if ($choice == 0)	# Speichern
-	{
-		if ($OVJ::genfilename ne "")
-		{
-			if (-e $OVJ::configpath.$sep.$OVJ::genfilename.$sep.$OVJ::genfilename.".txt")
-			{
-				OVJ_meldung(HINWEIS,"Speichere ".$OVJ::genfilename);
-			}
-			else
-			{
-				OVJ_meldung(HINWEIS,"Erzeuge ".$OVJ::genfilename);
-			}
-			return(write_genfile());
-		}
-		else
-		{
-			$choice = 4;	# gehe zu Speichern als
-		}
-	}
-
-	if ($choice == 4)	# Speichern als
-	{
-		my $types = [['Text Files','.txt'],['All Files','*',]];
-		my $filename = $gui->getSaveFile(-initialdir => $OVJ::configpath, -filetypes => $types, -title => "Generelle Daten laden");
-		#my $FSref = $gui->FileSelect(-directory => $configpath);
-		#$tempname = $FSref->Show;
-		return 1 if (!defined($filename) || $filename eq "");
-		$filename =~ s/^.*\///;		# Pfadangaben entfernen
-		$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
-		$OVJ::genfilename = $filename;
-#		if (-e $configpath.$sep.$OVJ::genfilename.".txt")
-#		{
-#			my $response = $gui->messageBox(-icon => 'question', 
-#													-message => "Datei ".$OVJ::genfilename.".txt existiert bereits\n\nÜberschreiben?", 
-#													-title => 'Generelle Daten Datei überschreiben?', 
-#													-type => 'YesNo', 
-#													-default => 'Yes');
-#			return 1 if ($response eq "No");
-#			OVJ_meldung(HINWEIS,"Speichere ".$OVJ::genfilename);
-#		}
-#		else
-#		{
-		if (-e $OVJ::configpath.$sep.$OVJ::genfilename.$sep.$OVJ::genfilename.".txt")
-		{ OVJ_meldung(HINWEIS,"Überschreibe ".$OVJ::genfilename); }
-		else { OVJ_meldung(HINWEIS,"Erzeuge ".$OVJ::genfilename); }
-#		}
-		OVJ::GUI::set_general_data_label($OVJ::genfilename);
-		$config{"LastGenFile"} = $OVJ::genfilename;
-		return(write_genfile());
-	}
-}
-
-#Schreiben der Generellen Daten in die Genfile Datei
-sub write_genfile {
-# FIXME: has side-effects
-	%general = OVJ::GUI::get_general();	# Hash aktualisieren auf Basis der Felder
-	OVJ::write_genfile($OVJ::genfilename, $OVJ::configpath, %general) or return 1; # FIXME:
-	return 0;	# kein Fehler
-}
-
-
-#Lesen der Generellen Daten aus der Genfile Datei
-sub read_genfile {
-# FIXME: has side-effects, access TK
-	my ($choice,$filename) = @_;	# 0 = Laden, 1 = Importieren
-	%general = OVJ::read_genfile($filename);
-	if ($choice != 0) {
-		my %general_alt = OVJ::GUI::get_general();
-		@{$general{ovfj_link}} = @{$general_alt{ovfj_link}};
-		$general{PMVorjahr} = $general_alt{PMVorjahr};
-		$general{PMaktJahr} = $general_alt{PMaktJahr};
-	}
-	OVJ::GUI::set_general(%general);
-	
-	# %general = OVJ::GUI::get_general() if ($choice == 1);	# einige Hashwerte löschen
-	OVJ::GUI::do_reset_eval();	# evtl. vorhandene Auswertungen löschen
-	undef %ovfj;	# OVFJ Daten löschen
-	OVJ::GUI::clear_ovfj();	# und anzeigen
-	$OVJ::GUI::ovfj_eval_button->configure(-state => 'disabled');
-	$OVJ::GUI::ovfj_fileset_button->configure(-state => 'disabled');
-	$OVJ::GUI::ovfj_save_button->configure(-state => 'disabled');
-	$OVJ::GUI::copy_pattern_button->configure(-state => 'disabled');
-	$OVJ::GUI::ovfjnamelabel->configure(-text => "OV Wettbewerb: ");
-	return 0;	# kein Fehler
-}
-
-
 
 # Auswertung und Export von OVFJ
 # Parameter: Liste der OVFJ
@@ -319,7 +175,7 @@ sub do_eval_ovfj {
 		$ovfjrepfilename = $str . "_report_ovj.txt";
 		next if ($ovfjname !~ /\S+/);
 #		next if (OVJ::GUI::CreateEdit_ovfj($ovfjname,2)==1);
-		%ovfj = OVJ::read_ovfjfile($ovfjname)
+		my %ovfj = OVJ::read_ovfjfile($ovfjname)
 		 or next;
 		OVJ::GUI::set_ovfj(%ovfj);
 		$retval = OVJ::eval_ovfj($i++,

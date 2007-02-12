@@ -112,19 +112,19 @@ sub make_general {
 	my $fr111 = $fr11->Frame->pack;
 	$fr111->Button(
 	        -text => 'Importieren',
-	        -command => sub{::do_file_general(3)}
+	        -command => sub{import_file_general()}
 	    )->pack(-side => 'right',-padx => 1);
 	$fr111->Button(
 	        -text => 'Speichern als',
-	        -command => sub{::do_file_general(4)}
+	        -command => sub{save_file_general()}
 	    )->pack(-side => 'right',-padx => 1);
 	$fr111->Button(
 	        -text => 'Speichern',
-	        -command => sub{::do_file_general(0)}
+	        -command => sub{save_file_general($OVJ::genfilename)}
 	    )->pack(-side => 'right',-padx => 1);
 	$fr111->Button(
 	        -text => 'Laden',
-	        -command => sub{::do_file_general(1)}
+	        -command => sub{open_file_general(1)}
 	    )->pack(-side => 'right',-padx => 1);
 	
 	my $fr112 = $fr11->Frame->pack;
@@ -334,6 +334,7 @@ sub make_meldungen {
 }
 
 sub set_general {
+	return unless @_;
 	%orig_general = @_;
 	$check_ExcludeTln->{Value} = $orig_general{Exclude_Checkmark}; 
 	$fjlistbox->selectAll();
@@ -344,6 +345,12 @@ sub set_general {
 		$gui_general{$_}->delete(0, "end");
 		$gui_general{$_}->insert(0, $orig_general{$_});
 	} keys %gui_general;
+	do_reset_eval();
+	$ovfj_eval_button->configure(-state => 'disabled');
+	$ovfj_fileset_button->configure(-state => 'disabled');
+	$ovfj_save_button->configure(-state => 'disabled');
+	$copy_pattern_button->configure(-state => 'disabled');
+	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ");
 }
 
 #Aktualisieren der aktuellen Generellen Daten im Hash
@@ -520,7 +527,7 @@ sub CheckForSaveGenfile {
 			-type    => 'YesNoCancel', 
 			-default => 'Yes');
 		if    ($response eq 'Cancel') { return 1 }
-		elsif ($response eq 'Yes')    { return OVJ::do_file_general(0) }
+		elsif ($response eq 'Yes')    { return ! open_file_general(0) }
 	}
 	
 	return 0;
@@ -586,9 +593,10 @@ sub get_selected {
 #Löschen aller Auswertungen im Speicher
 sub do_reset_eval {
 #	undef %auswerthash;
-	$OVJ::GUI::ovfj_eval_button->configure(-state => 'normal');
-	$OVJ::GUI::exp_eval_button->configure(-state => 'disabled');
-	$OVJ::lfdauswert = 0;
+	clear_ovfj();
+	$ovfj_eval_button->configure(-state => 'normal');
+	$exp_eval_button->configure(-state => 'disabled');
+	$OVJ::lfdauswert = 0; # FIXME
 	$meldung->delete(0,"end");
 }
 
@@ -646,6 +654,69 @@ sub do_select_fjfile {
 	my %ovfj = OVJ::import_fjfile($selfile)
 	 or return;
 	set_ovfj(%ovfj);
+}
+
+sub open_file_general {
+	return if CheckForSaveGenfile();		# Abbruch durch Benutzer
+
+	my $types = [['Text Files','.txt'],['All Files','*',]];
+	my $filename = $mw->getOpenFile(
+		-initialdir => $OVJ::configpath,
+		-filetypes  => $types,
+		-title      => "Generelle Daten laden");
+	return unless $filename;
+	$filename =~ s/^.*\///;		# Pfadangaben entfernen
+	$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
+	meldung(OVJ::HINWEIS,"Lade '$filename'");
+	set_general(OVJ::read_genfile($filename))
+	 or return;
+	$OVJ::genfilename = $filename;
+	set_general_data_label($OVJ::genfilename);
+# FIXME:	$config{"LastGenFile"} = $OVJ::genfilename;
+	return 1;
+}
+
+sub import_file_general {
+	return if CheckForSaveGenfile();		# Abbruch durch Benutzer
+
+	my $types = [['Text Files','.txt'],['All Files','*',]];
+	my $filename = $mw->getOpenFile(
+		-initialdir => $OVJ::configpath,
+		-filetypes  => $types,
+		-title      => "Generelle Daten importieren");
+	return unless $filename;
+	$filename =~ s/^.*\///;		# Pfadangaben entfernen
+	$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
+	meldung(OVJ::HINWEIS,"Importiere '$filename'");
+	my %general = OVJ::read_genfile($filename)
+	 or return;
+	my %general_alt = OVJ::GUI::get_general();
+	@{$general{ovfj_link}} = @{$general_alt{ovfj_link}};
+	$general{PMVorjahr} = $general_alt{PMVorjahr};
+	$general{PMaktJahr} = $general_alt{PMaktJahr};
+	OVJ::GUI::set_general(%general);
+	$OVJ::genfilename = "";
+	set_general_data_label($OVJ::genfilename);
+# FIXME:	$config{"LastGenFile"} = $OVJ::genfilename;
+	return 1;
+}
+
+sub save_file_general {
+	my $filename = shift;
+	if (! $filename) {
+		my $types = [['Text Files','.txt'],['All Files','*',]];
+		$filename = $mw->getSaveFile(
+			-initialdir => $OVJ::configpath,
+			-filetypes  => $types,
+			-title      => "Generelle Daten speichern");
+		return unless $filename;
+		$filename =~ s/^.*\///;		# Pfadangaben entfernen
+		$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
+		set_general_data_label($filename);
+	}
+	meldung(OVJ::HINWEIS, "Speichere '$filename'");
+	$OVJ::genfilename = $filename;
+	OVJ::write_genfile($OVJ::genfilename, get_general());
 }
 
 1;
