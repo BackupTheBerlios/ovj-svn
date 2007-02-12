@@ -749,9 +749,6 @@ sub do_eval_ovfj {
 		  \@ovfjanztlnlist,
 		  \%ovfj,
 		  $ovfjname,
-#		  $inputpath,
-#		  $reportpath,
-#		  $OVJ::genfilename,
 		  $ovfjrepfilename
 		);
 		$success = 1 if ($retval == 0);	# Stelle fest, ob wenigstens eine Auswertung erfolgreich war

@@ -37,34 +37,17 @@ use OVJ::Inifile;
 use OVJ::GUI;
 use OVJ;
 
-my %config  = ();		# Konfigurationsdaten
-my $ovfjname;			# Name der aktiven OV Veranstaltung
 
 my $inifilename = "OVJini.txt";
-my $inputpath = "input";		# Pfad für die Eingangsdaten
-my $outputpath = "output";		# Pfad für die Ergebnisdaten
-my $reportpath = "report";		# Pfad für die Reportdaten
-#my $configpath = "config";		# Pfad für die Konfigurationsdaten
-my $sep = ($^O =~ /Win/i) ? '\\' : '/';	# Kai, fuer Linux und Win32 Portabilitaet
-
-#my ($genfilename,$ovfjfilename,$ovfjrepfilename);
-my ($ovfjrepfilename);
-
-my $nicknames;			# Inhalt der Spitznamen Datei
-my ($i,$str);			# temp. Variablen
-my $overrides=undef;	# Overrides
-my @pmvjarray;			# Array mit PMVJ Daten
-my @pmaktarray;		# Array mit aktuellen PM Daten
-
+my %config  = ();		# Konfigurationsdaten
 my $gui;
-
 
 
 intro();
 %config = OVJ::Inifile::read($inifilename)
  or OVJ::meldung(OVJ::WARNUNG, "Kann INI-Datei '$inifilename' nicht lesen: $!");
 $gui = OVJ::GUI::init(%config);
-init();
+init() or exit 1;
 OVJ::GUI::run();
 Leave();
 
@@ -99,30 +82,16 @@ sub init {
 
 =cut
 
-	unless (-e $reportpath && -d $reportpath)
-	{
-		OVJ_meldung(HINWEIS,"Erzeuge Verzeichnis \'".$reportpath."\'");
-		unless (mkdir($reportpath))
-		{
-			OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$reportpath."\' nicht erstellen".$!);
-			return;
-		}
+	foreach my $dir 
+	 ($OVJ::configpath, $OVJ::reportpath, $OVJ::outputpath, $OVJ::inputpath) {
+		next if -d $dir;
+		OVJ::GUI::meldung(HINWEIS, "Erzeuge Verzeichnis '$dir'");
+		mkdir $dir
+		 or return OVJ_meldung(FEHLER, 
+		   "Konnte Verzeichnis '$dir' nicht erstellen: $!");
 	}
-	unless (-e $outputpath && -d $outputpath)
-	{
-		OVJ_meldung(HINWEIS,"Erzeuge Verzeichnis \'".$outputpath."\'");
-		unless (mkdir($outputpath))
-			{
-			OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$outputpath."\' nicht erstellen".$!);
-			return;
-		}
-	}
-	unless (-e $inputpath && -d $inputpath)
-	{
-		OVJ_meldung(HINWEIS,"Warnung: Verzeichnis \'".$inputpath."\' nicht vorhanden");
-	}
+	return 1;
 }
-
 
 
 sub init_general {
@@ -132,7 +101,7 @@ sub init_general {
 		OVJ::GUI::set_general(OVJ::read_genfile($OVJ::genfilename));
 	}
 }
-		
+
 =obsolete	
 		if (-e $configpath.$sep.$config{LastGenFile}.$sep.$config{LastGenFile}.".txt") {
 			$OVJ::genfilename = $config{"LastGenFile"};
