@@ -235,7 +235,7 @@ sub make_muster {
 	$fr4->pack;
 	$fr4->Label(-text => 'Liste der Auswertungsmuster')->pack;
 	my $fr41 = $fr4->Frame->pack(-side => 'left');
-	$gui_patterns = $fr41->Scrolled('Text',-scrollbars =>'oe',-width => 91, -height => 4)->pack();
+	$gui_patterns = $fr41->Scrolled('Text',-scrollbars =>'oe',-width => 94, -height => 4)->pack();
 	my $fr42 = $fr4->Frame->pack(-side => 'right');
 	$fr42->Button(
 	        -text => 'Speichern',
@@ -330,7 +330,7 @@ sub make_meldungen {
 	my $fr5 = $parent->Frame(-borderwidth => 5, -relief => 'raised');
 	$fr5->pack;
 	$fr5->Label(-text => 'Meldungen')->pack;
-	$meldung = $fr5->Scrolled('Listbox',-scrollbars =>'e',-width => 116, -height => 12)->pack();
+	$meldung = $fr5->Scrolled('Listbox',-scrollbars =>'e',-width => 119, -height => 12)->pack();
 }
 
 sub set_general {
