@@ -11,7 +11,6 @@
 <b><a href="index.htm">Startseite</a></b><br><br>
 <a href="schritt2.htm"><img src="navforward.png" border="0" alt="NavigationWeiter"></a>
 <h1>Vorgehen Schritt für Schritt</h1>
-<br>
 Die nachfolgenden Hinweise basieren auf der Annahme, dass die OVJ Software installiert und OVJ gestartet wurde,<br>
 entweder als OVJ.exe oder OVJ.pl über einen Perl-Interpreter.<br>
 <h3>Generelle Daten</h3>
@@ -26,14 +25,21 @@ Es empfiehlt sich, diese Dateien im Programmverzeichnis von OVJ abzulegen, d.h. 
 Wenn einer der Buttons links neben den Eingabefeldern gedrückt wird, so öffnet sich ein Dateidialog, um die
 entsprechende Datei auszuwählen, deren Namen dann in das entsprechende Feld kopiert wird. Man kann das Feld natürlich auch von Hand ausfüllen.<br>
 <br>
-Laden, Speichern und Importieren der Generellen Daten:<br>
-Über den Button 'Laden' werden die Generellen Daten geladen. Dabei wird die Jahreszahl verwendet, um den Dateinamen festzulegen: 'OVJ_Generell_XXXX.txt'<br>
-wobei XXXX durch die entsprechende Jahreszahl ersetzt wird. Die Generellen Daten befinden sich im Verzeichnis 'config' unterhalb des Programmverzeichnisses.<br>
-Beim Starten von OVJ wird dieses Verzeichnis automatisch nach 'OVJ_Generell_XXXX.txt'-Dateien durchsucht, die erste gefundene Datei wird geöffnet.<br>
-Daher muss der Button zum Laden normalerweise nie verwendet werden.<br><br>
-Über den Button 'Speichern' werden die Generellen Daten gespeichert. Dabei wird die Jahreszahl verwendet, um den Dateinamen festzulegen: 'OVJ_Generell_XXXX.txt'<br><br>
-Mittels des Buttons 'Importieren' können Generelle Daten z.B. aus dem Vorjahr importiert werden, dabei werden jedoch nur diejenigen Daten importiert,<br>
-welche noch aktuell sind.<br><br>
+Laden, Speichern und Importieren der Generellen Daten:
+<ul>
+<li>Über den Button 'Laden' werden die Generellen Daten geladen.<br>
+Die Generellen Daten befinden sich in einem projektspezifischen Verzeichnis unterhalb des Verzeichnisses 'config' unterhalb des Programmverzeichnisses
+und haben den gleichen Namen wie dieses Verzeichnis, so liegen z.B. die Generellen Daten 'Demo.txt' im Unterverzeichnis 'config\Demo'.<br>
+Ein Projekt definiert sich über die jeweiligen Generellen Daten. Für jedes Projekt müssen in den übrigen Verzeichnissen
+die projektspezifischen Unterverzeichnisse vorhanden sein bzw. werden diese von OVJ bei Bedarf angelegt.
+<br>Beim Starten von OVJ werden die zuletzt verwendeten Generellen Daten automatisch geladen 
+(die Information darüber wird in der Datei 'OVJini.txt' im Programmverzeichnis gespeichert).</li>
+<li>Über den Button 'Speichern' werden die Generellen Daten gespeichert.</li>
+<li>Über den Button 'Speichern als' werden die Generellen Daten unter einem anderen Namen gespeichert. Dabei genügt es, die Datei unter dem neuen Namen
+im 'config'-Verzeichnis zu speichern. OVJ erzeugt dann automatisch das entsprechende Unterverzeichnis und legt die Generellen Daten dort ab.</li>
+<li>Mittels des Buttons 'Importieren' können Generelle Daten z.B. aus dem Vorjahr importiert werden, dabei werden jedoch nur diejenigen Daten importiert,
+welche noch aktuell sind.</li>
+</ul>
 Die Liste der OV Wettbewerbe wird zusammen mit den Generellen Daten in der gleichen Datei gespeichert.<br>
 </body>
 </html>
