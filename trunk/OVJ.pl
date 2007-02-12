@@ -4,7 +4,7 @@
 # OV Peilwettbewerbe
 # Autor:   Matthias Kuehlewein, DL3SDO
 # Version: 0.96
-# Datum:   14.1.2007
+# Datum:   11.2.2007
 #
 #
 # Copyright (C) 2007  Matthias Kuehlewein, DL3SDO
@@ -30,7 +30,7 @@ use strict;		# um 'besseren' Code zu erzwingen
 use Tk;
 #use Tk::FileSelect;
 
-my $ovjdate = "18.1.2007";
+my $ovjdate = "11.2.2007";
 my $ovjvers = "0.96";
 my $patternfilename = "OVFJ_Muster.txt";
 my $overridefilename = "Override.txt";
@@ -206,7 +206,7 @@ my $fr4 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
 $fr4->pack;
 $fr4->Label(-text => 'Liste der Auswertungsmuster')->pack;
 my $fr41 = $fr4->Frame->pack(-side => 'left');
-my $patterns = $fr41->Scrolled('Text',-scrollbars =>'oe',-width => 91, -height => 4)->pack();
+my $patterns = $fr41->Scrolled('Text',-scrollbars =>'oe',-width => 94, -height => 4)->pack();
 my $fr42 = $fr4->Frame->pack(-side => 'right');
 $fr42->Button(
         -text => 'Speichern',
@@ -286,7 +286,7 @@ my $ovjpattern = $fr33->Entry(-width => 70)->pack(-side => 'right');
 my $fr5 = $mw->Frame(-borderwidth => 5, -relief => 'raised');
 $fr5->pack;
 $fr5->Label(-text => 'Meldungen')->pack;
-my $meldung = $fr5->Scrolled('Listbox',-scrollbars =>'e',-width => 116, -height => 12)->pack();
+my $meldung = $fr5->Scrolled('Listbox',-scrollbars =>'e',-width => 119, -height => 12)->pack();
 
 read_inifile();		# Lade die Ini Datei
 do_file_general(2);	# Lade Generelle Daten Datei falls vorhanden
@@ -915,7 +915,7 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 	my ($ovfjf_name,$choice) = @_;	# Beim Erzeugen: 0 = neu, 1 = aus aktuellem OV Wettbewerb, 
 												# 2 = explizites Laden aus Auswertungsschleife heraus
 	
-	return if (CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
+	return 1 if (CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
 	
 	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ".$ovfjf_name);
 	$ovfjfilename = $ovfjf_name."_ovj.txt";
@@ -958,6 +958,7 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 	{
 		$ovfj_eval_button->configure(-state => 'normal');
 	}
+	return 0;
 }
 
 #Lesen der Daten aus einer OVFJ Datei

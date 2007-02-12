@@ -18,9 +18,9 @@ Bei der Auswertung gibt es zwei Möglichkeiten:
 <li>Auswertung aller Wettbewerbe mit sofortigem Export der Auswertung</li>
 </ol>
 <b>Um den oder die Wettbewerbe nacheinander auszuwerten</b> geht man wie folgt vor:<br>
-Zunächst befindet sich keine Auswertung im Speicher. Man öffnet einen OV Wettbewerb und klickt dann auf den Button<br>
-'Auswertung' im Bereich des Wettbewerbs. Die Auswertung findet zunächst nur im Speicher statt, d.h. es werden keine<br>
-Jahresauswertungsdateien erzeugt. Es werden allerdings Report-Dateien im Verzeichnis 'report' erzeugt.<br>
+Zunächst befindet sich keine Auswertung im Speicher. Man öffnet einen OV Wettbewerb und klickt dann auf den Button 'Auswertung'<br>
+im Bereich des Wettbewerbs. Die Auswertung findet zunächst nur im Speicher statt, d.h. es werden keine Jahresauswertungsdateien erzeugt.<br>
+Es werden allerdings Report-Dateien in einem projektspezifischen Unterverzeichnis des Verzeichnis 'report' erzeugt (z.B. in 'report\Demo').<br><br>
 Um den Wettbewerb erneut auswerten zu können (weil z.B. mit dem Auswertungsmuster experimentiert wird), muss die
 Auswertung im Speicher zunächst gelöscht werden.<br>
 Dazu dient der Button 'Auswertung im Speicher löschen'. Dieser löscht <b>alle</b> Auswertungen im Speicher.<br>
@@ -38,14 +38,14 @@ Die Wettbewerbe werden der Reihe nach ausgewertet, entsprechend ihrer Reihenfolg
 Die Auswertung im Speicher wird danach sofort exportiert, bleibt aber im Speicher.
 Man kann daher danach das Feld 'Beim Export Teilnehmer ohne offizielle Veranstaltung...' beliebig ändern und durch
 Klicken auf den 'Auswertung exportieren' Button die Auswertung exportieren.<br>
-<br>Die Jahresauswertungsdateien werden im Unterverzeichnis 'output' abgelegt. Dies sind:
+<br>Die Jahresauswertungsdateien werden im projektspezifischen Unterverzeichnis des Verzeichnis 'output' abgelegt (z.B. in 'output\Demo'). Dies sind:
 <ul>
 <li>eine Textdatei mit dem Namen 'OVJXYYYY.txt' wobei X für den Distriktskenner und YYYY für das Jahr steht, also z.B. 'OVJP2006.txt'<br>
 Es reicht aus, diese Datei beim ARDF-Diplomsachbearbeiter einzureichen.</li>
 <li>eine HTML-Datei mit dem Namen 'OVJ_Ergebnisse_X_YYYY.htm' wobei X für den Distriktskenner und YYYY für das Jahr steht</li>
 <li>eine Rawdatei mit dem Namen 'OVJ_Ergebnisse_X_YYYYraw.txt' wobei X für den Distriktskenner und YYYY für das Jahr steht</li>
 </ul>
-Im Unterverzeichnis 'report' befinden sich für jeden OV Wettbewerb detaillierte Informationen über die Auswertung:
+Im projektspezifischen Unterverzeichnis des Verzeichnis 'report' befinden sich für jeden OV Wettbewerb detaillierte Informationen über die Auswertung:
 <ul>
 <li>welcher Teilnehmer aufgrund welcher Daten in der PM Datei (nicht) gefunden und wie klassifiziert wurde</li>
 <li>Datenunterschiede zwischen OVFJ Daten, PM Vorjahr Datei und aktueller PM Datei</li>
