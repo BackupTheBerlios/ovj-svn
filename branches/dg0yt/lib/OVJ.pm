@@ -55,6 +55,8 @@ use constant {
 use vars qw(
 	$configpath
 	$inputpath
+	$outputpath
+	$reportpath
 	$genfilename
 	$sep
 );
@@ -66,6 +68,8 @@ my $overridefilename = "Override.txt";
 
 $configpath = "config";		# Pfad für die Konfigurationsdaten
 $inputpath  = "input";		# Pfad für die Eingangsdaten
+$outputpath = "output";		# Pfad für die Ergebnisdaten
+$reportpath = "report";		# Pfad für die Reportdaten
 
 $lfdauswert = 0; # Nummer der lfd. OVFJ Auswertung
 =old
@@ -75,8 +79,6 @@ my %ovfj;				# Hash für eine OV Veranstaltung, Kopfdaten
 my $ovfjname;			# Name der aktiven OV Veranstaltung
 
 my $inifilename = "OVJini.txt";
-my $outputpath = "output";		# Pfad für die Ergebnisdaten
-my $reportpath = "report";		# Pfad für die Reportdaten
 										# Generelle Daten, sowie die OVFJ Dateien (*_ovj.txt))
 
 my ($genfilename,$ovfjfilename,$ovfjrepfilename);
@@ -603,8 +605,8 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 	my $ovfjanztlnlist = shift;
 	my $ovfj = shift;
 	my $ovfjname = shift;
-	my $inputpath = shift;
-	my $reportpath = shift;
+#	my $inputpath = shift;
+#	my $reportpath = shift;
 #	my $genfilename = shift;
 	my $ovfjrepfilename = shift;
 	
@@ -1089,7 +1091,7 @@ sub export {
 	my $tn = shift;
 	my $ovfjlist = shift;
 	my $ovfjanztlnlist = shift;
-	my $outputpath = shift;
+#	my $outputpath = shift;
 #	my $genfilename = shift;
 
 	my ($rawresultfilename,$asciiresultfilename,$htmlresultfilename);

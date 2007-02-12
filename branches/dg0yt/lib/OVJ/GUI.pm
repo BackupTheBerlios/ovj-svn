@@ -208,7 +208,7 @@ sub make_ovfj_list {
 	        -text => 'Alle OV Wettbewerbe auswerten und exportieren',
 	        -command => sub{ 
 				my %general = get_general();
-				::do_eval_ovfj(@{$general{ovfj_link}})}
+				do_eval_ovfj(@{$general{ovfj_link}})}
 	    )->pack(-side => 'left');
 	$reset_eval_button = $fr22->Button(
 	        -text => 'Auswertung im Speicher löschen',
@@ -268,7 +268,7 @@ sub make_ovfj_detail {
 			->pack(-side => 'left',-padx => 2);
 	$ovfj_eval_button = $fr30->Button(
 	        -text => 'Auswertung',
-	        -command => sub{::do_eval_ovfj(get_selected_ovfj())},
+	        -command => sub{do_eval_ovfj(get_selected_ovfj())},
 	        -state => 'disabled'
 	        )
 			->pack(-side => 'left',-padx => 2);
@@ -718,5 +718,48 @@ sub save_file_general {
 	$OVJ::genfilename = $filename;
 	OVJ::write_genfile($OVJ::genfilename, get_general());
 }
+
+# Auswertung und Export von OVFJ
+# Parameter: Liste der OVFJ
+sub do_eval_ovfj {
+	my $i = 0;
+	my $success = 0;
+	my $retval;
+	
+	do_reset_eval();
+	my %general = get_general();
+	my %tn;					# Hash für die Teilnehmer, Elemente sind wiederum Hashes
+	my @ovfjlist;			# Liste aller ausgewerteten OV FJ mit Details der Kopfdaten
+	                  	# Elemente sind die %ovfj Daten
+	my @ovfjanztlnlist;	# Liste aller ausgewerteten OV FJ mit der Info über die Anzahl 
+	                     # der Teilnehmer, wird parallel zur @ovfjlist Liste geführt
+	foreach my $str (@_)
+	{
+		my $ovfjname = $str;
+		my $ovfjrepfilename = $str . "_report_ovj.txt";
+		next if ($ovfjname !~ /\S+/);
+#		next if (OVJ::GUI::CreateEdit_ovfj($ovfjname,2)==1);
+		my %ovfj = OVJ::read_ovfjfile($ovfjname)
+		 or next;
+		set_ovfj(%ovfj);
+		$retval = OVJ::eval_ovfj($i++,
+		  \%general,
+		  \%tn,
+		  \@ovfjlist,
+		  \@ovfjanztlnlist,
+		  \%ovfj,
+		  $ovfjname,
+#		  $inputpath,
+#		  $reportpath,
+#		  $OVJ::genfilename,
+		  $ovfjrepfilename
+		);
+		$success = 1 if ($retval == 0);	# Stelle fest, ob wenigstens eine Auswertung erfolgreich war
+		last if ($retval == 2);	# systematischer Fehler, Abbruch der Schleife
+	}
+	OVJ::export(\%general,\%tn,\@ovfjlist,\@ovfjanztlnlist) if ($success);
+}
+
+	
 
 1;

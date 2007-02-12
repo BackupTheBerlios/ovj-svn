@@ -155,48 +155,6 @@ sub init_general {
 =cut
 
 
-# Auswertung und Export von OVFJ
-# Parameter: Liste der OVFJ
-sub do_eval_ovfj {
-	my $i = 0;
-	my $success = 0;
-	my $retval;
-	
-	OVJ::GUI::do_reset_eval();
-	my %general = OVJ::GUI::get_general();
-	my %tn;					# Hash für die Teilnehmer, Elemente sind wiederum Hashes
-	my @ovfjlist;			# Liste aller ausgewerteten OV FJ mit Details der Kopfdaten
-	                  	# Elemente sind die %ovfj Daten
-	my @ovfjanztlnlist;	# Liste aller ausgewerteten OV FJ mit der Info über die Anzahl 
-	                     # der Teilnehmer, wird parallel zur @ovfjlist Liste geführt
-	foreach $str (@_)
-	{
-		$ovfjname = $str;
-		$ovfjrepfilename = $str . "_report_ovj.txt";
-		next if ($ovfjname !~ /\S+/);
-#		next if (OVJ::GUI::CreateEdit_ovfj($ovfjname,2)==1);
-		my %ovfj = OVJ::read_ovfjfile($ovfjname)
-		 or next;
-		OVJ::GUI::set_ovfj(%ovfj);
-		$retval = OVJ::eval_ovfj($i++,
-		  \%general,
-		  \%tn,
-		  \@ovfjlist,
-		  \@ovfjanztlnlist,
-		  \%ovfj,
-		  $ovfjname,
-		  $inputpath,
-		  $reportpath,
-#		  $OVJ::genfilename,
-		  $ovfjrepfilename
-		);
-		$success = 1 if ($retval == 0);	# Stelle fest, ob wenigstens eine Auswertung erfolgreich war
-		last if ($retval == 2);	# systematischer Fehler, Abbruch der Schleife
-	}
-	OVJ::export(\%general,\%tn,\@ovfjlist,\@ovfjanztlnlist,$outputpath) if ($success);
-}
-
-
 #Exit Box aus dem 'Datei' Menu und 'Exit' Button
 sub Leave {
 	OVJ::Inifile::write($inifilename,%config)		# Speichern der Inidaten
