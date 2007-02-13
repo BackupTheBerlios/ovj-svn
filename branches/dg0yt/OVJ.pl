@@ -45,11 +45,13 @@ my $gui;
 
 intro();
 %config = OVJ::Inifile::read($inifilename)
- or OVJ::meldung(OVJ::WARNUNG, "Kann INI-Datei '$inifilename' nicht lesen: $!");
+ or warn "Kann INI-Datei '$inifilename' nicht lesen: $!";
 $gui = OVJ::GUI::init(%config);
 init() or exit 1;
 OVJ::GUI::run();
-Leave();
+OVJ::Inifile::write($inifilename,%config)		# Speichern der Inidaten
+ or warn "Kann INI-Datei '$inifilename' nicht schreiben: $!";
+exit 0;
 
 
 
@@ -61,29 +63,11 @@ sub intro {
 
 
 sub init {
-# FIXME: local var
-#	do_file_general(2);	# Lade Generelle Daten Datei falls vorhanden
 	init_general();	# Lade Generelle Daten Datei falls vorhanden
 	OVJ::GUI::set_patterns(OVJ::read_patterns());
 	
-	# FIXME: use loop
-
-=disabled
-
-	unless (-e $configpath && -d $configpath)
-	{
-		OVJ_meldung(HINWEIS,"Erzeuge Verzeichnis \'".$configpath."\'");
-		unless (mkdir($configpath))
-		{
-			OVJ_meldung(FEHLER,"Konnte Verzeichnis \'".$configpath."\' nicht erstellen".$!);
-			return;
-		}
-	}
-
-=cut
-
-	foreach my $dir 
-	 ($OVJ::configpath, $OVJ::reportpath, $OVJ::outputpath, $OVJ::inputpath) {
+	foreach my $dir ($OVJ::configpath, $OVJ::reportpath,
+	                 $OVJ::outputpath, $OVJ::inputpath) {
 		next if -d $dir;
 		OVJ::GUI::meldung(HINWEIS, "Erzeuge Verzeichnis '$dir'");
 		mkdir $dir
@@ -102,34 +86,6 @@ sub init_general {
 	}
 }
 
-=obsolete	
-		if (-e $configpath.$sep.$config{LastGenFile}.$sep.$config{LastGenFile}.".txt") {
-			$OVJ::genfilename = $config{"LastGenFile"};
-			OVJ_meldung(HINWEIS,"Lade $OVJ::genfilename");
-			OVJ::GUI::set_general_data_label($OVJ::genfilename);
-			return(read_genfile(0,$OVJ::genfilename));
-		}
-		else {
-			unless (-e $configpath.$sep.$config{"LastGenFile"} && -d $configpath.$sep.$config{"LastGenFile"})
-			{
-				OVJ_meldung(HINWEIS,"Kann ".$config{"LastGenFile"}." nicht laden, da Verzeichnis \'".$config{"LastGenFile"}."\' nicht existiert!");
-			}
-			else
-			{
-				OVJ_meldung(HINWEIS,"Kann ".$config{"LastGenFile"}." nicht laden! Datei existiert nicht");
-			}
-			return 1;	# Fehler
-		}
-}
-=cut
-
-
-#Exit Box aus dem 'Datei' Menu und 'Exit' Button
-sub Leave {
-	OVJ::Inifile::write($inifilename,%config)		# Speichern der Inidaten
-	  or warn "Kann INI-Datei '$inifilename' nicht schreiben: $!";
-	exit 0;
-}
 
 sub OVJ_meldung {
 	my $level = shift;

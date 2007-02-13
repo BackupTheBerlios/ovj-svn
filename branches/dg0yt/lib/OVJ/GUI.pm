@@ -63,7 +63,14 @@ use vars qw(
 );
 
 sub run {
+	# Warnungen abfangen
+	$SIG{'__WARN__'} = sub {
+		my $error = shift;
+		chomp $error;
+		meldung(OVJ::WARNUNG, $error);
+	};
 	MainLoop();
+	delete $SIG{'__WARN__'};
 }
 
 sub init {
@@ -539,7 +546,7 @@ sub Leave {
 	return if (CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
 	return if (CheckForUnsavedPatterns());	# Abbruch durch Benutzer
 	return if (CheckForSaveGenfile());		# Abbruch durch Benutzer
-	::Leave();
+	$mw->destroy();
 }
 
 #Kopieren des markierten Patterns in die Patternzeile des OV Wettbewerbs
@@ -757,6 +764,5 @@ sub do_eval_ovfj {
 	OVJ::export(\%general,\%tn,\@ovfjlist,\@ovfjanztlnlist) if ($success);
 }
 
-	
 
 1;
