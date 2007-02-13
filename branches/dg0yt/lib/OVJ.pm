@@ -72,44 +72,13 @@ $outputpath = "output";		# Pfad für die Ergebnisdaten
 $reportpath = "report";		# Pfad für die Reportdaten
 
 $lfdauswert = 0; # Nummer der lfd. OVFJ Auswertung
-=old
-my %config  = ();		# Konfigurationsdaten
-my %general = ();	# Generelle Einstellungen
-my %ovfj;				# Hash für eine OV Veranstaltung, Kopfdaten
-my $ovfjname;			# Name der aktiven OV Veranstaltung
-
-my $inifilename = "OVJini.txt";
-										# Generelle Daten, sowie die OVFJ Dateien (*_ovj.txt))
-
-my ($genfilename,$ovfjfilename,$ovfjrepfilename);
-my @fjlist;				# Liste der OV Veranstaltungen, nur die Namen, keine Details
-my $fjlistsaved;		# gespeicherte Liste der OV Veranstaltungen, auf Basis des Eingabefeldes, daher
-                     # keine Liste
-my %tn;					# Hash für die Teilnehmer, Elemente sind wiederum Hashes
-my %auswerthash;		# Hash zur Kontrolle, welche OVFJ schon ausgewertet sind
-my $lfdauswert=0;		# Nummer der lfd. OVFJ Auswertung
-my $nicknames;			# Inhalt der Spitznamen Datei
-my ($i,$str);			# temp. Variablen
-my $pattern;			# Das 'richtige' Pattern, das aus dem textuellen erzeugt wird
-my @ovfjlist;			# Liste aller ausgewerteten OV FJ mit Details der Kopfdaten
-                  	# Elemente sind die %ovfj Daten
-my @ovfjanztlnlist;	# Liste aller ausgewerteten OV FJ mit der Info über die Anzahl 
-                     # der Teilnehmer, wird parallel zur @ovfjlist Liste geführt
-my $patterns;		# Auswertungsmuster, die gespeichert wurden. Abgleich der aktuellen
-                     # Auswertungsmuster mit diesen, falls das Programm beendet werden soll,
-                     # um Datenverluste zu verhindern
-my $overrides=undef;	# Overrides
-my @pmvjarray;			# Array mit PMVJ Daten
-my @pmaktarray;		# Array mit aktuellen PM Daten
-
-
-=cont
-
-=cut
 
 #Vergleiche Zeile aus Auswertungsdatei mit Pattern
+# FIXME: Rewrite 
 sub MatchPat {
-	my ($line) = @_;
+	@_ == 2 
+	 or croak "2 Argumente erforderlich: Zeile, Muster";
+	my ($line, $pattern) = @_;
 	
 	my $patmatched = 0;
 	my $platz = "";
@@ -118,202 +87,149 @@ sub MatchPat {
 	my ($quest,$kw);
 	my $validkeyword;
 	
-	my %ovfj_temp = OVJ::GUI::get_ovfj();
-	local $_ = $ovfj_temp{Auswertungsmuster};
-	s/^\s+//; # entferne evtl. vorhandene Leerzeichen am Anfang
-	s/\s+$//; # und am Ende
+	local $_ = undef; # FIXME: Löschen
+	$pattern =~ s/^\s+|\s+$//g; # Umgebende Leerzeichen entfernen
 	
 	$line =~ s/^\s+//; # entferne evtl. vorhandene Leerzeichen am Anfang
 	$line .= ' ';	# fuer den Sonderfall, dass am Ende optionale Elemente (d.h. mit Schlüsselwort?) kommen
 						# wenn das Schlüsselwort? nach einem Leerzeichen folgt, so wuerden normale Matches das Leerzeichen
 						# am Ende erwarten.
 	
-	while ($_ ne "")
-	{
-		if (/^([A-Z][a-z]+\??)/)
-		{
-			$quest = 0;
+	while ($pattern ne "") { # FIXME: kein While?
+		if ($pattern =~ /^([A-Z][a-z]+)(\?)?/) {
 			$validkeyword = 0;
 			$kw = $1;
-			if ($kw =~ /\?$/)
-			{
-				$quest = 1;
-				$kw =~ s/\?$//;
-			}
-			if ($kw eq "Platz")
-			{
+			$quest = $2 ? 1 : 0;
+			if ($kw eq "Platz") {
 				$validkeyword = 1;
-				if ($line =~ /^(\d+)\b/)
-				{
+				if ($line =~ /^(\d+)\b/) {
 					$platz = $1;
 					$line =~ s/^\d+\b//;
 				}
-				else
-				{
-					if ($quest == 0) {return (0,$kw);} # Fehlschlag
+				elsif ($quest == 0) {
+					return (0,$kw); # Fehlschlag
 				}
 			}
-			if ($kw eq "Sender")
-			{
+			if ($kw eq "Sender") {
 				$validkeyword = 1;
-				if ($line =~ /^\d+\b/)
-				{
+				if ($line =~ /^\d+\b/) {
 					$line =~ s/^\d+\b//;
 				}
-				else
-				{
-					if ($quest == 0) {return (0,$kw);} # Fehlschlag
+				elsif ($quest == 0) {
+					return (0,$kw); # Fehlschlag
 				}
 			}
-			if ($kw eq "Geburtsjahr" || $kw eq "Gebjahr")
-			{
+			if ($kw eq "Geburtsjahr" || $kw eq "Gebjahr") {
 				$validkeyword = 1;
-				if ($line =~ /^(\d{4})\b/)
-				{
+				if ($line =~ /^(\d{4})\b/) {
 					$gebjahr = $1;
 					$line =~ s/^\d+\b//;
 				}
-				else
-				{
-					if ($quest == 0) {return (0,$kw);} # Fehlschlag
+				elsif ($quest == 0) {
+					return (0,$kw); # Fehlschlag
 				}
 			}
-			if ($kw eq "Zeit")
-			{
+			if ($kw eq "Zeit") {
 				$validkeyword = 1;
-				if ($line =~ /^[.:0-9]+\b/)
-				{
+				if ($line =~ /^[.:0-9]+\b/) {
 					$line =~ s/^[.:0-9]+\b//;
 				}
-				else
-				{
-					if ($quest == 0) {return (0,$kw);} # Fehlschlag
+				elsif ($quest == 0) {
+					return (0,$kw); # Fehlschlag
 				}
 			}
-			if ($kw eq "Dok")
-			{
+			if ($kw eq "Dok") {
 				$validkeyword = 1;
-				if ($line =~ /^(\S+)/)
-				{
+				if ($line =~ /^(\S+)/) {
 					$dok = uc($1);
 					$dok = "---" if ($dok !~ /^[A-Z]\d\d$/);
 					$line =~ s/^\S+//;
 				}
-				else
-				{
-					if ($quest == 0) {return (0,$kw);} # Fehlschlag
+				elsif ($quest == 0) {
+					return (0,$kw); # Fehlschlag
 				}
 			}
-			if ($kw eq "Call" || $kw eq "Rufzeichen")
-			{
+			if ($kw eq "Call" || $kw eq "Rufzeichen") {
 				$validkeyword = 1;
-				if ($line =~ /^(\S+)/)
-				{
+				if ($line =~ /^(\S+)/) {
 					$call = uc($1);
 					$call = "---" if ($call =~ /^[A-Z]+$/ || $call =~ /^-+$/);
 					$line =~ s/^\S+//;
 				}
-				else
-				{
-					if ($quest == 0) {return (0,$kw);} # Fehlschlag
+				elsif ($quest == 0) {
+					return (0,$kw); # Fehlschlag
 				}
 			}
-			if ($kw eq "Egal" || $kw eq "Ignorier" || $kw eq "Ignoriere")
-			{
+			if ($kw eq "Egal" || $kw eq "Ignorier" || $kw eq "Ignoriere") {
 				$validkeyword = 1;
-				if ($line =~ /^\S+/)
-				{
+				if ($line =~ /^\S+/) {
 					$line =~ s/^\S+//;
 				}
-				else
-				{
-					if ($quest == 0) {return (0,$kw);} # Fehlschlag
+				elsif ($quest == 0) {
+					return (0,$kw); # Fehlschlag
 				}
 			}
-			if ($kw eq "Nachname")
-			{
+			if ($kw eq "Nachname") {
 				$validkeyword = 1;
-				if ($line =~ /^\"([^"]+)\"/)
-				{
+				if ($line =~ /^\"([^"]+)\"/) {
 					$nachname = $1;
 					$line =~ s/^\"[^"]+\"//;
 				}
-				else
-				{
-					if ($line =~ /^([-a-zA-ZäöüÄÖÜß]+)/)
-					{
-						$nachname = $1;
-						$line =~ s/^[-a-zA-ZäöüÄÖÜß]+//;
-					}
-					else
-					{
-						if ($quest == 0) {return 0;} # Fehlschlag
-					}
+				elsif ($line =~ /^([-a-zA-ZäöüÄÖÜß]+)/) {
+					$nachname = $1;
+					$line =~ s/^[-a-zA-ZäöüÄÖÜß]+//;
+				}
+				elsif ($quest == 0) {
+					return (0,$kw); # Fehlschlag
 				}
 			}
-			if ($kw eq "Vorname")
-			{
+			if ($kw eq "Vorname") {
 				$validkeyword = 1;
-				if ($line =~ /^\"([^"]+)\"/)
-				{
+				if ($line =~ /^\"([^"]+)\"/) {
 					$vorname = $1;
 					$line =~ s/^\"[^"]+\"//;
 				}
-				else
-				{
-					if ($line =~ /^([-a-zA-ZäöüÄÖÜß]+)/)
-					{
-						$vorname = $1;
-						$line =~ s/^[-a-zA-ZäöüÄÖÜß]+//;
-					}
-					else
-					{
-						if ($quest == 0) {return (0,$kw);} # Fehlschlag
-					}
+				elsif ($line =~ /^([-a-zA-ZäöüÄÖÜß]+)/) {
+					$vorname = $1;
+					$line =~ s/^[-a-zA-ZäöüÄÖÜß]+//;
+				}
+				elsif ($quest == 0) {
+					return (0,$kw); # Fehlschlag
 				}
 			}
 
-			return (0,$kw." ist kein Schlüsselwort") if ($validkeyword != 1);	 # illegales Wort
-			s/^([A-Z][a-z]+)//;	 # entferne Schluesselwort
+			return (0, $kw." ist kein Schlüsselwort") if ($validkeyword != 1);	 # illegales Wort
+			$pattern =~ s/^([A-Z][a-z]+)//;	 # entferne Schluesselwort
 
-			if ($quest == 1)
-			{
-				s/^\?//;
+			if ($quest == 1) {
+				$pattern =~ s/^\?//;
 				$line = " ".$line;	# füge Leerzeichen am Anfang hinzu, weil Leerzeichen im Muster sonst
 				                     # nicht gefunden werden.
 			}
 
 		} # Ende Wortoperation
-		else {
-		if (/^(\w+)/)
-			{
-				return (0,$1." ist kein Schlüsselwort");	 # illegales Wort
-			}
+		elsif ($pattern =~ /^(\w+)/) {
+			return (0,$1." ist kein Schlüsselwort");	 # illegales Wort
 		}
-		if (/^\s+/)
-		{
-			if ($line =~ /^\s+/)
-			{
+
+		if ($pattern =~ /^\s+/) {
+			if ($line =~ /^\s+/) {
 				$line =~ s/^\s+//;
 			}
-			else
-			{
+			else {
 				return (0,"Leerzeichen"); # Fehlschlag
 			}
-			s/^\s+//;
+			$pattern =~ s/^\s+//;
 			next;
 		}
-		if (/^(\S+)/)
-		{
-			if ($line =~ /^($1)/)
-			{
+		if ($pattern =~ /^(\S+)/) {
+			if ($line =~ /^($1)/) {
 				$line =~ s/^$1//;
 			}
-			else
-			{
+			else {
 				return (0,"Sonstige Zeichen"); # Fehlschlag
 			}
-			s/^\S+//;
+			$pattern =~ s/^\S+//;
 		}
 	}
 	
@@ -645,9 +561,6 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 	my $TlnIstAusrichter;	# Teilnehmer ist auch Ausrichter
 	
 	#Auswertung
-#	%general = OVJ::GUI::get_general() if ($mode == 0);	# Generelle Hashdaten aktualisieren auf Basis der Felder
-#	%ovfj = OVJ::GUI::get_ovfj() if ($mode == 0);	# Hashdaten aktualisieren
-	
 	if ($general->{Jahr} !~ /^\d{4}$/)
 	{
 		meldung(FEHLER,"Jahr ist keine gültige Zahl");
@@ -655,11 +568,10 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 	}
 	
 	meldung(HINWEIS,"***************  ".$ovfjname."  ***************");
-	
-	my %ovfj_temp = OVJ::GUI::get_ovfj();
-	$_ = $ovfj_temp{Auswertungsmuster};
-	unless (/Nachname/ && /Vorname/)
-	{
+
+
+	$_ = $ovfj->{Auswertungsmuster};
+	unless (/Nachname/ && /Vorname/) {
 		meldung(FEHLER,"Muster muss 'Nachname' und 'Vorname' beinhalten");
 		return 1;	# Fehler
 	}
@@ -716,9 +628,10 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 	}
 
 #	$auswerthash{$ovfjname} = 1;	# Wert ist egal, nur Vorhandensein des Schlüssels zählt
-	$OVJ::GUI::ovfj_eval_button->configure(-state => 'disabled');
-	$OVJ::GUI::reset_eval_button->configure(-state => 'normal');
-	$OVJ::GUI::exp_eval_button->configure(-state => 'normal');
+# FIXME: Move to GUI
+#	$OVJ::GUI::ovfj_eval_button->configure(-state => 'disabled');
+#	$OVJ::GUI::reset_eval_button->configure(-state => 'normal');
+#	$OVJ::GUI::exp_eval_button->configure(-state => 'normal');
 	
 	$lfdauswert++; # Fortlaufende Numerierung aller OVFJ Auswertungen
 
@@ -814,7 +727,7 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 		{
 			if ($HelferInKopf == 0)
 			{
-				($patmatched,$platz,$ev_nachname,$ev_vorname,$ev_gebjahr,$ev_call,$ev_dok) = MatchPat($_);
+				($patmatched,$platz,$ev_nachname,$ev_vorname,$ev_gebjahr,$ev_call,$ev_dok) = MatchPat($_, $ovfj->{Auswertungsmuster});
 				$str2 = "\nTeilnehmer: ";
 				$str2 = "\nHelfer: " if ($Helfermode == 1);
 				$matcherrortext = $platz if ($patmatched == 0);	# Fehlertext steht in zweitem Rückgabewert
