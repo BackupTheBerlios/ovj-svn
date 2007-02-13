@@ -46,8 +46,8 @@ use Carp;	# carp/croak instead of warn/die
 
 sub read {
 	my $inifilename = shift
-	  or croak "Dateiname fehlt";
-	open (my $inifile,"<",$inifilename)
+	  or croak 'Dateiname fehlt';
+	open my $inifile, '<', $inifilename
 	  or return;
 	my %inihash = ( '.comment' => '' );
 	while (<$inifile>) {
@@ -59,7 +59,7 @@ sub read {
 			$inihash{'.comment'} .= $_;
 		}
 	}
-	close ($inifile) 
+	close $inifile
 	  or warn "Kann INI-Datei '$inifilename' nicht schlieﬂen: $!";
 	return wantarray ? %inihash : \%inihash;
 }
@@ -67,17 +67,18 @@ sub read {
 
 sub write {
 	my $inifilename = shift
-	  or croak "Dateiname fehlt";
+	  or croak 'Dateiname fehlt';
 	my %inihash = (ref $_[0]) ? %{$_[0]} : @_;
 	my $key;
-	open (my $inifile,">",$inifilename)
+	open my $inifile, '>', $inifilename
 	  or return;
 	print $inifile $inihash{'.comment'};
 	foreach $key (keys %inihash) {
 		next if $key eq '.comment';
 		print $inifile "$key = $inihash{$key}\n";
 	}
-	close ($inifile);
+	close $inifile
+	  or warn "Kann INI-Datei '$inifilename' nicht schlieﬂen: $!";
 }
 
 1;
