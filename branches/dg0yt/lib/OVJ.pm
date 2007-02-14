@@ -1024,29 +1024,29 @@ sub export {
 	
 	unless (-e $outputpath.$sep.$genfilename && -d $outputpath.$sep.$genfilename)
 	{
-		::meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$outputpath."\'");
+		meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$outputpath."\'");
 		unless (mkdir($outputpath.$sep.$genfilename))
 		{
-			::meldung(FEHLER,"Konnte Verzeichnis \'".$outputpath.$sep.$genfilename."\' nicht erstellen".$!);
+			meldung(FEHLER,"Konnte Verzeichnis \'".$outputpath.$sep.$genfilename."\' nicht erstellen".$!);
 			return;
 		}
 	}	
 	
 	if (!open (ROUTFILE,">",$outputpath.$sep.$genfilename.$sep.$rawresultfilename))
 	{
-		::meldung(FEHLER,"Kann ".$rawresultfilename." nicht schreiben");
+		meldung(FEHLER,"Kann ".$rawresultfilename." nicht schreiben");
 		return;
 	}
 	$asciiresultfilename = "OVJ".$general->{"Distriktskenner"}.$general->{Jahr}.".txt";
 	if (!open (AOUTFILE,">",$outputpath.$sep.$genfilename.$sep.$asciiresultfilename))
 	{
-		::meldung(FEHLER,"Kann ".$asciiresultfilename." nicht schreiben");
+		meldung(FEHLER,"Kann ".$asciiresultfilename." nicht schreiben");
 		return;
 	}
 	$htmlresultfilename = "OVJ_Ergebnisse_".$general->{"Distriktskenner"}."_".$general->{Jahr}.".htm";
 	if (!open (HOUTFILE,">",$outputpath.$sep.$genfilename.$sep.$htmlresultfilename))
 	{
-		::meldung(FEHLER,"Kann ".$htmlresultfilename." nicht schreiben");
+		meldung(FEHLER,"Kann ".$htmlresultfilename." nicht schreiben");
 		return;
 	}
 	
@@ -1342,7 +1342,6 @@ sub meldung {
 	carp $message if ($level eq WARNUNG || $level eq FEHLER);
 	return if ($level eq FEHLER); 
 	return 1;
-#	::OVJ_meldung($level, $message, @_) 
 }
 
 
