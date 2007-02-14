@@ -1009,7 +1009,7 @@ sub export {
 
 	my ($rawresultfilename,$asciiresultfilename,$htmlresultfilename);
 	my ($tnkey,$tndatakey);
-	my $addoutput;
+	my $addoutput = '';
 	my $ExcludeTln;
 	my $ovfjlistelement;
 	my ($i,$str2);
