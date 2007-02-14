@@ -69,9 +69,9 @@ sub init {
 	foreach my $dir ($OVJ::configpath, $OVJ::reportpath,
 	                 $OVJ::outputpath, $OVJ::inputpath) {
 		next if -d $dir;
-		OVJ::GUI::meldung(HINWEIS, "Erzeuge Verzeichnis '$dir'");
+		OVJ::GUI::meldung(OVJ::HINWEIS, "Erzeuge Verzeichnis '$dir'");
 		mkdir $dir
-		 or return OVJ_meldung(FEHLER, 
+		 or return OVJ::GUI::meldung(OVJ::FEHLER, 
 		   "Konnte Verzeichnis '$dir' nicht erstellen: $!");
 	}
 	return 1;
@@ -81,16 +81,8 @@ sub init {
 sub init_general {
 	if (exists $config{LastGenFile}) {
 		$OVJ::genfilename = $config{LastGenFile};
-		OVJ_meldung(HINWEIS,"Lade $OVJ::genfilename...");
 		OVJ::GUI::set_general(OVJ::read_genfile($OVJ::genfilename));
+		OVJ::GUI::meldung(OVJ::HINWEIS,"Lade $OVJ::genfilename...");
 	}
-}
-
-
-sub OVJ_meldung {
-	my $level = shift;
-	my $message = "$level: " . shift;
-	OVJ::GUI::meldung($level, $message) if $gui;
-	return 0;
 }
 
