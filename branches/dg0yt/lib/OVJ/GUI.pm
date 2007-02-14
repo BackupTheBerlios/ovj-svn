@@ -585,12 +585,8 @@ sub meldung {
 		$meldung->insert('end', "$message");
 	}
 
-	if ($type eq OVJ::FEHLER) { 
-		return;
-	}
-	else { 
-		return 1;
-	}
+	return if ($type eq OVJ::FEHLER);
+	return 1;
 }
 
 # Bestimmt einzelne ausgewählte Zeile aus Tk::Text
