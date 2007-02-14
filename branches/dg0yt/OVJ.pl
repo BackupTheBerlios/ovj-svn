@@ -40,13 +40,12 @@ use OVJ;
 
 my $inifilename = "OVJini.txt";
 my %config  = ();		# Konfigurationsdaten
-my $gui;
 
 
 intro();
 %config = OVJ::Inifile::read($inifilename)
  or warn "Kann INI-Datei '$inifilename' nicht lesen: $!";
-$gui = OVJ::GUI::init(%config);
+OVJ::GUI::init(%config);
 init() or exit 1;
 OVJ::GUI::run();
 OVJ::Inifile::write($inifilename,%config)		# Speichern der Inidaten
@@ -64,12 +63,11 @@ sub intro {
 
 sub init {
 	init_general();	# Lade Generelle Daten Datei falls vorhanden
-	OVJ::GUI::set_patterns(OVJ::read_patterns());
 	
 	foreach my $dir ($OVJ::configpath, $OVJ::reportpath,
 	                 $OVJ::outputpath, $OVJ::inputpath) {
 		next if -d $dir;
-		OVJ::GUI::meldung(OVJ::HINWEIS, "Erzeuge Verzeichnis '$dir'");
+		OVJ::GUI::meldung(OVJ::INFO, "Erzeuge Verzeichnis '$dir'");
 		mkdir $dir
 		 or return OVJ::GUI::meldung(OVJ::FEHLER, 
 		   "Konnte Verzeichnis '$dir' nicht erstellen: $!");
@@ -82,7 +80,7 @@ sub init_general {
 	if (exists $config{LastGenFile}) {
 		$OVJ::genfilename = $config{LastGenFile};
 		OVJ::GUI::set_general(OVJ::read_genfile($OVJ::genfilename));
-		OVJ::GUI::meldung(OVJ::HINWEIS,"Lade $OVJ::genfilename...");
+		OVJ::GUI::meldung(OVJ::INFO, "'$OVJ::genfilename' geladen");
 	}
 }
 

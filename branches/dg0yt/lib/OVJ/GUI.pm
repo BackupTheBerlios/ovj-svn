@@ -69,7 +69,10 @@ sub run {
 		chomp $error;
 		meldung(OVJ::WARNUNG, $error);
 	};
+	
 	MainLoop();
+	
+	# GUI beendet, Warnungen nicht mehr abfangen
 	delete $SIG{'__WARN__'};
 }
 
@@ -253,6 +256,8 @@ sub make_muster {
 	        -command => sub{do_copy_pattern()},
 	        -state => 'disabled'
 	    )->pack();
+	
+	set_patterns(OVJ::read_patterns());
 }
 
 # Wettbewerbsdaten
