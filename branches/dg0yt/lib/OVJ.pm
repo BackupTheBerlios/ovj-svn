@@ -37,13 +37,15 @@ use Carp;
 use vars qw(
 	$ovjdate
 	$ovjvers
+	$ovjinfo
 	$error
 	$lfdauswert
 );
 
 '$Id$' =~ /Id: [^ ]+ (\d+) (\d{4})-(\d{2})-(\d{2}) /;
 $ovjdate = "$4.$3.$2";
-$ovjvers = "0.96-dg0yt-$1";
+$ovjvers = "0.96-rev$1";
+$ovjinfo = "OVJ $OVJ::ovjvers by DL3SDO, DG0YT, $OVJ::ovjdate";
 
 use constant {
 	INFO    => 'Information',

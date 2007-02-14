@@ -48,6 +48,7 @@ intro();
 OVJ::GUI::init(%config);
 init() or exit 1;
 OVJ::GUI::run();
+$config{LastGenFile} = $OVJ::genfilename;
 OVJ::Inifile::write($inifilename,%config)		# Speichern der Inidaten
  or warn "Kann INI-Datei '$inifilename' nicht schreiben: $!";
 exit 0;
@@ -55,7 +56,7 @@ exit 0;
 
 
 sub intro {
-	my $str = "*  OVJ $OVJ::ovjvers by DL3SDO, $OVJ::ovjdate  *";
+	my $str = "*  $OVJ::ovjinfo  *";
 	my $sep = '*' x length($str);
 	print "$sep\n$str\n$sep\n";
 }
