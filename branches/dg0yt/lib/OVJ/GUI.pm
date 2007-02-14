@@ -567,20 +567,30 @@ sub meldung {
 	my ($type, $message) = @_;
 
 	OVJ::meldung($type, $message);
-	$meldung->insert('end', "$type: $message");
 
 	my $err_icon;
 	if    ($type eq OVJ::FEHLER)  { $err_icon = 'error' }
 	elsif ($type eq OVJ::WARNUNG) { $err_icon = 'warning' }
 
 	if ($err_icon) {
+		$meldung->insert('end', "$type: $message");
 		$mw->messageBox(
 			-icon    => $err_icon, 
 			-title   => $type, 
 			-message => $message,
 			-type    => 'Ok' );
 	}
-	return ($type eq OVJ::FEHLER) ? 0 : 1 ; # 0: Fehler, 1: okay 
+	else {
+		# Einfache Meldung
+		$meldung->insert('end', "$message");
+	}
+
+	if ($type eq OVJ::FEHLER) { 
+		return;
+	}
+	else { 
+		return 1;
+	}
 }
 
 # Bestimmt einzelne ausgewählte Zeile aus Tk::Text
