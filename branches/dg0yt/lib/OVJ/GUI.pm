@@ -35,6 +35,7 @@ use strict;
 use Carp;
 
 use Tk;
+use Tk::DialogBox;
 use OVJ;
 
 my $mw;
@@ -45,6 +46,7 @@ my $gui_patterns;
 my $meldung;
 my $check_ExcludeTln;
 
+my $curr_patterns;
 my $orig_patterns;
 my %orig_ovfj;
 my %orig_general;
@@ -80,13 +82,16 @@ sub init {
 	my %config = @_;
 	
 	$mw = MainWindow->new;
-	$mw->OnDestroy(sub { Leave(); warn "Fixxxme" });
-	make_menu($mw);
-	make_general($mw);
-	make_ovfj_list($mw);
-	make_muster($mw);
-	make_ovfj_detail($mw);
-	make_meldungen($mw);
+	$mw->OnDestroy(\&Leave);
+	$mw->gridColumnconfigure(0, -weight => 1);
+	$mw->gridRowconfigure([1,3], -weight => 3);
+	make_menu($mw)->grid(-row => 0,-sticky => 'nswe');
+	make_general($mw)->grid(-row => 1, -sticky => 'nswe');
+	make_ovfj_detail($mw)->grid(-row => 2, -sticky => 'nswe');
+	make_meldungen($mw)->grid(-row => 3, -sticky => 'nswe');
+
+	set_patterns(OVJ::read_patterns());
+
 	return $mw;
 }
 
@@ -96,47 +101,36 @@ sub make_menu {
 	my $parent = shift
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
 	
-	my $menu_bar = $parent->Frame(-relief => 'raised', -borderwidth => 2)->pack(-side => 'top', -anchor => "nw", -fill => "x");
-	$menu_bar->Menubutton(-text => 'Datei', -menuitems => [
-				[ Button => "Exit",-command => \&Leave]])
+	my $menu_bar = $parent->Frame(-relief => 'raised', -borderwidth => 1);
+	$menu_bar->Menubutton(-text => 'Datei', -underline => 0, -menuitems => [
+				[ Button => "Neu", -underline => 0, -command => \&set_general],
+				[ Button => "Öffnen", -underline => 1, -command => \&open_file_general],
+				[ Button => "Importieren", -underline => 0, -command => \&import_file_general],
+				[ Button => "Speichern", -underline => 0, -command => \&save_file_general],
+				[ Separator => "--" ],
+				[ Button => "Beenden", -underline => 0, -command => \&Leave]])
 								->pack(-side => 'left');
-	$menu_bar->Menubutton(-text => 'Hilfe', , -menuitems => [
-				[ Button => "Über",-command => \&About]])
+	$menu_bar->Menubutton(-text => 'Hilfe', -underline => 0, , -menuitems => [
+				[ Button => "Über", -underline => 1,-command => \&About]])
 								->pack(-side => 'left');
-	$menu_bar->Button(
-	        -text    => 'Exit',
-	        -command => \&Leave)->pack(-side => 'right');
-	$menu_bar->Label(-text => "OVJ $OVJ::ovjvers by DL3SDO, $OVJ::ovjdate")->pack();
+#	$menu_bar->Button(
+#	        -text    => 'Exit', -underline => 1,
+#	        -command => \&Leave)->pack(-side => 'right');
+	$menu_bar->Label(-text => $OVJ::ovjinfo)->pack();
+	return $menu_bar;
 }
     
 # Allgemeine Daten
 sub make_general {
 	my $parent = shift
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
+	my $fr0 = $parent->Frame(-borderwidth => 2, -relief => 'raised');
+#	$fr0->pack;
+	$gui_general_label = $fr0->Label(-text => 'Generelle Daten:')->pack;
 	
-	my $fr1 = $parent->Frame(-borderwidth => 5, -relief => 'raised');
-	$fr1->pack;
-	$gui_general_label = $fr1->Label(-text => 'Generelle Daten:')->pack;
-	
+	my $fr1 = $fr0->Frame->pack();
 	my $fr11 = $fr1->Frame->pack(-side => 'left');
-	my $fr111 = $fr11->Frame->pack;
-	$fr111->Button(
-	        -text => 'Importieren',
-	        -command => sub{import_file_general()}
-	    )->pack(-side => 'right',-padx => 1);
-	$fr111->Button(
-	        -text => 'Speichern als',
-	        -command => sub{save_file_general()}
-	    )->pack(-side => 'right',-padx => 1);
-	$fr111->Button(
-	        -text => 'Speichern',
-	        -command => sub{save_file_general($OVJ::genfilename)}
-	    )->pack(-side => 'right',-padx => 1);
-	$fr111->Button(
-	        -text => 'Laden',
-	        -command => sub{open_file_general(1)}
-	    )->pack(-side => 'right',-padx => 1);
-	
+
 	my $fr112 = $fr11->Frame->pack;
 	$fr112->Label(-text => 'Distrikt')->pack(-side => 'left');
 	$gui_general{Distrikt} = $fr112->Entry()->pack(-side => 'left');
@@ -191,7 +185,10 @@ sub make_general {
 	        -text => 'Spitznamen',
 	        -command => sub{do_get_nickfile()}
 	    )->pack(-side => 'left');
-	     
+	
+	make_ovfj_list($fr0)->pack(-expand => 1, -fill => 'both', -padx => 5, -pady => 5);
+
+	return $fr0;
 }
 
 # Liste der OV-Wettbewerbe
@@ -199,8 +196,8 @@ sub make_ovfj_list {
 	my $parent = shift
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
 	
-	my $fr2 = $parent->Frame(-borderwidth => 5, -relief => 'raised');
-	$fr2->pack;
+	my $fr2 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
+#	$fr2->pack;
 	$fr2->Label(-text => 'Liste der OV Wettbewerbe')->pack;
 	my $fr21 = $fr2->Frame->pack();
 	$fjlistbox = $fr21->Scrolled('Text',-scrollbars =>'oe',width => 40, height => 4)->pack(-side => 'left');
@@ -234,39 +231,17 @@ sub make_ovfj_list {
 	
 	$fr23->Label(-text => 'Beim Export Teilnehmer ohne offizielle Veranstaltung im akt. Jahr ausschliessen')->pack(-side => 'left');
 	$check_ExcludeTln = $fr23->Checkbutton()->pack(-side => 'left');
+	return $fr2;
 }
 
-# Liste der Auswertungsmuster
-sub make_muster {
-	my $parent = shift
-	  or carp "Parameter für übergeordnetes Fenster fehlt";
-	
-	my $fr4 = $parent->Frame(-borderwidth => 5, -relief => 'raised');
-	$fr4->pack;
-	$fr4->Label(-text => 'Liste der Auswertungsmuster')->pack;
-	my $fr41 = $fr4->Frame->pack(-side => 'left');
-	$gui_patterns = $fr41->Scrolled('Text',-scrollbars =>'oe',-width => 94, -height => 4)->pack();
-	my $fr42 = $fr4->Frame->pack(-side => 'right');
-	$fr42->Button(
-	        -text => 'Speichern',
-	        -command => sub{OVJ::save_patterns(get_patterns())}
-	    )->pack();
-	$copy_pattern_button = $fr42->Button(
-	        -text => 'Kopiere',
-	        -command => sub{do_copy_pattern()},
-	        -state => 'disabled'
-	    )->pack();
-	
-	set_patterns(OVJ::read_patterns());
-}
 
 # Wettbewerbsdaten
 sub make_ovfj_detail {
 	my $parent = shift
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
 	
-	my $fr3 = $parent->Frame(-borderwidth => 5, -relief => 'raised');
-	$fr3->pack;
+	my $fr3 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
+#	$fr3->pack;
 	$ovfjnamelabel = $fr3->Label(-text => 'OV Wettbewerb:')->pack();
 	my $fr30 = $fr3->Frame->pack(-side => 'top');
 	$ovfj_save_button = $fr30->Button(
@@ -330,8 +305,9 @@ sub make_ovfj_detail {
 	#        -state => 'disabled',
 	#        -command => sub{do_test_pattern()}
 	#    )->pack(-side => 'left');
-	$fr33->Label(-text => 'Muster')->pack(-side => 'left');
+	$fr33->Button(-text => 'Muster', -command => \&do_pattern_dialog)->pack(-side => 'left');
 	$gui_ovfj{Auswertungsmuster} = $fr33->Entry(-width => 70)->pack(-side => 'right');
+	return $fr3;
 }
 
 # Statusmeldungen
@@ -339,21 +315,61 @@ sub make_meldungen {
 	my $parent = shift
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
 	
-	my $fr5 = $parent->Frame(-borderwidth => 5, -relief => 'raised');
-	$fr5->pack;
-	$fr5->Label(-text => 'Meldungen')->pack;
-	$meldung = $fr5->Scrolled('Listbox',-scrollbars =>'e',-width => 119, -height => 12)->pack();
+	my $fr5 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
+#	$fr5->pack;
+	$fr5->gridColumnconfigure(0, -weight => 1);
+	$fr5->gridRowconfigure(1, -weight => 1);
+	$fr5->Label(-text => 'Meldungen')->grid(-stick => "w");
+	$meldung = $fr5->Scrolled('Listbox',-scrollbars =>'e',-width => 80, -height => 6)
+	  ->grid(-stick => "nswe", -row => 1);
+	return $fr5;
+}
+
+sub do_pattern_dialog {
+	my $dlg = $mw->DialogBox(
+	  -title          => 'Musterkatalog',
+	  -buttons        => ['Übernehmen', 'Speichern', 'Abbrechen'],
+	);
+	my $textbox = $dlg->add('Scrolled','Text',-wrap=>'none',-scrollbars =>'osoe',-width => 80, -height => 6)
+	  ->pack(-fill => 'both', -expand => 1);
+	$textbox->Contents($curr_patterns);
+	while (1) {
+		my $sel = $dlg->Show;
+		my $curr_patterns = $textbox->Contents;
+		if ($sel eq 'Übernehmen') {
+			if ( my $pattern = get_selected($textbox) ) {
+				$pattern =~ s/\/\/.*$//;	# Entferne Kommentare beim Kopieren
+				$pattern =~ s/\s+$//;		# Entferne immer Leerzeichen nach dem Muster
+				my %ovfj_tmp = get_ovfj();
+				$gui_ovfj{Auswertungsmuster}->delete(0, "end");
+				$gui_ovfj{Auswertungsmuster}->insert(0, $pattern);
+				last;
+			}
+		}
+		elsif ($sel eq 'Speichern') {
+			if ( OVJ::save_patterns($curr_patterns) ) {
+				$orig_patterns = $curr_patterns;
+				last;
+			}
+		}
+		else {
+			last;
+		}
+	}
 }
 
 sub set_general {
-	return unless @_;
+#	return unless @_;
 	%orig_general = @_;
+	$orig_general{Exclude_Checkmark} ||= '';
 	$check_ExcludeTln->{Value} = $orig_general{Exclude_Checkmark}; 
+	$orig_general{ovfj_link} ||= [];
 	$fjlistbox->selectAll();
 	$fjlistbox->deleteSelected();
 	$fjlistbox->insert('end', join("\n", @{$orig_general{ovfj_link}}));
 #	map { $fjlistbox->insert('end', "$_\n") } @{$general{ovfj_link}};
 	map {
+		$orig_general{$_} ||= '';
 		$gui_general{$_}->delete(0, "end");
 		$gui_general{$_}->insert(0, $orig_general{$_});
 	} keys %gui_general;
@@ -361,7 +377,7 @@ sub set_general {
 	$ovfj_eval_button->configure(-state => 'disabled');
 	$ovfj_fileset_button->configure(-state => 'disabled');
 	$ovfj_save_button->configure(-state => 'disabled');
-	$copy_pattern_button->configure(-state => 'disabled');
+#	$copy_pattern_button->configure(-state => 'disabled');
 	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ");
 }
 
@@ -464,24 +480,30 @@ sub set_general_data_label {
 #Über Box aus dem 'Hilfe' Menu
 sub About {
 	$mw->messageBox(-icon => 'info', 
-						-message => "OV Jahresauswertung\n\n".
-						"by Matthias Kühlewein, DL3SDO\n".
-						"Version: $OVJ::ovjvers - Datum: $OVJ::ovjdate",
+						-message => << "END_ABOUT",
+OV Jahresauswertung
+by Matthias Kühlewein, DL3SDO
+
+Stark modifiziert von/
+Fehlerberichte an:
+Kai Pastor, DG0YT
+
+$OVJ::ovjinfo
+END_ABOUT
 						-title => 'Über', -type => 'Ok');
 }
 
 
 sub get_patterns {
-	return $gui_patterns->Contents();
+	return $curr_patterns;
 }
 
 sub set_patterns {
-	$orig_patterns = shift;
-	$gui_patterns->Contents($orig_patterns);
+	$curr_patterns = $orig_patterns = shift;
 }
 
 sub patterns_modified {
-	return $orig_patterns ne $gui_patterns->Contents();
+	return $orig_patterns ne $curr_patterns;
 }
 
 
@@ -539,7 +561,7 @@ sub CheckForSaveGenfile {
 			-type    => 'YesNoCancel', 
 			-default => 'Yes');
 		if    ($response eq 'Cancel') { return 1 }
-		elsif ($response eq 'Yes')    { return ! open_file_general(0) }
+		elsif ($response eq 'Yes')    { return ! save_file_general() }
 	}
 	
 	return 0;
@@ -648,7 +670,7 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 		}
 	$ovfj_fileset_button->configure(-state => 'normal');
 	$ovfj_save_button->configure(-state => 'normal');
-	$copy_pattern_button->configure(-state => 'normal');
+#	$copy_pattern_button->configure(-state => 'normal');
 	$ovfj_eval_button->configure(-state => 'normal');
 #		exists($auswerthash{$ovfjf_name}) ? 'disabled' : 'normal' );
 }
@@ -712,7 +734,7 @@ sub import_file_general {
 	@{$general{ovfj_link}} = @{$general_alt{ovfj_link}};
 	$general{PMVorjahr} = $general_alt{PMVorjahr};
 	$general{PMaktJahr} = $general_alt{PMaktJahr};
-	OVJ::GUI::set_general(%general);
+	set_general(%general);
 	$OVJ::genfilename = "";
 	set_general_data_label($OVJ::genfilename);
 # FIXME:	$config{"LastGenFile"} = $OVJ::genfilename;
@@ -720,6 +742,10 @@ sub import_file_general {
 }
 
 sub save_file_general {
+	return save_as_file_general($OVJ::genfilename);
+}
+
+sub save_as_file_general {
 	my $filename = shift;
 	if (! $filename) {
 		my $types = [['Text Files','.txt'],['All Files','*',]];
