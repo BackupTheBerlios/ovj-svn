@@ -53,16 +53,17 @@ my %orig_general;
 
 # my %auswerthash;		# Hash zur Kontrolle, welche OVFJ schon ausgewertet sind
 
-use vars qw(
-	$fjlistbox 
-	$reset_eval_button
-	$exp_eval_button
-	$ovfj_eval_button
-	$ovfj_fileset_button
-	$ovfj_save_button
-	$copy_pattern_button
-	$ovfjnamelabel
-);
+# use vars qw(
+my $fjlistbox;
+my $reset_eval_button;
+my $exp_eval_button;
+my $ovfj_eval_button;
+my $ovfj_fileset_button;
+my $ovfj_save_button;
+my $copy_pattern_button;
+my $select_pattern_button;
+my $ovfjnamelabel;
+#);
 
 sub run {
 	# Warnungen abfangen
@@ -85,6 +86,7 @@ sub init {
 	$mw->OnDestroy(\&Leave);
 	$mw->gridColumnconfigure(0, -weight => 1);
 	$mw->gridRowconfigure([1,3], -weight => 3);
+
 	make_menu($mw)->grid(-row => 0,-sticky => 'nswe');
 	make_general($mw)->grid(-row => 1, -sticky => 'nswe');
 	make_ovfj_detail($mw)->grid(-row => 2, -sticky => 'nswe');
@@ -124,69 +126,107 @@ sub make_menu {
 sub make_general {
 	my $parent = shift
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
-	my $fr0 = $parent->Frame(-borderwidth => 2, -relief => 'raised');
-#	$fr0->pack;
-	$gui_general_label = $fr0->Label(-text => 'Generelle Daten:')->pack;
-	
-	my $fr1 = $fr0->Frame->pack();
-	my $fr11 = $fr1->Frame->pack(-side => 'left');
 
-	my $fr112 = $fr11->Frame->pack;
-	$fr112->Label(-text => 'Distrikt')->pack(-side => 'left');
-	$gui_general{Distrikt} = $fr112->Entry()->pack(-side => 'left');
+	my $fr0 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
+
+#	$fr0->pack;
+
+	$fr0->gridColumnconfigure([1,4,7], -weight => 1);
+	$fr0->gridColumnconfigure([2,5,8], -minsize => 15);
+#	$fr0->gridRowconfigure([1,4], -pad => 15);
+
+	my ($row, $col) = (0, 0);
+	$gui_general_label = $fr0->Label(-text => 'OV-Jahresauswertung')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'nw', -columnspan => 6);
 	
-	my $fr113 = $fr11->Frame->pack;
-	$fr113->Label(-text => 'Distriktskenner')->pack(-side => 'left');
-	$gui_general{Distriktskenner} = $fr113->Entry(-width => 1)->pack(-side => 'left');
+	($row, $col) = ($row+1, 0);
+	$fr0->Label(-text => 'Distrikt')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_general{Distrikt} = $fr0->Entry()
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	$col++;
+	$fr0->Label(-text => 'Distriktskenner')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_general{Distriktskenner} = $fr0->Entry(-width => 1)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
 	
-	$fr113->Label(-text => 'Jahr')->pack(-side => 'left');
-	$gui_general{Jahr} = $fr113->Entry(-width => 4)->pack(-side => 'left');
+	$col++;
+	$fr0->Label(-text => 'Jahr')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_general{Jahr} = $fr0->Entry(-width => 4)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
 	
-	my $fr12 = $fr1->Frame->pack(-side => 'left');
-	my $fr121 = $fr12->Frame->pack;
-	$gui_general{Name} = $fr121->Entry(-width => 16)->pack(-side => 'right');
-	$fr121->Label(-text => 'Name')->pack(-side => 'left');
-	my $fr122 = $fr12->Frame->pack;
-	$gui_general{Vorname} = $fr122->Entry(-width => 16)->pack(-side => 'right');
-	$fr122->Label(-text => 'Vorname')->pack(-side => 'left');
-	my $fr123 = $fr12->Frame->pack;
-	$fr123->Label(-text => 'CALL')->pack(-side => 'left');
-	$gui_general{Call} = $fr123->Entry(-width => 8)->pack(-side => 'left');
-	$gui_general{DOK} = $fr123->Entry(-width => 4)->pack(-side => 'right');
-	$fr123->Label(-text => 'DOK')->pack(-side => 'left');
+	($row, $col) = ($row+1, 0);
+	$fr0->Label(-text => 'Name')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_general{Name} = $fr0->Entry(-width => 16)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
 	
-	my $fr13 = $fr1->Frame->pack(-side => 'left');
-	my $fr131 = $fr13->Frame->pack;
-	$gui_general{Telefon} = $fr131->Entry()->pack(-side => 'right');
-	$fr131->Label(-text => 'Telefon')->pack(-side => 'left');
-	my $fr132 = $fr13->Frame->pack;
-	$gui_general{"Home-BBS"} = $fr132->Entry()->pack(-side => 'right');
-	$fr132->Label(-text => 'Home-BBS')->pack(-side => 'left');
-	my $fr133 = $fr13->Frame->pack;
-	$gui_general{"E-Mail"} = $fr133->Entry()->pack(-side => 'right');
-	$fr133->Label(-text => 'E-Mail')->pack(-side => 'left');
+	$col++;
+	$fr0->Label(-text => 'Vorname')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_general{Vorname} = $fr0->Entry(-width => 16)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
 	
-	my $fr14 = $fr1->Frame->pack(-side => 'left');
-	my $fr141 = $fr14->Frame->pack;
-	$gui_general{PMVorjahr} = $fr141->Entry(-width => 15)->pack(-side => 'right');
-	$fr141->Button(
+	$col++;
+	$fr0->Label(-text => 'Call')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_general{Call} = $fr0->Entry(-width => 8)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+	
+	$col++;
+	$fr0->Label(-text => 'DOK')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_general{DOK} = $fr0->Entry(-width => 4)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	($row, $col) = ($row+1, 0);
+	$fr0->Label(-text => 'Telefon')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_general{Telefon} = $fr0->Entry()
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	$col++;
+	$fr0->Label(-text => 'Home-BBS')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_general{"Home-BBS"} = $fr0->Entry()
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	$col++;
+	$fr0->Label(-text => 'E-Mail')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_general{"E-Mail"} = $fr0->Entry()
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	($row, $col) = ($row+1, 0);
+	$fr0->Button(
 	        -text => 'PM Vorjahr',
-	        -command => sub{do_select_pmfile(0)}
-	    )->pack(-side => 'left');
-	my $fr142 = $fr14->Frame->pack;
-	$gui_general{PMaktJahr} = $fr142->Entry(-width => 15)->pack(-side => 'right');
-	$fr142->Button(
+	        -command => sub{do_select_pmfile(0)} )
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+	$gui_general{PMVorjahr} = $fr0->Entry(-width => 15)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	$col++;
+	$fr0->Button(
 	        -text => 'PM akt. Jahr',
-	        -command => sub{do_select_pmfile(1)}
-	    )->pack(-side => 'left');
-	my $fr143 = $fr14->Frame->pack;
-	$gui_general{Spitznamen} = $fr143->Entry(-width => 15)->pack(-side => 'right');
-	$fr143->Button(
+	        -command => sub{do_select_pmfile(1)} )
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+	$gui_general{PMaktJahr} = $fr0->Entry(-width => 15)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	$col++;
+	$fr0->Button(
 	        -text => 'Spitznamen',
-	        -command => sub{do_get_nickfile()}
-	    )->pack(-side => 'left');
-	
-	make_ovfj_list($fr0)->pack(-expand => 1, -fill => 'both', -padx => 5, -pady => 5);
+	        -command => sub{do_get_nickfile()} )
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+	$gui_general{Spitznamen} = $fr0->Entry(-width => 15)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	($row, $col) = ($row+1, 0);
+	make_ovfj_list($fr0)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we',
+	         -padx => 5, -pady => 5, -columnspan=>11);
 
 	return $fr0;
 }
@@ -196,42 +236,54 @@ sub make_ovfj_list {
 	my $parent = shift
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
 	
-	my $fr2 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
+	my $fr0 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
 #	$fr2->pack;
-	$fr2->Label(-text => 'Liste der OV Wettbewerbe')->pack;
-	my $fr21 = $fr2->Frame->pack();
-	$fjlistbox = $fr21->Scrolled('Text',-scrollbars =>'oe',width => 40, height => 4)->pack(-side => 'left');
-	my $fr21b = $fr21->Frame->pack(-side => 'right');
-	$fr21b->Button(
+	$fr0->gridColumnconfigure(1, -weight => 2);
+	$fr0->gridColumnconfigure(3, -weight => 1);
+	$fr0->gridColumnconfigure(2, -minsize => 15);
+#	$fr0->gridRowconfigure(6, -pad => 15);
+
+	my ($row, $col) = (0, 0);
+	$fr0->Label(-text => 'Liste der OV-Wettbewerbe')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'nw', -columnspan => 3);
+	
+	($row, $col) = ($row+1, 0);
+	$fjlistbox = $fr0->Scrolled('Text',
+		-scrollbars =>'oe',width => 40, height => 4)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'wens', -columnspan => 2, -rowspan => 4);
+	
+	$col += 2;
+	$fr0->Button(
 	        -text => 'Editieren/Erzeugen',
-	        -command => sub{do_edit_ovfj(0)}
-	    )->pack();
-	$fr21b->Button(
-	        -text => 'Erzeugen aus aktuellem OV Wettbewerb',
-	        -command => sub{do_edit_ovfj(1)}
-	    )->pack();
-	my $fr22 = $fr2->Frame->pack();
-	$fr22->Button(
-	        -text => 'Alle OV Wettbewerbe auswerten und exportieren',
+	        -command => sub{do_edit_ovfj(0)})
+	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
+	$fr0->Button(
+	        -text => 'Erzeugen aus aktuellem OV-Wettbewerb',
+	        -command => sub{do_edit_ovfj(1)})
+	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
+	$fr0->Button(
+	        -text => 'Alle OV-Wettbewerbe auswerten und exportieren',
 	        -command => sub{ 
 				my %general = get_general();
-				do_eval_ovfj(@{$general{ovfj_link}})}
-	    )->pack(-side => 'left');
-	$reset_eval_button = $fr22->Button(
+				do_eval_ovfj(@{$general{ovfj_link}})})
+	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
+	$reset_eval_button = $fr0->Button(
 	        -text => 'Auswertung im Speicher löschen',
-	        -command => sub{do_reset_eval()},
-	        -state => 'disabled'
-	    )->pack(-side => 'left');
-	my $fr23 = $fr2->Frame->pack();
-	$exp_eval_button = $fr23->Button(
+	        -command => \&do_reset_eval,
+	        -state => 'disabled')
+	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
+	$exp_eval_button = $fr0->Button(
 	        -text => 'Auswertung exportieren',
-	        -command => sub{::Export()},
-	        -state => 'disabled'
-	    )->pack(-side => 'left');
+	        -command => \&Export,
+	        -state => 'disabled')
+	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
 	
-	$fr23->Label(-text => 'Beim Export Teilnehmer ohne offizielle Veranstaltung im akt. Jahr ausschliessen')->pack(-side => 'left');
-	$check_ExcludeTln = $fr23->Checkbutton()->pack(-side => 'left');
-	return $fr2;
+	($row, $col) = ($row-1, 0);
+	$check_ExcludeTln = $fr0->Checkbutton()
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+	$fr0->Label(-text => "Beim Export Teilnehmer ohne offizielle Veranstaltung\nim akt. Jahr ausschliessen")
+	  ->grid(-row => $row++, -column => $col, -sticky => 'w');
+	return $fr0;
 }
 
 
@@ -240,74 +292,113 @@ sub make_ovfj_detail {
 	my $parent = shift
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
 	
-	my $fr3 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
+	my $fr0 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
 #	$fr3->pack;
-	$ovfjnamelabel = $fr3->Label(-text => 'OV Wettbewerb:')->pack();
-	my $fr30 = $fr3->Frame->pack(-side => 'top');
-	$ovfj_save_button = $fr30->Button(
+	$fr0->gridColumnconfigure([1,4,7], -weight => 1);
+	$fr0->gridColumnconfigure([2,5,8], -minsize => 15);
+#	$fr0->gridRowconfigure(6, -pad => 15);
+
+	my ($row, $col) = (0, 0);
+	$ovfjnamelabel = $fr0->Label(-text => 'OV-Wettbewerb')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'nw', -columnspan => 3);
+	
+	($row, $col) = ($row+1, 0);
+	$ovfj_fileset_button = $fr0->Button(
+	        -text => 'OVFJ-Auswertungsdatei',
+	        -state => 'disabled',
+	        -command => sub{ do_select_fjfile() } )
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_ovfj{OVFJDatei} = $fr0->Entry(-width => 27)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+	
+	$col++;
+	$fr0->Label(-text => 'Ausricht. OV')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_ovfj{AusrichtOV} = $fr0->Entry()
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	$col++;
+	$fr0->Label(-text => 'DOK')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_ovfj{AusrichtDOK} = $fr0->Entry(-width => 4)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	($row, $col) = ($row+1, 0);
+	$fr0->Label(-text => 'Datum')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_ovfj{Datum} = $fr0->Entry(-width => 10)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	$col++;
+	$fr0->Label(-text => 'Band')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_ovfj{Band} = $fr0->Entry(-width => 2)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+	
+	$col++;
+	$fr0->Label(-text => 'Anz. Teilnehmer manuell')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w', -columnspan => 4);
+	$col += 3;
+	$gui_ovfj{TlnManuell} = $fr0->Entry(-width => 2)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	($row, $col) = ($row+1, 0);
+	$fr0->Label(-text => 'Name')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_ovfj{Verantw_Name} = $fr0->Entry()
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	$col++;
+	$fr0->Label(-text => 'Vorname')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_ovfj{Verantw_Vorname} = $fr0->Entry()
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	$col++;
+	$fr0->Label(-text => 'Call')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_ovfj{Verantw_CALL} = $fr0->Entry(-width => 8)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	$col++;
+	$fr0->Label(-text => 'DOK')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_ovfj{Verantw_DOK} = $fr0->Entry(-width => 4)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+	
+	($row, $col) = ($row+1, 0);
+	$fr0->Label(-text => 'Geburtsjahr')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$gui_ovfj{Verantw_GebJahr} = $fr0->Entry(-width => 4)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+
+	($row, $col) = ($row+1, 0);
+	$select_pattern_button = $fr0->Button(
+		-text    => 'Muster', 
+		-state   => 'disabled',
+		-command => \&do_pattern_dialog,)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+	$gui_ovfj{Auswertungsmuster} = $fr0->Entry(-width => 70)
+	  ->grid(-row => $row, -column => $col++, -sticky => 'we', -columnspan => 10);
+
+	($row, $col) = ($row+1, 1);
+	$ovfj_save_button = $fr0->Button(
 	        -text => 'Speichern',
 	        -command => sub {
 				my %ovfj = get_ovfj();
 				OVJ::write_ovfjfile(get_selected_ovfj(), \%ovfj ) 
 			},
-	        -state => 'disabled'
-	        )
-			->pack(-side => 'left',-padx => 2);
-	$ovfj_eval_button = $fr30->Button(
+	        -state => 'disabled')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$col+=2;
+	$ovfj_eval_button = $fr0->Button(
 	        -text => 'Auswertung',
 	        -command => sub{do_eval_ovfj(get_selected_ovfj())},
-	        -state => 'disabled'
-	        )
-			->pack(-side => 'left',-padx => 2);
+	        -state => 'disabled')
+	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
 	
 	
-	my $fr3b = $fr3->Frame->pack();
-	
-	my $fr31 = $fr3b->Frame->pack(-side => 'left');
-	my $fr311 = $fr31->Frame->pack;
-	$fr311->Label(-text => 'Ausricht. OV')->pack(-side => 'left');
-	$gui_ovfj{AusrichtOV} = $fr311->Entry()->pack(-side => 'left');
-	$gui_ovfj{AusrichtDOK} = $fr311->Entry(-width => 4)->pack(-side => 'right');
-	$fr311->Label(-text => 'DOK')->pack(-side => 'left');
-	my $fr313 = $fr31->Frame->pack;
-	$fr313->Label(-text => 'Datum')->pack(-side => 'left');
-	$gui_ovfj{Datum} = $fr313->Entry(-width => 10)->pack(-side => 'left');
-	$fr313->Label(-text => 'Band')->pack(-side => 'left');
-	$gui_ovfj{Band} = $fr313->Entry(-width => 2)->pack(-side => 'left');
-	$fr313->Label(-text => 'Anz. Teilnehmer manuell')->pack(-side => 'left');
-	$gui_ovfj{TlnManuell} = $fr313->Entry(-width => 2)->pack(-side => 'left');
-	my $fr315 = $fr31->Frame->pack;
-	$ovfj_fileset_button = $fr315->Button(
-	        -text => 'OVFJ Auswertungsdatei',
-	        -state => 'disabled',
-	        -command => sub{ do_select_fjfile() }
-	    )->pack(-side => 'left');
-	$gui_ovfj{OVFJDatei} = $fr315->Entry(-width => 27)->pack(-side => 'right');
-	
-	my $fr32 = $fr3b->Frame->pack(-side => 'left');
-	my $fr321 = $fr32->Frame->pack;
-	$gui_ovfj{Verantw_Name} = $fr321->Entry()->pack(-side => 'right');
-	$fr321->Label(-text => 'Name')->pack(-side => 'left');
-	my $fr325 = $fr32->Frame->pack;
-	$gui_ovfj{Verantw_Vorname} = $fr325->Entry()->pack(-side => 'right');
-	$fr325->Label(-text => 'Vorname')->pack(-side => 'left');
-	my $fr322 = $fr32->Frame->pack;
-	$fr322->Label(-text => 'CALL')->pack(-side => 'left');
-	$gui_ovfj{Verantw_CALL} = $fr322->Entry(-width => 8)->pack(-side => 'left');
-	$fr322->Label(-text => 'DOK')->pack(-side => 'left');
-	$gui_ovfj{Verantw_DOK} = $fr322->Entry(-width => 4)->pack(-side => 'left');
-	$gui_ovfj{Verantw_GebJahr} = $fr322->Entry(-width => 4)->pack(-side => 'right');
-	$fr322->Label(-text => 'Geburtsjahr')->pack(-side => 'left');
-	
-	my $fr33 = $fr3->Frame->pack();
-	#$fr33->Button(
-	#        -text => 'Teste Muster',
-	#        -state => 'disabled',
-	#        -command => sub{do_test_pattern()}
-	#    )->pack(-side => 'left');
-	$fr33->Button(-text => 'Muster', -command => \&do_pattern_dialog)->pack(-side => 'left');
-	$gui_ovfj{Auswertungsmuster} = $fr33->Entry(-width => 70)->pack(-side => 'right');
-	return $fr3;
+	return $fr0;
 }
 
 # Statusmeldungen
@@ -378,6 +469,7 @@ sub set_general {
 	$ovfj_fileset_button->configure(-state => 'disabled');
 	$ovfj_save_button->configure(-state => 'disabled');
 #	$copy_pattern_button->configure(-state => 'disabled');
+	$select_pattern_button->configure(-state => 'disabled');
 	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ");
 }
 
@@ -671,7 +763,9 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 	$ovfj_fileset_button->configure(-state => 'normal');
 	$ovfj_save_button->configure(-state => 'normal');
 #	$copy_pattern_button->configure(-state => 'normal');
+	$select_pattern_button->configure(-state => 'normal');
 	$ovfj_eval_button->configure(-state => 'normal');
+	$exp_eval_button->configure(-state => 'normal');
 #		exists($auswerthash{$ovfjf_name}) ? 'disabled' : 'normal' );
 }
 
