@@ -57,9 +57,9 @@ my %orig_general;
 my $fjlistbox;
 my $reset_eval_button;
 my $exp_eval_button;
-my $ovfj_eval_button;
+#my $ovfj_eval_button;
 my $ovfj_fileset_button;
-my $ovfj_save_button;
+#my $ovfj_save_button;
 my $copy_pattern_button;
 my $select_pattern_button;
 my $ovfjnamelabel;
@@ -83,13 +83,14 @@ sub init {
 	my %config = @_;
 	
 	$mw = MainWindow->new;
-	$mw->OnDestroy(\&Leave);
+	# http://www.tutorials-blog.com/tk/window-close/
+	$mw->protocol(WM_DELETE_WINDOW => \&Leave); #check_file_dirty , 
 	$mw->gridColumnconfigure(0, -weight => 1);
 	$mw->gridRowconfigure([1,3], -weight => 3);
 
 	make_menu($mw)->grid(-row => 0,-sticky => 'nswe');
 	make_general($mw)->grid(-row => 1, -sticky => 'nswe');
-	make_ovfj_detail($mw)->grid(-row => 2, -sticky => 'nswe');
+#	make_ovfj_detail($mw)->grid(-row => 2, -sticky => 'nswe');
 	make_meldungen($mw)->grid(-row => 3, -sticky => 'nswe');
 
 	set_patterns(OVJ::read_patterns());
@@ -305,7 +306,7 @@ sub make_ovfj_detail {
 	($row, $col) = ($row+1, 0);
 	$ovfj_fileset_button = $fr0->Button(
 	        -text => 'OVFJ-Auswertungsdatei',
-	        -state => 'disabled',
+	        -state => 'normal',
 	        -command => sub{ do_select_fjfile() } )
 	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
 	$gui_ovfj{OVFJDatei} = $fr0->Entry(-width => 27)
@@ -375,11 +376,13 @@ sub make_ovfj_detail {
 	($row, $col) = ($row+1, 0);
 	$select_pattern_button = $fr0->Button(
 		-text    => 'Muster', 
-		-state   => 'disabled',
+		-state   => 'normal',
 		-command => \&do_pattern_dialog,)
 	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
 	$gui_ovfj{Auswertungsmuster} = $fr0->Entry(-width => 70)
 	  ->grid(-row => $row, -column => $col++, -sticky => 'we', -columnspan => 10);
+
+=obsolete
 
 	($row, $col) = ($row+1, 1);
 	$ovfj_save_button = $fr0->Button(
@@ -396,7 +399,8 @@ sub make_ovfj_detail {
 	        -command => sub{do_eval_ovfj(get_selected_ovfj())},
 	        -state => 'disabled')
 	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	
+
+=cut	  
 	
 	return $fr0;
 }
@@ -449,6 +453,33 @@ sub do_pattern_dialog {
 	}
 }
 
+sub do_ovfj_dialog {
+	my $ovfjname = shift
+	 or carp "OV-Wettbewerb?";
+	my $dlg = $mw->DialogBox(
+	  -title          => 'OV-Wettbewerb bearbeiten',
+	  -buttons        => ['Speichern', 'Abbrechen'],
+	);
+	my $fr = $dlg->add('Frame', -borderwidth => 1, -relief => 'raised')->pack();
+	make_ovfj_detail($fr)->pack();
+	set_ovfj(OVJ::read_ovfjfile($ovfjname));
+	
+	while (1) {
+		my $sel = $dlg->Show;
+		if ($sel eq 'Speichern') {
+			my %ovfj = get_ovfj();
+			OVJ::write_ovfjfile($ovfjname, \%ovfj );
+			last;
+		}
+		elsif ($sel eq 'Auswertung') {
+			warn "FIXME: Nicht mehr implementiert";
+		}
+		else {
+			last;
+		}
+	}
+}
+
 sub set_general {
 #	return unless @_;
 	%orig_general = @_;
@@ -465,12 +496,12 @@ sub set_general {
 		$gui_general{$_}->insert(0, $orig_general{$_});
 	} keys %gui_general;
 	do_reset_eval();
-	$ovfj_eval_button->configure(-state => 'disabled');
-	$ovfj_fileset_button->configure(-state => 'disabled');
-	$ovfj_save_button->configure(-state => 'disabled');
+#	$ovfj_eval_button->configure(-state => 'disabled');
+#	$ovfj_fileset_button->configure(-state => 'disabled');
+#	$ovfj_save_button->configure(-state => 'disabled');
 #	$copy_pattern_button->configure(-state => 'disabled');
-	$select_pattern_button->configure(-state => 'disabled');
-	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ");
+#	$select_pattern_button->configure(-state => 'disabled');
+#	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ");
 }
 
 #Aktualisieren der aktuellen Generellen Daten im Hash
@@ -501,25 +532,30 @@ sub get_selected_ovfj {
 
 sub set_ovfj {
 	%orig_ovfj = @_;
+if (defined $gui_ovfj{AusrichtDOK}) { #FIXME
 	map {
 		$gui_ovfj{$_}->delete(0, "end");
 		$gui_ovfj{$_}->insert(0, $orig_ovfj{$_});
 	} keys %gui_ovfj;
+} # FIXME
 }
 
 sub get_ovfj {
 	my %ovfj;
+if (defined $gui_ovfj{AusrichtDOK}) { #FIXME
 	while (my ($key,$value) = each(%gui_ovfj)) {
 		$ovfj{$key} = $value->get();
 	}
 	foreach my $key (qw(AusrichtDOK Verantw_CALL Verantw_DOK)) {
 		$ovfj{$key} = uc $ovfj{$key};
 	}
+} # FIXME
 	return %ovfj;
 }
 
 # Test auf Änderungen
 sub ovfj_modified {
+	return unless defined $gui_ovfj{AusrichtDOK}; #FIXME
 	grep {
 		$gui_ovfj{$_}->get ne ($orig_ovfj{$_} || "");
 	} keys %gui_ovfj;
@@ -685,7 +721,7 @@ sub do_copy_pattern {
 sub meldung {
 	my ($type, $message) = @_;
 
-	OVJ::meldung($type, $message);
+#	OVJ::meldung($type, $message);
 
 	my $err_icon;
 	if    ($type eq OVJ::FEHLER)  { $err_icon = 'error' }
@@ -726,7 +762,7 @@ sub get_selected {
 sub do_reset_eval {
 #	undef %auswerthash;
 	clear_ovfj();
-	$ovfj_eval_button->configure(-state => 'normal');
+#	$ovfj_eval_button->configure(-state => 'normal');
 	$exp_eval_button->configure(-state => 'disabled');
 	$OVJ::lfdauswert = 0; # FIXME
 	$meldung->delete(0,"end");
@@ -737,7 +773,8 @@ sub do_edit_ovfj {
 	my ($choice) = @_;	# Beim Erzeugen: 0 = neu, 1 = aus aktuellem OV Wettbewerb. Wird durchgereicht.
 	my $ovfjname = get_selected_ovfj()
 	 or return;
-	CreateEdit_ovfj($ovfjname, $choice);
+	do_ovfj_dialog($ovfjname);
+#	CreateEdit_ovfj($ovfjname, $choice);
 }
 
 #Anlegen bzw. Editieren einer OVFJ Veranstaltung
@@ -760,11 +797,11 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 			meldung(OVJ::FEHLER, "Kann '$ovfjfilename' nicht lesen: $!");
 			return 1;
 		}
-	$ovfj_fileset_button->configure(-state => 'normal');
-	$ovfj_save_button->configure(-state => 'normal');
+#	$ovfj_fileset_button->configure(-state => 'normal');
+#	$ovfj_save_button->configure(-state => 'normal');
 #	$copy_pattern_button->configure(-state => 'normal');
-	$select_pattern_button->configure(-state => 'normal');
-	$ovfj_eval_button->configure(-state => 'normal');
+#	$select_pattern_button->configure(-state => 'normal');
+#	$ovfj_eval_button->configure(-state => 'normal');
 	$exp_eval_button->configure(-state => 'normal');
 #		exists($auswerthash{$ovfjf_name}) ? 'disabled' : 'normal' );
 }
