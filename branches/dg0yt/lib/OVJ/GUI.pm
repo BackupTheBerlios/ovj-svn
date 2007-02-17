@@ -49,6 +49,7 @@ my $check_ExcludeTln;
 my $curr_patterns;
 my $orig_patterns;
 my %orig_ovfj;
+my $orig_ovfj_link;
 my %orig_general;
 
 # my %auswerthash;		# Hash zur Kontrolle, welche OVFJ schon ausgewertet sind
@@ -86,12 +87,12 @@ sub init {
 	# http://www.tutorials-blog.com/tk/window-close/
 	$mw->protocol(WM_DELETE_WINDOW => \&Leave); #check_file_dirty , 
 	$mw->gridColumnconfigure(0, -weight => 1);
-	$mw->gridRowconfigure([1,3], -weight => 3);
+	$mw->gridRowconfigure(3, -weight => 1);
 
-	make_menu($mw)->grid(-row => 0,-sticky => 'nswe');
-	make_general($mw)->grid(-row => 1, -sticky => 'nswe');
-#	make_ovfj_detail($mw)->grid(-row => 2, -sticky => 'nswe');
-	make_meldungen($mw)->grid(-row => 3, -sticky => 'nswe');
+	make_menu($mw)->grid(-sticky => 'nswe');
+	make_general($mw)->grid(-sticky => 'nswe');
+	make_ovfj_list($mw)->grid(-sticky => 'nswe');
+	make_meldungen($mw)->grid(-sticky => 'nswe');
 
 	set_patterns(OVJ::read_patterns());
 
@@ -107,9 +108,10 @@ sub make_menu {
 	my $menu_bar = $parent->Frame(-relief => 'raised', -borderwidth => 1);
 	$menu_bar->Menubutton(-text => 'Datei', -underline => 0, -menuitems => [
 				[ Button => "Neu", -underline => 0, -command => \&set_general],
-				[ Button => "Öffnen", -underline => 1, -command => \&open_file_general],
-				[ Button => "Importieren", -underline => 0, -command => \&import_file_general],
+				[ Button => "Öffnen...", -underline => 1, -command => \&open_file_general],
+				[ Button => "Importieren...", -underline => 0, -command => \&import_file_general],
 				[ Button => "Speichern", -underline => 0, -command => \&save_file_general],
+				[ Button => "Speichern unter...", -underline => 0, -command => \&save_as_file_general],
 				[ Separator => "--" ],
 				[ Button => "Beenden", -underline => 0, -command => \&Leave]])
 								->pack(-side => 'left');
@@ -128,108 +130,65 @@ sub make_general {
 	my $parent = shift
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
 
-	my $fr0 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
-
-#	$fr0->pack;
+	my $fr00 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
+	my $fr0 = $fr00->Frame()->pack(-fill => 'both', -padx => 5, -pady => 5);
 
 	$fr0->gridColumnconfigure([1,4,7], -weight => 1);
 	$fr0->gridColumnconfigure([2,5,8], -minsize => 15);
 #	$fr0->gridRowconfigure([1,4], -pad => 15);
+	my $all_columns = 11;
 
-	my ($row, $col) = (0, 0);
-	$gui_general_label = $fr0->Label(-text => 'OV-Jahresauswertung')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'nw', -columnspan => 6);
+	$gui_general_label = $fr0->Label(-text => 'OV-Jahresauswertung: Neu')
+	  ->grid(-sticky => 'nw', -columnspan => $all_columns);
 	
-	($row, $col) = ($row+1, 0);
-	$fr0->Label(-text => 'Distrikt')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_general{Distrikt} = $fr0->Entry()
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+	$fr0->Label(-text => 'Distrikt', -anchor => 'w')->grid(
+	$gui_general{Distrikt} = $fr0->Entry(),
+	'x',
+	$fr0->Label(-text => 'Distriktskenner', -anchor => 'w'),
+	$gui_general{Distriktskenner} = $fr0->Entry(-width => 1),
+	'x',
+	$fr0->Label(-text => 'Jahr', -anchor => 'w'),
+	$gui_general{Jahr} = $fr0->Entry(-width => 4),
+	-sticky => 'we');
+		
+	$fr0->Label(-text => 'Name', -anchor => 'w')->grid(
+	$gui_general{Name} = $fr0->Entry(-width => 16),
+	'x',
+	$fr0->Label(-text => 'Vorname', -anchor => 'w'),
+	$gui_general{Vorname} = $fr0->Entry(-width => 16),
+	'x',
+	$fr0->Label(-text => 'Call', -anchor => 'w'),
+	$gui_general{Call} = $fr0->Entry(-width => 8),
+	'x',
+	$fr0->Label(-text => 'DOK', -anchor => 'w'),
+	$gui_general{DOK} = $fr0->Entry(-width => 4),
+	-sticky => 'we');
 
-	$col++;
-	$fr0->Label(-text => 'Distriktskenner')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_general{Distriktskenner} = $fr0->Entry(-width => 1)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
+	$fr0->Label(-text => 'Telefon', -anchor => 'w')->grid(
+	$gui_general{Telefon} = $fr0->Entry(),
+	'x',
+	$fr0->Label(-text => 'Home-BBS', -anchor => 'w'),
+	$gui_general{"Home-BBS"} = $fr0->Entry(),
+	'x',
+	$fr0->Label(-text => 'E-Mail', -anchor => 'w'),
+	$gui_general{"E-Mail"} = $fr0->Entry(),
+	-sticky => 'we');
+
+	$fr0->Button(-text => 'PM Vorjahr', -command => sub{do_select_pmfile(0)} )->grid(
+	$gui_general{PMVorjahr} = $fr0->Entry(-width => 15),
+	'x',
+	$fr0->Button(-text => 'PM akt. Jahr', -command => sub{do_select_pmfile(1)} ),
+	$gui_general{PMaktJahr} = $fr0->Entry(-width => 15),
+	'x',
+	$fr0->Button(-text => 'Spitznamen', -command => sub{do_get_nickfile()} ),
+	$gui_general{Spitznamen} = $fr0->Entry(-width => 15),
+	-sticky => 'we');
+
+	$check_ExcludeTln = $fr0->Checkbutton(
+		-text => "Beim Export Teilnehmer ohne offizielle Veranstaltung im akt. Jahr ausschliessen")
+	  ->grid(-sticky => 'w', -columnspan => $all_columns);
 	
-	$col++;
-	$fr0->Label(-text => 'Jahr')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_general{Jahr} = $fr0->Entry(-width => 4)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-	
-	($row, $col) = ($row+1, 0);
-	$fr0->Label(-text => 'Name')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_general{Name} = $fr0->Entry(-width => 16)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-	
-	$col++;
-	$fr0->Label(-text => 'Vorname')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_general{Vorname} = $fr0->Entry(-width => 16)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-	
-	$col++;
-	$fr0->Label(-text => 'Call')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_general{Call} = $fr0->Entry(-width => 8)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-	
-	$col++;
-	$fr0->Label(-text => 'DOK')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_general{DOK} = $fr0->Entry(-width => 4)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	($row, $col) = ($row+1, 0);
-	$fr0->Label(-text => 'Telefon')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_general{Telefon} = $fr0->Entry()
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	$col++;
-	$fr0->Label(-text => 'Home-BBS')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_general{"Home-BBS"} = $fr0->Entry()
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	$col++;
-	$fr0->Label(-text => 'E-Mail')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_general{"E-Mail"} = $fr0->Entry()
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	($row, $col) = ($row+1, 0);
-	$fr0->Button(
-	        -text => 'PM Vorjahr',
-	        -command => sub{do_select_pmfile(0)} )
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-	$gui_general{PMVorjahr} = $fr0->Entry(-width => 15)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	$col++;
-	$fr0->Button(
-	        -text => 'PM akt. Jahr',
-	        -command => sub{do_select_pmfile(1)} )
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-	$gui_general{PMaktJahr} = $fr0->Entry(-width => 15)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	$col++;
-	$fr0->Button(
-	        -text => 'Spitznamen',
-	        -command => sub{do_get_nickfile()} )
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-	$gui_general{Spitznamen} = $fr0->Entry(-width => 15)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	($row, $col) = ($row+1, 0);
-	make_ovfj_list($fr0)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we',
-	         -padx => 5, -pady => 5, -columnspan=>11);
-
-	return $fr0;
+	return $fr00;
 }
 
 # Liste der OV-Wettbewerbe
@@ -237,54 +196,49 @@ sub make_ovfj_list {
 	my $parent = shift
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
 	
-	my $fr0 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
-#	$fr2->pack;
-	$fr0->gridColumnconfigure(1, -weight => 2);
-	$fr0->gridColumnconfigure(3, -weight => 1);
-	$fr0->gridColumnconfigure(2, -minsize => 15);
-#	$fr0->gridRowconfigure(6, -pad => 15);
+	my $fr00 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
+	my $fr0 = $fr00->Frame()->pack(-fill => 'both', -padx => 5, -pady => 5);
 
-	my ($row, $col) = (0, 0);
+	$fr0->gridColumnconfigure(1, -weight => 2);
+	$fr0->gridColumnconfigure(2, -minsize => 15);
+	$fr0->gridColumnconfigure(3, -weight => 1);
+	$fr0->gridRowconfigure(3, -weight => 1, -minsize => 5);
+
 	$fr0->Label(-text => 'Liste der OV-Wettbewerbe')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'nw', -columnspan => 3);
+	  ->grid(-sticky => 'nw', -columnspan => 3);
 	
-	($row, $col) = ($row+1, 0);
 	$fjlistbox = $fr0->Scrolled('Text',
-		-scrollbars =>'oe',width => 40, height => 4)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'wens', -columnspan => 2, -rowspan => 4);
+		-scrollbars =>'oe',width => 40, height => 7)
+	  ->grid(-row => 1, -column => 1, -sticky => 'wens', -rowspan => 4);
 	
-	$col += 2;
+	my ($col, $row) = (3, 1);
 	$fr0->Button(
-	        -text => 'Editieren/Erzeugen',
+	        -text => 'OV-Wettbewerb bearbeiten',
 	        -command => sub{do_edit_ovfj(0)})
 	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
-	$fr0->Button(
-	        -text => 'Erzeugen aus aktuellem OV-Wettbewerb',
-	        -command => sub{do_edit_ovfj(1)})
+#	$fr0->Button(
+#	        -text => 'Erzeugen aus aktuellem OV-Wettbewerb',
+#	        -command => sub{do_edit_ovfj(1)})
+#	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
+	$exp_eval_button = $fr0->Button(
+	        -text => 'OV-Wettbewerb auswerten',
+	        -command => \&Export,
+	        -state => 'disabled')
 	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
+	$row++;
 	$fr0->Button(
-	        -text => 'Alle OV-Wettbewerbe auswerten und exportieren',
+	        -text => 'Jahresauswertung erstellen',
 	        -command => sub{ 
 				my %general = get_general();
 				do_eval_ovfj(@{$general{ovfj_link}})})
 	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
-	$reset_eval_button = $fr0->Button(
-	        -text => 'Auswertung im Speicher löschen',
-	        -command => \&do_reset_eval,
-	        -state => 'disabled')
-	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
-	$exp_eval_button = $fr0->Button(
-	        -text => 'Auswertung exportieren',
-	        -command => \&Export,
-	        -state => 'disabled')
-	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
+#	$reset_eval_button = $fr0->Button(
+#	        -text => 'Auswertung im Speicher löschen',
+#	        -command => \&do_reset_eval,
+#	        -state => 'disabled')
+#	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
 	
-	($row, $col) = ($row-1, 0);
-	$check_ExcludeTln = $fr0->Checkbutton()
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-	$fr0->Label(-text => "Beim Export Teilnehmer ohne offizielle Veranstaltung\nim akt. Jahr ausschliessen")
-	  ->grid(-row => $row++, -column => $col, -sticky => 'w');
-	return $fr0;
+	return $fr00;
 }
 
 
@@ -294,93 +248,59 @@ sub make_ovfj_detail {
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
 	
 	my $fr0 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
-#	$fr3->pack;
 	$fr0->gridColumnconfigure([1,4,7], -weight => 1);
 	$fr0->gridColumnconfigure([2,5,8], -minsize => 15);
-#	$fr0->gridRowconfigure(6, -pad => 15);
 
-	my ($row, $col) = (0, 0);
 	$ovfjnamelabel = $fr0->Label(-text => 'OV-Wettbewerb')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'nw', -columnspan => 3);
+	  ->grid(-sticky => 'nw', -columnspan => 3);
 	
-	($row, $col) = ($row+1, 0);
 	$ovfj_fileset_button = $fr0->Button(
 	        -text => 'OVFJ-Auswertungsdatei',
 	        -state => 'normal',
-	        -command => sub{ do_select_fjfile() } )
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_ovfj{OVFJDatei} = $fr0->Entry(-width => 27)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+	        -command => sub{ do_select_fjfile() } ) ->grid(
+	$gui_ovfj{OVFJDatei} = $fr0->Entry(-width => 27),
+	'x',
+	$fr0->Label(-text => 'Ausricht. OV', -anchor => 'w'),
+	$gui_ovfj{AusrichtOV} = $fr0->Entry(-width => 3),
+	'x',
+	$fr0->Label(-text => 'DOK', -anchor => 'w'),
+	$gui_ovfj{AusrichtDOK} = $fr0->Entry(-width => 4),
+	-sticky => 'we');
+
+	$fr0->Label(-text => 'Datum', -anchor => 'w') ->grid(
+	$gui_ovfj{Datum} = $fr0->Entry(-width => 10),
+	'x',
+	$fr0->Label(-text => 'Band', -anchor => 'w'),
+	$gui_ovfj{Band} = $fr0->Entry(-width => 2),
+	'x',
+	$fr0->Label(-text => 'Anz. Teilnehmer manuell', -anchor => 'w'),
+	'-','-','-',
+	$gui_ovfj{TlnManuell} = $fr0->Entry(-width => 2),
+	-sticky => 'we');
+
+	$fr0->Label(-text => 'Name', -anchor => 'w') ->grid(
+	$gui_ovfj{Verantw_Name} = $fr0->Entry(),
+	'x',
+	$fr0->Label(-text => 'Vorname', -anchor => 'w'),
+	$gui_ovfj{Verantw_Vorname} = $fr0->Entry(),
+	'x',
+	$fr0->Label(-text => 'Call', -anchor => 'w'),
+	$gui_ovfj{Verantw_CALL} = $fr0->Entry(-width => 8),
+	'x',
+	$fr0->Label(-text => 'DOK', -anchor => 'w'),
+	$gui_ovfj{Verantw_DOK} = $fr0->Entry(-width => 4),
+	-sticky => 'we');
 	
-	$col++;
-	$fr0->Label(-text => 'Ausricht. OV')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_ovfj{AusrichtOV} = $fr0->Entry()
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
+	$fr0->Label(-text => 'Geburtsjahr', -anchor => 'w') ->grid(
+	$gui_ovfj{Verantw_GebJahr} = $fr0->Entry(-width => 4),
+	-sticky => 'we');
 
-	$col++;
-	$fr0->Label(-text => 'DOK')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_ovfj{AusrichtDOK} = $fr0->Entry(-width => 4)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	($row, $col) = ($row+1, 0);
-	$fr0->Label(-text => 'Datum')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_ovfj{Datum} = $fr0->Entry(-width => 10)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	$col++;
-	$fr0->Label(-text => 'Band')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_ovfj{Band} = $fr0->Entry(-width => 2)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-	
-	$col++;
-	$fr0->Label(-text => 'Anz. Teilnehmer manuell')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w', -columnspan => 4);
-	$col += 3;
-	$gui_ovfj{TlnManuell} = $fr0->Entry(-width => 2)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	($row, $col) = ($row+1, 0);
-	$fr0->Label(-text => 'Name')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_ovfj{Verantw_Name} = $fr0->Entry()
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	$col++;
-	$fr0->Label(-text => 'Vorname')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_ovfj{Verantw_Vorname} = $fr0->Entry()
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	$col++;
-	$fr0->Label(-text => 'Call')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_ovfj{Verantw_CALL} = $fr0->Entry(-width => 8)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	$col++;
-	$fr0->Label(-text => 'DOK')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_ovfj{Verantw_DOK} = $fr0->Entry(-width => 4)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-	
-	($row, $col) = ($row+1, 0);
-	$fr0->Label(-text => 'Geburtsjahr')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$gui_ovfj{Verantw_GebJahr} = $fr0->Entry(-width => 4)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-
-	($row, $col) = ($row+1, 0);
 	$select_pattern_button = $fr0->Button(
 		-text    => 'Muster', 
 		-state   => 'normal',
-		-command => \&do_pattern_dialog,)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we');
-	$gui_ovfj{Auswertungsmuster} = $fr0->Entry(-width => 70)
-	  ->grid(-row => $row, -column => $col++, -sticky => 'we', -columnspan => 10);
+		-command => \&do_pattern_dialog,) ->grid(
+	$gui_ovfj{Auswertungsmuster} = $fr0->Entry(-width => 70),
+	-sticky => 'we');
 
 =obsolete
 
@@ -416,7 +336,7 @@ sub make_meldungen {
 	$fr5->gridRowconfigure(1, -weight => 1);
 	$fr5->Label(-text => 'Meldungen')->grid(-stick => "w");
 	$meldung = $fr5->Scrolled('Listbox',-scrollbars =>'e',-width => 80, -height => 6)
-	  ->grid(-stick => "nswe", -row => 1);
+	  ->grid(-stick => "nswe");
 	return $fr5;
 }
 
@@ -489,6 +409,7 @@ sub set_general {
 	$fjlistbox->selectAll();
 	$fjlistbox->deleteSelected();
 	$fjlistbox->insert('end', join("\n", @{$orig_general{ovfj_link}}));
+	$orig_ovfj_link = $fjlistbox->Contents();
 #	map { $fjlistbox->insert('end', "$_\n") } @{$general{ovfj_link}};
 	map {
 		$orig_general{$_} ||= '';
@@ -502,6 +423,7 @@ sub set_general {
 #	$copy_pattern_button->configure(-state => 'disabled');
 #	$select_pattern_button->configure(-state => 'disabled');
 #	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ");
+	return 1;
 }
 
 #Aktualisieren der aktuellen Generellen Daten im Hash
@@ -517,11 +439,12 @@ sub get_general {
 
 # Test auf Änderungen
 sub general_modified {
+	defined $orig_general{ovfj_link} or return;
 	$orig_general{Exclude_Checkmark} ne $check_ExcludeTln->{Value}
 	or grep {
 		$gui_general{$_}->get() ne ($orig_general{$_} || "");
 	} keys %gui_general
-	or join("\n", @{$orig_general{ovfj_link}}) ne $fjlistbox->Contents();
+	or $orig_ovfj_link ne $fjlistbox->Contents();
 }
 
 
@@ -600,8 +523,8 @@ sub do_select_pmfile {
 }
 
 sub set_general_data_label {
-	my $label = "Generelle Daten";
-	$label .= ": $_[0]" if $_[0];
+	my $label = "OV-Jahresauswertung: ";
+	$label .= (@_ && $_[0]) ? $_[0] : 'Neu';
 	$gui_general_label->configure(-text => $label);
 }
 
@@ -765,6 +688,9 @@ sub do_reset_eval {
 #	$ovfj_eval_button->configure(-state => 'normal');
 	$exp_eval_button->configure(-state => 'disabled');
 	$OVJ::lfdauswert = 0; # FIXME
+}
+
+sub clear_meldung {
 	$meldung->delete(0,"end");
 }
 
@@ -830,14 +756,18 @@ sub do_select_fjfile {
 sub open_file_general {
 	return if CheckForSaveGenfile();		# Abbruch durch Benutzer
 
-	my $types = [['Text Files','.txt'],['All Files','*',]];
-	my $filename = $mw->getOpenFile(
-		-initialdir => $OVJ::configpath,
-		-filetypes  => $types,
-		-title      => "Generelle Daten laden");
-	return unless $filename;
-	$filename =~ s/^.*\///;		# Pfadangaben entfernen
-	$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
+	my $filename = shift;
+	if (! $filename) {
+		my $types = [['Text Files','.txt'],['All Files','*',]];
+		$filename = $mw->getOpenFile(
+			-initialdir => $OVJ::configpath,
+			-filetypes  => $types,
+			-title      => "Generelle Daten laden");
+		return unless $filename;
+		$filename =~ s/^.*\///;		# Pfadangaben entfernen
+		$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
+	}
+	clear_meldung();
 	meldung(OVJ::HINWEIS,"Lade '$filename'");
 	set_general(OVJ::read_genfile($filename))
 	 or return;
@@ -848,8 +778,6 @@ sub open_file_general {
 }
 
 sub import_file_general {
-	return if CheckForSaveGenfile();		# Abbruch durch Benutzer
-
 	my $types = [['Text Files','.txt'],['All Files','*',]];
 	my $filename = $mw->getOpenFile(
 		-initialdir => $OVJ::configpath,
@@ -863,10 +791,10 @@ sub import_file_general {
 	 or return;
 	my %general_alt = OVJ::GUI::get_general();
 	@{$general{ovfj_link}} = @{$general_alt{ovfj_link}};
+	$general{Jahr} = $general_alt{Jahr};
 	$general{PMVorjahr} = $general_alt{PMVorjahr};
 	$general{PMaktJahr} = $general_alt{PMaktJahr};
 	set_general(%general);
-	$OVJ::genfilename = "";
 	set_general_data_label($OVJ::genfilename);
 # FIXME:	$config{"LastGenFile"} = $OVJ::genfilename;
 	return 1;
