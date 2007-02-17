@@ -107,7 +107,7 @@ sub make_menu {
 	
 	my $menu_bar = $parent->Frame(-relief => 'raised', -borderwidth => 1);
 	$menu_bar->Menubutton(-text => 'Datei', -underline => 0, -menuitems => [
-				[ Button => "Neu", -underline => 0, -command => \&set_general],
+				[ Button => "Neu", -underline => 0, -command => \&do_reset],
 				[ Button => "Öffnen...", -underline => 1, -command => \&open_file_general],
 				[ Button => "Importieren...", -underline => 0, -command => \&import_file_general],
 				[ Button => "Speichern", -underline => 0, -command => \&save_file_general],
@@ -398,6 +398,13 @@ sub do_ovfj_dialog {
 			last;
 		}
 	}
+}
+
+sub do_reset {
+	return if CheckForSaveGenfile();		# Abbruch durch Benutzer
+	set_general();
+	$OVJ::genfilename = '';
+	set_general_data_label($OVJ::genfilename);
 }
 
 sub set_general {
