@@ -75,6 +75,8 @@ $reportpath = "report";		# Pfad für die Reportdaten
 
 $lfdauswert = 0; # Nummer der lfd. OVFJ Auswertung
 
+my @meldung_callback;
+
 #Vergleiche Zeile aus Auswertungsdatei mit Pattern
 # FIXME: Rewrite 
 sub MatchPat {
@@ -1340,21 +1342,57 @@ sub write_genfile {
 
 sub meldung { 
 	my $level = shift;
-	my $message = "$level: " . shift;
-	carp $message if ($level eq WARNUNG || $level eq FEHLER);
+	my $message = shift;
+	carp "$level: $message" if ($level eq WARNUNG || $level eq FEHLER);
+	foreach (@meldung_callback) {
+		&$_($level, $message);
+	}
 	return if ($level eq FEHLER); 
 	return 1;
 }
 
+sub meldung_callback_add {
+	my $callback = shift;
+	if (ref $callback) {
+		push @meldung_callback, $callback;
+	}
+	else {
+		carp "Callback must be a reference";
+	}
+}
+
+sub meldung_callback_remove {
+	my $callback = shift;
+	if (ref $callback) {
+		@meldung_callback = grep { $_ != $callback } @meldung_callback;
+	}
+	else {
+		carp "Callback must be a reference";
+	}
+}
+
+
+#Lesen einer Input-Datei
+sub read_ovfj_infile {
+	my $filename = $inputpath.$sep.$genfilename.$sep.(shift);
+	open my $infile, '<', $filename
+	 or return meldung(FEHLER, "Kann '$filename' nicht lesen: $!");
+	my @data = <$infile>;
+	close $infile
+	 or die "close: $!";
+	return @data;
+}
 
 #Lesen der Daten aus einer OVFJ Datei
-sub read_ovfjfile { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
+sub read_ovfjfile {
 	my $ovfjfilename = (shift) . "_ovj.txt";
 	open my $infile, '<', $configpath.$sep.$genfilename.$sep.$ovfjfilename
 	 or return meldung(FEHLER, "Kann '$ovfjfilename' nicht lesen: $!");
 
 	my %ovfj;
+	my $ovfj = '';
 	while (<$infile>) {
+		$ovfj .= $_;
 		next if /^#/;
 		next if /^\s/;
 		s/\r//;

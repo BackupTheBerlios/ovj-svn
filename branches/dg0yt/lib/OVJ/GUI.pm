@@ -43,6 +43,7 @@ my %gui_general;
 my $gui_general_label;
 my %gui_ovfj;
 my $gui_patterns;
+my $gui_ovfj_view;
 my $meldung;
 my $check_ExcludeTln;
 
@@ -73,10 +74,12 @@ sub run {
 		chomp $error;
 		meldung(OVJ::WARNUNG, $error);
 	};
+	OVJ::meldung_callback_add(\&meldung);
 	
 	MainLoop();
 	
 	# GUI beendet, Warnungen nicht mehr abfangen
+	OVJ::meldung_callback_remove(\&meldung);
 	delete $SIG{'__WARN__'};
 }
 
@@ -254,7 +257,7 @@ sub make_ovfj_detail {
 	$ovfj_fileset_button = $fr0->Button(
 	        -text => 'OVFJ-Auswertungsdatei',
 	        -state => 'normal',
-	        -command => sub{ do_select_fjfile() } ) ->grid(
+	        -command => sub{ do_select_fjfile($parent) } ) ->grid(
 	$gui_ovfj{OVFJDatei} = $fr0->Entry(-width => 27),
 	'x',
 	$fr0->Label(-text => 'Ausricht. OV', -anchor => 'w'),
@@ -299,6 +302,11 @@ sub make_ovfj_detail {
 	$gui_ovfj{Auswertungsmuster} = $fr0->Entry(-width => 70),
 	'-','-','-','-','-','-','-','-','-',
 	-sticky => 'we');
+
+	$fr0->Label(-text => 'Ansicht', -anchor => 'nw') ->grid(
+	$gui_ovfj_view = $fr0->Scrolled('Listbox',-scrollbars =>'e',-width => 70, -height => 10, -takefocus => 0),
+	'-','-','-','-','-','-','-','-','-',
+	-stick => "nswe");
 
 =obsolete
 
@@ -380,7 +388,7 @@ sub do_ovfj_dialog {
 	);
 	my $fr = $dlg->add('Frame', -borderwidth => 1, -relief => 'raised')->pack();
 	make_ovfj_detail($fr)->pack();
-	set_ovfj(OVJ::read_ovfjfile($ovfjname));
+	set_ovfj($ovfjname, OVJ::read_ovfjfile($ovfjname));
 	
 	while (1) {
 		my $sel = $dlg->Show;
@@ -459,12 +467,15 @@ sub get_selected_ovfj {
 
 
 sub set_ovfj {
+	my $ovfjname = shift;
 	%orig_ovfj = @_;
 if (defined $gui_ovfj{AusrichtDOK}) { #FIXME
 	map {
 		$gui_ovfj{$_}->delete(0, "end");
 		$gui_ovfj{$_}->insert(0, $orig_ovfj{$_});
 	} keys %gui_ovfj;
+	$gui_ovfj_view->delete(0, "end");
+	$gui_ovfj_view->insert(0, OVJ::read_ovfj_infile($orig_ovfj{OVFJDatei})) if $orig_ovfj{OVFJDatei};
 } # FIXME
 }
 
@@ -667,6 +678,8 @@ sub meldung {
 		# Einfache Meldung
 		$meldung->insert('end', "$message");
 	}
+	$meldung->see('end');
+	$meldung->update();
 
 	return if ($type eq OVJ::FEHLER);
 	return 1;
@@ -718,7 +731,7 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 #	$::ovfjrepfilename = $ovfjf_name."_report_ovj.txt";
 #	if (-e $configpath.$sep.$OVJ::genfilename.$sep.$ovfjfilename) {
 		if (my %ovfj = OVJ::read_ovfjfile($ovfjfilename)) {
-			set_ovfj(%ovfj);
+			set_ovfj($ovfjfilename, %ovfj);
 		}
 		elsif ($choice == 0) {
 			clear_ovfj();
@@ -741,12 +754,14 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 #Auswahl der FJ Datei per Button
 #und Pruefen, ob automatisch OVFJ Kopfdaten ausgefuellt werden koennen
 sub do_select_fjfile {
+	my $parent = $_[0] 
+	  or carp "Parameter für übergeordnetes Fenster fehlt";
 	my $fjdir = $OVJ::inputpath.$OVJ::sep.$OVJ::genfilename;
 	(-e $fjdir && -d $fjdir)
 	 or return meldung(OVJ::FEHLER, "Verzeichnis '$fjdir' nicht vorhanden");
 	
 	my $types = [['Text Files','.txt'],['All Files','*',]];
-	my $selfile = $mw->getOpenFile(
+	my $selfile = $parent->getOpenFile(
 		-initialdir => $fjdir,
 		-filetypes  => $types,
 		-title      => "FJ Datei auswählen");
@@ -755,7 +770,7 @@ sub do_select_fjfile {
 	$selfile =~ s/^.*\///;
 	my %ovfj = OVJ::import_fjfile($selfile)
 	 or return;
-	set_ovfj(%ovfj);
+	set_ovfj($selfile, %ovfj);
 }
 
 sub open_file_general {
@@ -849,7 +864,7 @@ sub do_eval_ovfj {
 #		next if (OVJ::GUI::CreateEdit_ovfj($ovfjname,2)==1);
 		my %ovfj = OVJ::read_ovfjfile($ovfjname)
 		 or next;
-		set_ovfj(%ovfj);
+		set_ovfj($ovfjname, %ovfj);
 		$retval = OVJ::eval_ovfj($i++,
 		  \%general,
 		  \%tn,
