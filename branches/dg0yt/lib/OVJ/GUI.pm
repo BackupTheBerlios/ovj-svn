@@ -247,13 +247,10 @@ sub make_ovfj_detail {
 	my $parent = shift
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
 	
-	my $fr0 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
+	my $fr0 = $parent->Frame();
 	$fr0->gridColumnconfigure([1,4,7], -weight => 1);
 	$fr0->gridColumnconfigure([2,5,8], -minsize => 15);
 
-	$ovfjnamelabel = $fr0->Label(-text => 'OV-Wettbewerb')
-	  ->grid(-sticky => 'nw', -columnspan => 3);
-	
 	$ovfj_fileset_button = $fr0->Button(
 	        -text => 'OVFJ-Auswertungsdatei',
 	        -state => 'normal',
@@ -300,6 +297,7 @@ sub make_ovfj_detail {
 		-state   => 'normal',
 		-command => \&do_pattern_dialog,) ->grid(
 	$gui_ovfj{Auswertungsmuster} = $fr0->Entry(-width => 70),
+	'-','-','-','-','-','-','-','-','-',
 	-sticky => 'we');
 
 =obsolete
@@ -377,7 +375,7 @@ sub do_ovfj_dialog {
 	my $ovfjname = shift
 	 or carp "OV-Wettbewerb?";
 	my $dlg = $mw->DialogBox(
-	  -title          => 'OV-Wettbewerb bearbeiten',
+	  -title          => "'$ovfjname' bearbeiten",
 	  -buttons        => ['Speichern', 'Abbrechen'],
 	);
 	my $fr = $dlg->add('Frame', -borderwidth => 1, -relief => 'raised')->pack();
@@ -410,7 +408,7 @@ sub do_reset {
 sub set_general {
 #	return unless @_;
 	%orig_general = @_;
-	$orig_general{Exclude_Checkmark} ||= '';
+	$orig_general{Exclude_Checkmark} ||= 0;
 	$check_ExcludeTln->{Value} = $orig_general{Exclude_Checkmark}; 
 	$orig_general{ovfj_link} ||= [];
 	$fjlistbox->selectAll();
