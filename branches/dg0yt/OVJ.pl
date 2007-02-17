@@ -63,8 +63,6 @@ sub intro {
 
 
 sub init {
-	init_general();	# Lade Generelle Daten Datei falls vorhanden
-	
 	foreach my $dir ($OVJ::configpath, $OVJ::reportpath,
 	                 $OVJ::outputpath, $OVJ::inputpath) {
 		next if -d $dir;
@@ -73,15 +71,7 @@ sub init {
 		 or return OVJ::GUI::meldung(OVJ::FEHLER, 
 		   "Konnte Verzeichnis '$dir' nicht erstellen: $!");
 	}
+	OVJ::GUI::open_file_general($config{LastGenFile});
 	return 1;
-}
-
-
-sub init_general {
-	if (exists $config{LastGenFile}) {
-		$OVJ::genfilename = $config{LastGenFile};
-		OVJ::GUI::set_general(OVJ::read_genfile($OVJ::genfilename));
-		OVJ::GUI::meldung(OVJ::INFO, "'$OVJ::genfilename' geladen");
-	}
 }
 
