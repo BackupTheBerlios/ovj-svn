@@ -72,10 +72,10 @@ sub write {
 	my $key;
 	open my $inifile, '>', $inifilename
 	  or return;
-	print $inifile $inihash{'.comment'};
+	print $inifile $inihash{'.comment'} if exists $inihash{'.comment'};
 	foreach $key (keys %inihash) {
 		next if $key eq '.comment';
-		print $inifile "$key = $inihash{$key}\n";
+		print $inifile "$key = $inihash{$key}\n" if defined $inihash{$key};
 	}
 	close $inifile
 	  or warn "Kann INI-Datei '$inifilename' nicht schlieﬂen: $!";
