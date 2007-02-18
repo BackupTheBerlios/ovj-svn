@@ -38,6 +38,7 @@ use Tk;
 use Tk::DialogBox;
 use Tk::FBox;
 use OVJ 0.97;
+use OVJ::Browser 0.1;
 
 use vars qw(
 	$REVISION
@@ -53,6 +54,8 @@ BEGIN {
 	$REVISION = $1;
 	$REVDATE = "$4.$3.$2";
 }
+
+my $help_dir = "doku";
 
 my $mw;
 my %gui_general;
@@ -135,7 +138,9 @@ sub make_menu {
 				[ Button => "Beenden", -underline => 0, -command => \&Leave]])
 								->pack(-side => 'left');
 	$menu_bar->Menubutton(-text => 'Hilfe', -underline => 0, , -menuitems => [
-				[ Button => "Über", -underline => 1,-command => \&About]])
+				[ Button => "Hilfethemen", -underline => 0,-command => \&show_help],
+				[ Separator => "--" ],
+				[ Button => "Über OVJ...", -underline => 1,-command => \&About] ])
 								->pack(-side => 'left');
 #	$menu_bar->Button(
 #	        -text    => 'Exit', -underline => 1,
@@ -583,6 +588,15 @@ OVJ Version $OVJ::VERSION
 - GUI Revision $REVISION ($REVDATE)
 END_ABOUT
 						-title => 'Über', -type => 'Ok');
+}
+
+
+# Hilfe im Browser öffnen
+# Verzeichnis durch globale Variable vorgegeben
+# Parameter: Hilfe-Datei (optional, Default: index.htm)
+sub show_help {
+	my $location = $help_dir . $OVJ::sep . (shift || 'index.htm');
+	OVJ::Browser::open($location);
 }
 
 
