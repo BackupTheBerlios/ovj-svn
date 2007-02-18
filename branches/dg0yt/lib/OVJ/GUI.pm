@@ -694,12 +694,17 @@ sub meldung {
 sub get_selected {
 	my $listbox = shift;
 
-	my $selected = $listbox->getSelected();
+	if (! $listbox->tagRanges('sel')) {
+		# Keine Auswahl -> aktuelle Zeile auswählen
+		$listbox->tagAdd('sel', 'insert linestart', 'insert lineend');
+	}
+	if (! $listbox->tagRanges('sel')) {
+		return meldung(OVJ::FEHLER, 'Nichts ausgewählt');
+	}
+	my $selected = $listbox->get('sel.first linestart', 'sel.last lineend');
 	chomp $selected;
 	$selected !~ /\n/
 	 or return meldung(OVJ::FEHLER, 'Nur eine Zeile markieren!');
-	grep {$_ eq $selected} split(/\n/, $listbox->Contents())
-	 or return meldung(OVJ::FEHLER, 'Ganze Zeile markieren!');
 	return $selected;
 }
 
