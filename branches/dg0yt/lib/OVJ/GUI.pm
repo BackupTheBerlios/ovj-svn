@@ -304,8 +304,8 @@ sub make_ovfj_detail {
 	'-','-','-','-','-','-','-','-','-',
 	-sticky => 'we');
 
-	$fr0->Label(-text => 'Ansicht', -anchor => 'nw') ->grid(
-	$gui_ovfj_view = $fr0->Scrolled('Listbox',-scrollbars =>'e',-width => 70, -height => 10, -takefocus => 0),
+	$fr0->Label(-text => 'Datei-Inhalt', -anchor => 'nw') ->grid(
+	$gui_ovfj_view = $fr0->Scrolled('Text',-scrollbars =>'e',-width => 70, -height => 10, -state => 'disabled'),
 	'-','-','-','-','-','-','-','-','-',
 	-stick => "nswe");
 
@@ -475,8 +475,11 @@ if (defined $gui_ovfj{AusrichtDOK}) { #FIXME
 		$gui_ovfj{$_}->delete(0, "end");
 		$gui_ovfj{$_}->insert(0, $orig_ovfj{$_});
 	} keys %gui_ovfj;
-	$gui_ovfj_view->delete(0, "end");
-	$gui_ovfj_view->insert(0, OVJ::read_ovfj_infile($orig_ovfj{OVFJDatei})) if $orig_ovfj{OVFJDatei};
+	$gui_ovfj_view->configure(-state => 'normal');
+	$gui_ovfj_view->selectAll();
+	$gui_ovfj_view->deleteSelected();
+	$gui_ovfj_view->Contents(OVJ::read_ovfj_infile($orig_ovfj{OVFJDatei})) if $orig_ovfj{OVFJDatei};
+	$gui_ovfj_view->configure(-state => 'disabled');
 } # FIXME
 }
 

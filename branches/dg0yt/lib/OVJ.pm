@@ -1380,7 +1380,7 @@ sub read_ovfj_infile {
 	my @data = <$infile>;
 	close $infile
 	 or die "close: $!";
-	return @data;
+	return wantarray ? @data : join('', @data);
 }
 
 #Lesen der Daten aus einer OVFJ Datei
