@@ -36,6 +36,7 @@ use Carp;
 
 use Tk;
 use Tk::DialogBox;
+use Tk::FBox;
 use OVJ;
 
 my $mw;
@@ -761,7 +762,11 @@ sub do_select_fjfile {
 	 or return meldung(OVJ::FEHLER, "Verzeichnis '$fjdir' nicht vorhanden");
 	
 	my $types = [['Text Files','.txt'],['All Files','*',]];
-	my $selfile = $parent->getOpenFile(
+	# Unter KDE/Linux öffnet getOpenFile sein Fenster hinter 
+	# den anderen OVJ-Fenstern ... Tk::Fbox tut das selbe, aber richtig
+	# http://www.perltk.org/index.php?option=com_content&task=view&id=21&Itemid=28
+	#my $selfile = $parent->getOpenFile(
+	my $selfile = $parent->FBox(-type => 'open')->Show(
 		-initialdir => $fjdir,
 		-filetypes  => $types,
 		-title      => "FJ Datei auswählen");
