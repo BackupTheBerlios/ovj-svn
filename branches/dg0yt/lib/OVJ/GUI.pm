@@ -37,7 +37,22 @@ use Carp;
 use Tk;
 use Tk::DialogBox;
 use Tk::FBox;
-use OVJ;
+use OVJ 0.97;
+
+use vars qw(
+	$REVISION
+	$REVDATE
+	$VERSION
+);
+
+BEGIN {
+	$VERSION = $OVJ::VERSION;
+	'$Id$' =~ 
+	 /Id: [^ ]+ (\d+) (\d{4})-(\d{2})-(\d{2}) /
+	 or die "Revision format has changed";
+	$REVISION = $1;
+	$REVDATE = "$4.$3.$2";
+}
 
 my $mw;
 my %gui_general;
@@ -125,7 +140,7 @@ sub make_menu {
 #	$menu_bar->Button(
 #	        -text    => 'Exit', -underline => 1,
 #	        -command => \&Leave)->pack(-side => 'right');
-	$menu_bar->Label(-text => $OVJ::ovjinfo)->pack();
+	$menu_bar->Label(-text => OVJ::ovjinfo($REVISION, $REVDATE))->pack();
 	return $menu_bar;
 }
     
@@ -226,8 +241,12 @@ sub make_ovfj_list {
 #	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
 	$exp_eval_button = $fr0->Button(
 	        -text => 'OV-Wettbewerb auswerten',
-	        -command => \&Export,
-	        -state => 'disabled')
+	        -command => sub {
+				my $ovfjname = get_selected_ovfj()
+				 or return;
+				do_eval_ovfj($ovfjname);
+			} )
+#	        -state => 'disabled')
 	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
 	$row++;
 	$fr0->Button(
@@ -551,7 +570,7 @@ sub set_general_data_label {
 #Über Box aus dem 'Hilfe' Menu
 sub About {
 	$mw->messageBox(-icon => 'info', 
-						-message => << "END_ABOUT",
+						-message => <<"END_ABOUT",
 OV Jahresauswertung
 by Matthias Kühlewein, DL3SDO
 
@@ -559,7 +578,9 @@ Stark modifiziert von/
 Fehlerberichte an:
 Kai Pastor, DG0YT
 
-$OVJ::ovjinfo
+OVJ Version $OVJ::VERSION
+- Kern Revision $OVJ::REVISION ($OVJ::REVDATE)
+- GUI Revision $REVISION ($REVDATE)
 END_ABOUT
 						-title => 'Über', -type => 'Ok');
 }
@@ -713,8 +734,7 @@ sub do_reset_eval {
 #	undef %auswerthash;
 	clear_ovfj();
 #	$ovfj_eval_button->configure(-state => 'normal');
-	$exp_eval_button->configure(-state => 'disabled');
-	$OVJ::lfdauswert = 0; # FIXME
+#	$exp_eval_button->configure(-state => 'disabled');
 }
 
 sub clear_meldung {
@@ -755,7 +775,7 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 #	$copy_pattern_button->configure(-state => 'normal');
 #	$select_pattern_button->configure(-state => 'normal');
 #	$ovfj_eval_button->configure(-state => 'normal');
-	$exp_eval_button->configure(-state => 'normal');
+#	$exp_eval_button->configure(-state => 'normal');
 #		exists($auswerthash{$ovfjf_name}) ? 'disabled' : 'normal' );
 }
 
@@ -858,7 +878,7 @@ sub save_as_file_general {
 # Auswertung und Export von OVFJ
 # Parameter: Liste der OVFJ
 sub do_eval_ovfj {
-	my $i = 0;
+	my $i = 1;
 	my $success = 0;
 	my $retval;
 	

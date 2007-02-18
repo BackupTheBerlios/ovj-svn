@@ -56,7 +56,7 @@ exit 0;
 
 
 sub intro {
-	my $str = "*  $OVJ::ovjinfo  *";
+	my $str = '*  '.OVJ::ovjinfo().'  *';
 	my $sep = '*' x length($str);
 	print "$sep\n$str\n$sep\n";
 }

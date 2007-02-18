@@ -35,17 +35,26 @@ use strict qw(vars);
 use Carp;
 
 use vars qw(
-	$ovjdate
-	$ovjvers
-	$ovjinfo
-	$error
-	$lfdauswert
+	$REVISION
+	$REVDATE
+	$VERSION
 );
 
-'$Id$' =~ /Id: [^ ]+ (\d+) (\d{4})-(\d{2})-(\d{2}) /;
-$ovjdate = "$4.$3.$2";
-$ovjvers = "0.96-rev$1";
-$ovjinfo = "OVJ $OVJ::ovjvers by DL3SDO, DG0YT, $OVJ::ovjdate";
+BEGIN {
+	$VERSION = "0.97";
+	'$Id$' =~ 
+	 /Id: [^ ]+ (\d+) (\d{4})-(\d{2})-(\d{2}) /
+	 or die "Revision format has changed";
+	$REVISION = $1;
+	$REVDATE = "$4.$3.$2";
+}
+
+# Return formatted info string
+sub ovjinfo {
+	my $ovjrev  = ($_[0] && $_[0]   > $REVISION) ? $_[0] : $REVISION;
+	my $ovjdate = ($_[1] && $ovjrev > $REVISION) ? $_[1] : $REVDATE;
+	return "OVJ $VERSION.$ovjrev by DL3SDO, DG0YT, $ovjdate";
+}
 
 use constant {
 	INFO    => 'Information',
@@ -72,8 +81,6 @@ $configpath = "config";		# Pfad für die Konfigurationsdaten
 $inputpath  = "input";		# Pfad für die Eingangsdaten
 $outputpath = "output";		# Pfad für die Ergebnisdaten
 $reportpath = "report";		# Pfad für die Reportdaten
-
-$lfdauswert = 0; # Nummer der lfd. OVFJ Auswertung
 
 my @meldung_callback;
 
@@ -517,7 +524,7 @@ sub get_overrides {
 	
 #Auswertung der aktuellen OVFJ
 sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der auesseren Schleife
-	my $mode = shift;	# 0 = erster Start, >0 = Aufruf aus Auswertung und Export aller OVFJ heraus
+	my $lfdauswert = shift;	# 0 = erster Start, >0 = Aufruf aus Auswertung und Export aller OVFJ heraus
 	
 	my $general = shift;
 	my $tn = shift;
@@ -637,8 +644,6 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 #	$OVJ::GUI::reset_eval_button->configure(-state => 'normal');
 #	$OVJ::GUI::exp_eval_button->configure(-state => 'normal');
 	
-	$lfdauswert++; # Fortlaufende Numerierung aller OVFJ Auswertungen
-
 	while (<INFILE>)
 	{
 		s/\r//;
@@ -1064,7 +1069,7 @@ sub export {
 	printf AOUTFILE "Telefon                         ".$general->{"Telefon"}."\n";
 	printf AOUTFILE "Home-BBS                        ".$general->{"Home-BBS"}."\n";
 	printf AOUTFILE "E-Mail                          ".$general->{"E-Mail"}."\n";
-	printf AOUTFILE "Auswertung mit                  OVJ (Version ".$ovjvers." vom ".$ovjdate.")\n";
+	printf AOUTFILE "Auswertung mit                  ".ovjinfo()."\n";
 	printf AOUTFILE ("am                              %i.%i.%i\n",$mday,$mon+1,$myear+1900);
 	if ($ExcludeTln == 1)
 	{
@@ -1214,7 +1219,7 @@ sub export {
 	}
 	
 	printf HOUTFILE "</tbody></table>\n";
-	printf HOUTFILE "<h5>erzeugt durch OVJ  (Version ".$ovjvers." vom ".$ovjdate.")</h5>\n";
+	printf HOUTFILE "<h5>erzeugt durch ".ovjinfo()."</h5>\n";
 	printf HOUTFILE "</body>\n</html>\n";
 	
 	close (ROUTFILE) || die "close: $!";
@@ -1304,28 +1309,16 @@ sub write_genfile {
 	defined $filename or carp "filename required";
 	if ($filename !~ /\/|\\/) {
 		defined $configpath or carp "'configpath' required for '$filename'";
-		unless (-d $configpath.$sep.$filename) {
-			meldung(HINWEIS,"Erstelle Verzeichnis '$configpath$sep$filename'");
-			mkdir($configpath.$sep.$filename)
-			  or return meldung(FEHLER,"Konnte Verzeichnis '$configpath$sep$filename' nicht erstellen: $!");
+		foreach my $path ($configpath, $inputpath) {
+			unless (-d $path.$sep.$filename) {
+				meldung(HINWEIS,"Erstelle Verzeichnis '$path$sep$filename'");
+				mkdir($path.$sep.$filename)
+				 or return meldung(FEHLER,"Konnte Verzeichnis '$path$sep$filename' nicht erstellen: $!");
+			}
 		}
 		$filename = $configpath.$sep.$filename.$sep.$filename.'.txt';
 	}
 
-=pointless here
-
-	unless (-e $inputpath.$sep.$genfilename && -d $inputpath.$sep.$genfilename)
-	{
-		meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$inputpath."\'");
-		unless (mkdir($inputpath.$sep.$genfilename))
-		{
-			meldung(FEHLER,"Konnte Verzeichnis \'".$inputpath.$sep.$genfilename."\' nicht erstellen".$!);
-			return 1;	# Fehler
-		}
-	}
-	
-=cut
-	
 	open (OUTFILE, '>', $filename)
 	  or return meldung(FEHLER,"Kann ".$filename." nicht schreiben");
 	print OUTFILE "#OVJ Toplevel-Datei für $general{Jahr}\n\n";
@@ -1426,7 +1419,7 @@ sub import_fjfile {
 	my $filename = shift;
 	my %ovfj = ( OVFJDatei => $filename );
 	open my $infile, '<', $inputpath.$sep.$genfilename.$sep.$filename
-	 or return OVJ_meldung(FEHLER, "Kann OVFJ Datei '$filename' nicht lesen: $!");
+	 or return meldung(FEHLER, "Kann OVFJ Datei '$filename' nicht lesen: $!");
 	my $tp;
 	while (<$infile>) {
 		s/\r//;
