@@ -79,9 +79,9 @@ my $fjlistbox;
 my $reset_eval_button;
 my $exp_eval_button;
 #my $ovfj_eval_button;
-my $ovfj_fileset_button;
+#my $ovfj_fileset_button;
 #my $ovfj_save_button;
-my $copy_pattern_button;
+#my $copy_pattern_button;
 my $select_pattern_button;
 my $ovfjnamelabel;
 #);
@@ -162,8 +162,13 @@ sub make_general {
 #	$fr0->gridRowconfigure([1,4], -pad => 15);
 	my $all_columns = 11;
 
-	$gui_general_label = $fr0->Label(-text => 'OV-Jahresauswertung: Neu')
-	  ->grid(-sticky => 'nw', -columnspan => $all_columns);
+	$gui_general_label = $fr0->Label(-text => 'OV-Jahresauswertung: Neu', -anchor => 'w')->grid(
+	'-','-','-','-','-','-','-','-',
+	$fr0->Button(
+	        -text => 'Hilfe',
+	        -command => sub { show_help('schritt1.htm') }),
+	'-',
+	-sticky => 'we');
 	
 	$fr0->Label(-text => 'Distrikt', -anchor => 'w')->grid(
 	$gui_general{Distrikt} = $fr0->Entry(),
@@ -279,7 +284,8 @@ sub make_ovfj_detail {
 	$fr0->gridColumnconfigure([1,4,7], -weight => 1);
 	$fr0->gridColumnconfigure([2,5,8], -minsize => 15);
 
-	$ovfj_fileset_button = $fr0->Button(
+#	$ovfj_fileset_button = $fr0->Button(
+	$fr0->Button(
 	        -text => 'OVFJ-Auswertungsdatei',
 	        -state => 'normal',
 	        -command => sub{ do_select_fjfile($parent) } ) ->grid(
@@ -374,22 +380,23 @@ sub make_meldungen {
 sub do_pattern_dialog {
 	my $dlg = $mw->DialogBox(
 	  -title          => 'Musterkatalog',
-	  -buttons        => ['Übernehmen', 'Speichern', 'Abbrechen'],
+	  -buttons        => ['Übernehmen', 'Speichern', 'Hilfe', 'Abbrechen'],
 	);
 	my $textbox = $dlg->add('Scrolled','Text',-wrap=>'none',-scrollbars =>'osoe',-width => 80, -height => 6)
 	  ->pack(-fill => 'both', -expand => 1);
 	$textbox->Contents($curr_patterns);
 	while (1) {
 		my $sel = $dlg->Show;
-		my $curr_patterns = $textbox->Contents;
+		$curr_patterns = $textbox->Contents;
+		chomp $curr_patterns;
 		if ($sel eq 'Übernehmen') {
 			if ( my $pattern = get_selected($textbox) ) {
+				next unless CheckForUnsavedPatterns();
 				$pattern =~ s/\/\/.*$//;	# Entferne Kommentare beim Kopieren
 				$pattern =~ s/\s+$//;		# Entferne immer Leerzeichen nach dem Muster
 				my %ovfj_tmp = get_ovfj();
 				$gui_ovfj{Auswertungsmuster}->delete(0, "end");
 				$gui_ovfj{Auswertungsmuster}->insert(0, $pattern);
-				last;
 			}
 		}
 		elsif ($sel eq 'Speichern') {
@@ -398,8 +405,11 @@ sub do_pattern_dialog {
 				last;
 			}
 		}
+		elsif ($sel eq 'Hilfe') {
+			show_help('auswertungsmuster.htm');
+		}
 		else {
-			last;
+			last if CheckForUnsavedPatterns();
 		}
 	}
 }
@@ -409,7 +419,7 @@ sub do_ovfj_dialog {
 	 or carp "OV-Wettbewerb?";
 	my $dlg = $mw->DialogBox(
 	  -title          => "'$ovfjname' bearbeiten",
-	  -buttons        => ['Speichern', 'Abbrechen'],
+	  -buttons        => ['Speichern', 'Auswerten', 'Hilfe', 'Abbrechen'],
 	);
 	my $fr = $dlg->add('Frame', -borderwidth => 1, -relief => 'raised')->pack();
 	make_ovfj_detail($fr)->pack();
@@ -422,17 +432,21 @@ sub do_ovfj_dialog {
 			OVJ::write_ovfjfile($ovfjname, \%ovfj );
 			last;
 		}
-		elsif ($sel eq 'Auswertung') {
-			warn "FIXME: Nicht mehr implementiert";
+		elsif ($sel eq 'Auswerten') {
+			do_eval_ovfj($ovfjname) if CheckForOverwriteOVFJ();
+		}
+		elsif ($sel eq 'Hilfe') {
+			show_help('schritt3.htm');
 		}
 		else {
-			last;
+			last if CheckForOverwriteOVFJ();
 		}
 	}
 }
 
 sub do_reset {
-	return if CheckForSaveGenfile();		# Abbruch durch Benutzer
+	CheckForSaveGenfile()
+	 or return;		# Abbruch durch Benutzer
 	set_general();
 	$OVJ::genfilename = '';
 	set_general_data_label($OVJ::genfilename);
@@ -625,11 +639,11 @@ sub CheckForUnsavedPatterns {
 						"Speichern?", 
 			-type    => 'YesNoCancel', 
 			-default => 'Yes');
-		if    ($response eq 'Cancel') { return 1 }
+		if    ($response eq 'Cancel') { return 0 }
 		elsif ($response eq 'Yes')    { return OVJ::save_patterns(get_patterns()) }
 	}
 	
-	return 0;
+	return 1;
 }
 
 
@@ -646,11 +660,14 @@ sub CheckForOverwriteOVFJ {
 			            "Speichern?", 
 			-type    => 'YesNoCancel', 
 			-default => 'Yes');
-		if    ($response eq 'Cancel') { return 1 }
-		elsif ($response eq 'Yes')    { return OVJ::write_ovfjfile($ovfjname) }
+		if    ($response eq 'Cancel') { return 0 }
+		elsif ($response eq 'Yes')    { 
+			my %ovfj = get_ovfj();
+			return OVJ::write_ovfjfile($ovfjname, \%ovfj) 
+		}
 	}
 	
-	return 0;
+	return 1;
 }
 
 
@@ -666,40 +683,28 @@ sub CheckForSaveGenfile {
 						"Speichern?", 
 			-type    => 'YesNoCancel', 
 			-default => 'Yes');
-		if    ($response eq 'Cancel') { return 1 }
-		elsif ($response eq 'Yes')    { return ! save_file_general() }
+		if    ($response eq 'Cancel') { return 0 }
+		elsif ($response eq 'Yes')    { return save_file_general() }
 	}
 	
-	return 0;
+	return 1;
 }
 
 
 #Exit Box aus dem 'Datei' Menu und 'Exit' Button
 sub Leave {
-	return if (CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
-	return if (CheckForUnsavedPatterns());	# Abbruch durch Benutzer
-	return if (CheckForSaveGenfile());		# Abbruch durch Benutzer
+#	return unless (CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
+#	return unless (CheckForUnsavedPatterns());	# Abbruch durch Benutzer
+	return unless (CheckForSaveGenfile());		# Abbruch durch Benutzer
 	$mw->destroy();
 }
 
-#Kopieren des markierten Patterns in die Patternzeile des OV Wettbewerbs
-sub do_copy_pattern {
-	my $pattern = get_selected($gui_patterns)
-	 or return;
-	$pattern =~ s/\/\/.*$//;	# Entferne Kommentare beim Kopieren
-	$pattern =~ s/\s+$//;		# Entferne immer Leerzeichen nach dem Muster
-	my %ovfj_tmp = get_ovfj();
-	$gui_ovfj{Auswertungsmuster}->delete(0, "end");
-	$gui_ovfj{Auswertungsmuster}->insert(0, $pattern);
-}
 
 # Meldung anzeigen.
 # Parameter: Typ, Meldung
 # Rückgabe: FALSE bei Fehlermeldung, WAHR sonst
 sub meldung {
 	my ($type, $message) = @_;
-
-#	OVJ::meldung($type, $message);
 
 	my $err_icon;
 	if    ($type eq OVJ::FEHLER)  { $err_icon = 'error' }
@@ -736,7 +741,7 @@ sub get_selected {
 	if (! $listbox->tagRanges('sel')) {
 		return meldung(OVJ::FEHLER, 'Nichts ausgewählt');
 	}
-	my $selected = $listbox->get('sel.first linestart', 'sel.last lineend');
+	my $selected = $listbox->get('sel.first linestart', 'sel.last - 1 chars lineend');
 	chomp $selected;
 	$selected !~ /\n/
 	 or return meldung(OVJ::FEHLER, 'Nur eine Zeile markieren!');
@@ -768,7 +773,8 @@ sub do_edit_ovfj {
 sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 	my ($ovfjf_name,$choice) = @_;	# Beim Erzeugen: 0 = neu, 1 = aus aktuellem OV Wettbewerb, 
 												# 2 = explizites Laden aus Auswertungsschleife heraus
-	return if (CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
+	CheckForOverwriteOVFJ()
+	 or return;	# Abbruch durch Benutzer
 	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ".$ovfjf_name);
 	my $ovfjfilename = $ovfjf_name;
 #	$::ovfjrepfilename = $ovfjf_name."_report_ovj.txt";
@@ -821,7 +827,8 @@ sub do_select_fjfile {
 }
 
 sub open_file_general {
-	return if CheckForSaveGenfile();		# Abbruch durch Benutzer
+	CheckForSaveGenfile()
+	 or return;		# Abbruch durch Benutzer
 
 	my $filename = shift;
 	if (! $filename) {
