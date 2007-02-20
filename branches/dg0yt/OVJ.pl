@@ -33,16 +33,15 @@
 use strict qw(vars);		# Deklarationen erzwingen
 use lib "lib";	# FIXME: relativ zum Programverzeichnis ermitteln
 
+use OVJ;
+BEGIN { print OVJ::ovjinfo() . "\n" }
+
 use OVJ::Inifile;
 use OVJ::GUI;
-use OVJ;
-
 
 my $inifilename = "OVJini.txt";
 my %config  = ();		# Konfigurationsdaten
 
-
-intro();
 %config = OVJ::Inifile::read($inifilename)
  or warn "Kann INI-Datei '$inifilename' nicht lesen: $!";
 OVJ::GUI::init(%config);
@@ -53,13 +52,6 @@ OVJ::Inifile::write($inifilename,%config)		# Speichern der Inidaten
  or warn "Kann INI-Datei '$inifilename' nicht schreiben: $!";
 exit 0;
 
-
-
-sub intro {
-	my $str = '*  '.OVJ::ovjinfo().'  *';
-	my $sep = '*' x length($str);
-	print "$sep\n$str\n$sep\n";
-}
 
 
 sub init {
