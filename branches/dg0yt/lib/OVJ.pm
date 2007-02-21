@@ -1376,11 +1376,20 @@ sub read_ovfj_infile {
 	return wantarray ? @data : join('', @data);
 }
 
+#OVFJ Datei vorhanden ?
+sub exist_ovfjfile {
+	my $ovfjfilename = (shift) . "_ovj.txt";
+	return -f $configpath.$sep.$genfilename.$sep.$ovfjfilename;
+}
+
 #Lesen der Daten aus einer OVFJ Datei
 sub read_ovfjfile {
-	my $ovfjfilename = (shift) . "_ovj.txt";
-	open my $infile, '<', $configpath.$sep.$genfilename.$sep.$ovfjfilename
-	 or return meldung(FEHLER, "Kann '$ovfjfilename' nicht lesen: $!");
+	my $filename = shift;
+	my $ovfjfilename = ($filename =~ /$sep/) ? 
+		$filename :
+		$configpath.$sep.$genfilename.$sep.$filename . "_ovj.txt";
+	open my $infile, $ovfjfilename
+	 or return meldung(FEHLER, "Kann '$filename' nicht lesen: $!");
 
 	my %ovfj;
 	my $ovfj = '';

@@ -36,6 +36,7 @@ use Carp;
 
 use Tk;
 use Tk::DialogBox;
+use Tk::NoteBook;
 use Tk::FBox;
 use OVJ 0.97;
 use OVJ::Browser 0.1;
@@ -106,12 +107,12 @@ sub init {
 	my %config = @_;
 	
 	$mw = MainWindow->new;
-	# http://www.tutorials-blog.com/tk/window-close/
-	$mw->protocol(WM_DELETE_WINDOW => \&Leave); #check_file_dirty , 
+	$mw->protocol(WM_DELETE_WINDOW => \&Leave); 
 	$mw->gridColumnconfigure(0, -weight => 1);
-	$mw->gridRowconfigure(3, -weight => 1);
+	$mw->gridRowconfigure(2, -weight => 1);
 
-	make_menu($mw)->grid(-sticky => 'nswe');
+#	make_menu($mw)->grid(-sticky => 'nswe');
+	$mw->configure(-menu => make_menu($mw));
 	make_general($mw)->grid(-sticky => 'nswe');
 	make_ovfj_list($mw)->grid(-sticky => 'nswe');
 	make_meldungen($mw)->grid(-sticky => 'nswe');
@@ -127,25 +128,32 @@ sub make_menu {
 	my $parent = shift
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
 	
-	my $menu_bar = $parent->Frame(-relief => 'raised', -borderwidth => 1);
-	$menu_bar->Menubutton(-text => 'Datei', -underline => 0, -menuitems => [
+#my $menu_bar = $parent->Frame(-relief => 'raised', -borderwidth => 1);
+	my $menu_bar = $parent->Menu( -type=>'menubar' );#, -menuitems => [
+#		[ Menubutton => "Hilfe", -underline => 1, -menuitems => [
+#			[ Button => "Über OVJ...", -underline => 1,-command => \&About] 
+#		] ]
+# 	]);
+	
+	$menu_bar->add('cascade', -label => 'Datei', -underline => 0, -menu => 
+		my $file_menu = $menu_bar->Menu( -tearoff => 0, -menuitems => [
 				[ Button => "Neu", -underline => 0, -command => \&do_reset],
 				[ Button => "Öffnen...", -underline => 1, -command => \&open_file_general],
 				[ Button => "Importieren...", -underline => 0, -command => \&import_file_general],
 				[ Button => "Speichern", -underline => 0, -command => \&save_file_general],
 				[ Button => "Speichern unter...", -underline => 0, -command => \&save_as_file_general],
 				[ Separator => "--" ],
-				[ Button => "Beenden", -underline => 0, -command => \&Leave]])
-								->pack(-side => 'left');
-	$menu_bar->Menubutton(-text => 'Hilfe', -underline => 0, , -menuitems => [
+				[ Button => "Beenden", -underline => 0, -command => \&Leave] ] )
+);#								->pack(-side => 'left');
+#	$menu_bar->Menubutton(-text => 'Hilfe', -underline => 0, , -menuitems => [
+	$menu_bar->add('cascade', -label => 'Hilfe', -underline => 0, -menu => 
+		$menu_bar->Menu( -tearoff => 0, -menuitems => [
 				[ Button => "Hilfethemen", -underline => 0,-command => \&show_help],
 				[ Separator => "--" ],
 				[ Button => "Über OVJ...", -underline => 1,-command => \&About] ])
-								->pack(-side => 'left');
-#	$menu_bar->Button(
-#	        -text    => 'Exit', -underline => 1,
-#	        -command => \&Leave)->pack(-side => 'right');
-	$menu_bar->Label(-text => OVJ::ovjinfo($REVISION, $REVDATE))->pack();
+);#								->pack(-side => 'left');
+#	$menu_bar->Label(-text => OVJ::ovjinfo($REVISION, $REVDATE))->pack();
+#	$parent->bind('<Alt-d>', sub { $menu_bar->invoke() });
 	return $menu_bar;
 }
     
@@ -168,7 +176,7 @@ sub make_general {
 	        -text => 'Hilfe',
 	        -command => sub { show_help('schritt1.htm') }),
 	'-',
-	-sticky => 'we');
+	-sticky => 'we', -pady => 3);
 	
 	$fr0->Label(-text => 'Distrikt', -anchor => 'w')->grid(
 	$gui_general{Distrikt} = $fr0->Entry(),
@@ -237,7 +245,7 @@ sub make_ovfj_list {
 	  ->grid(-sticky => 'nw', -columnspan => 3);
 	
 	$fjlistbox = $fr0->Scrolled('Text',
-		-scrollbars =>'oe',width => 40, height => 7)
+		-scrollbars =>'oe',width => 30, height => 7)
 	  ->grid(-row => 1, -column => 1, -sticky => 'wens', -rowspan => 4);
 	
 	my ($col, $row) = (3, 1);
@@ -283,13 +291,14 @@ sub make_ovfj_detail {
 	my $fr0 = $parent->Frame();
 	$fr0->gridColumnconfigure([1,4,7], -weight => 1);
 	$fr0->gridColumnconfigure([2,5,8], -minsize => 15);
+	$fr0->gridRowconfigure([5], -weight => 1);
 
 #	$ovfj_fileset_button = $fr0->Button(
 	$fr0->Button(
-	        -text => 'OVFJ-Auswertungsdatei',
+	        -text => 'Ergebnisliste',
 	        -state => 'normal',
 	        -command => sub{ do_select_fjfile($parent) } ) ->grid(
-	$gui_ovfj{OVFJDatei} = $fr0->Entry(-width => 27),
+	$gui_ovfj{OVFJDatei} = $fr0->Entry(-width => 20),
 	'x',
 	$fr0->Label(-text => 'Ausricht. OV', -anchor => 'w'),
 	$gui_ovfj{AusrichtOV} = $fr0->Entry(-width => 3),
@@ -329,36 +338,16 @@ sub make_ovfj_detail {
 	$select_pattern_button = $fr0->Button(
 		-text    => 'Muster', 
 		-state   => 'normal',
-		-command => \&do_pattern_dialog,) ->grid(
+		-command => sub { do_pattern_dialog($parent) } ) ->grid(
 	$gui_ovfj{Auswertungsmuster} = $fr0->Entry(-width => 70),
 	'-','-','-','-','-','-','-','-','-',
 	-sticky => 'we');
 
-	$fr0->Label(-text => 'Datei-Inhalt', -anchor => 'nw') ->grid(
+	$fr0->Label(-text => "Datei-Inhalt", -anchor => 'nw') ->grid(
 	$gui_ovfj_view = $fr0->Scrolled('Text',-scrollbars =>'e',-width => 70, -height => 10, -state => 'disabled'),
 	'-','-','-','-','-','-','-','-','-',
-	-stick => "nswe");
+	-sticky => "nswe");
 
-=obsolete
-
-	($row, $col) = ($row+1, 1);
-	$ovfj_save_button = $fr0->Button(
-	        -text => 'Speichern',
-	        -command => sub {
-				my %ovfj = get_ovfj();
-				OVJ::write_ovfjfile(get_selected_ovfj(), \%ovfj ) 
-			},
-	        -state => 'disabled')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-	$col+=2;
-	$ovfj_eval_button = $fr0->Button(
-	        -text => 'Auswertung',
-	        -command => sub{do_eval_ovfj(get_selected_ovfj())},
-	        -state => 'disabled')
-	  ->grid(-row => $row, -column => $col++, -sticky => 'w');
-
-=cut	  
-	
 	return $fr0;
 }
 
@@ -368,7 +357,6 @@ sub make_meldungen {
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
 	
 	my $fr5 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
-#	$fr5->pack;
 	$fr5->gridColumnconfigure(0, -weight => 1);
 	$fr5->gridRowconfigure(1, -weight => 1);
 	$fr5->Label(-text => 'Meldungen')->grid(-stick => "w");
@@ -377,14 +365,19 @@ sub make_meldungen {
 	return $fr5;
 }
 
-sub do_pattern_dialog {
-	my $dlg = $mw->DialogBox(
+sub do_pattern_dialog { 
+	my $parent = shift || $mw;
+	my $dlg = $parent->DialogBox(
 	  -title          => 'Musterkatalog',
 	  -buttons        => ['Übernehmen', 'Speichern', 'Hilfe', 'Abbrechen'],
+	  -default_button => 'Abbrechen',
 	);
+	# http://www.annocpan.org/~NI-S/Tk-804.027/pod/DialogBox.pod
+	$dlg->protocol( WM_DELETE_WINDOW => sub { 
+		$dlg->{selected_button} = 'Abbrechen' } );
 	my $textbox = $dlg->add('Scrolled','Text',-wrap=>'none',-scrollbars =>'osoe',-width => 80, -height => 6)
 	  ->pack(-fill => 'both', -expand => 1);
-	$textbox->Contents($curr_patterns);
+	$textbox->Contents($orig_patterns);
 	while (1) {
 		my $sel = $dlg->Show;
 		$curr_patterns = $textbox->Contents;
@@ -419,11 +412,22 @@ sub do_ovfj_dialog {
 	 or carp "OV-Wettbewerb?";
 	my $dlg = $mw->DialogBox(
 	  -title          => "'$ovfjname' bearbeiten",
-	  -buttons        => ['Speichern', 'Auswerten', 'Hilfe', 'Abbrechen'],
+	  -buttons        => ['Speichern', 'Importieren...', 'Auswerten', 'Hilfe', 'Abbrechen'],
+	  -default_button => 'Abbrechen',
 	);
-	my $fr = $dlg->add('Frame', -borderwidth => 1, -relief => 'raised')->pack();
-	make_ovfj_detail($fr)->pack();
-	set_ovfj($ovfjname, OVJ::read_ovfjfile($ovfjname));
+	# http://www.annocpan.org/~NI-S/Tk-804.027/pod/DialogBox.pod
+	$dlg->protocol( WM_DELETE_WINDOW => sub { 
+		$dlg->{selected_button} = 'Abbrechen' } );
+	my $fr = $dlg->add('Frame', -relief => 'flat')->pack(-fill => 'both', -expand => 1);
+	make_ovfj_detail($fr)->pack(-fill => 'both', -expand=>1);
+	
+	if (OVJ::exist_ovfjfile($ovfjname)) {
+		set_ovfj($ovfjname, OVJ::read_ovfjfile($ovfjname));
+	}
+	else {
+		meldung(OVJ::INFO, "Noch keine Daten für '$ovfjname' gespeichert");
+		set_ovfj($ovfjname);
+	}
 	
 	while (1) {
 		my $sel = $dlg->Show;
@@ -431,6 +435,9 @@ sub do_ovfj_dialog {
 			my %ovfj = get_ovfj();
 			OVJ::write_ovfjfile($ovfjname, \%ovfj );
 			last;
+		}
+		elsif ($sel eq 'Importieren...') {
+			do_import_ovfjfile($mw);
 		}
 		elsif ($sel eq 'Auswerten') {
 			do_eval_ovfj($ovfjname) if CheckForOverwriteOVFJ();
@@ -588,6 +595,7 @@ sub set_general_data_label {
 
 #Über Box aus dem 'Hilfe' Menu
 sub About {
+	my $tk_version = $Tk::VERSION || $Tk::Version || $Tk::version;
 	$mw->messageBox(-icon => 'info', 
 						-message => <<"END_ABOUT",
 OV Jahresauswertung
@@ -598,8 +606,10 @@ Fehlerberichte an:
 Kai Pastor, DG0YT
 
 OVJ Version $OVJ::VERSION
-- Kern Revision $OVJ::REVISION ($OVJ::REVDATE)
-- GUI Revision $REVISION ($REVDATE)
+- Kern: Revision $OVJ::REVISION ($OVJ::REVDATE)
+- GUI: Revision $REVISION ($REVDATE)
+- Tk: Version $tk_version
+- Plattform: $^O
 END_ABOUT
 						-title => 'Über', -type => 'Ok');
 }
@@ -640,7 +650,11 @@ sub CheckForUnsavedPatterns {
 			-type    => 'YesNoCancel', 
 			-default => 'Yes');
 		if    ($response eq 'Cancel') { return 0 }
-		elsif ($response eq 'Yes')    { return OVJ::save_patterns(get_patterns()) }
+		elsif ($response eq 'Yes')    { 
+			my $ret = OVJ::save_patterns(get_patterns()) and 
+				set_patterns(get_patterns());
+			return $ret;
+		}
 	}
 	
 	return 1;
@@ -826,6 +840,38 @@ sub do_select_fjfile {
 	set_ovfj($selfile, %ovfj);
 }
 
+
+sub do_import_ovfjfile {
+	my $parent = $_[0] 
+	  or carp "Parameter für übergeordnetes Fenster fehlt";
+	my $dir = $OVJ::configpath.$OVJ::sep.$OVJ::genfilename;
+	(-e $dir && -d $dir)
+	 or return meldung(OVJ::FEHLER, "Verzeichnis '$dir' nicht vorhanden");
+
+	my $types = [['Text Files','.txt'],['All Files','*',]];
+	# Unter KDE/Linux öffnet getOpenFile sein Fenster hinter 
+	# den anderen OVJ-Fenstern ... Tk::Fbox tut das selbe, aber richtig
+	# http://www.perltk.org/index.php?option=com_content&task=view&id=21&Itemid=28
+	#my $selfile = $parent->getOpenFile(
+	my $selfile = $parent->FBox(-type => 'open')->Show(
+		-initialdir => $dir,
+		-filetypes  => $types,
+		-title      => "OVFJ Datei auswählen");
+	return unless ($selfile && $selfile ne "");
+
+#	$selfile =~ s/^.*\///;
+	my %ovfj = OVJ::read_ovfjfile($selfile)
+	 or return;
+	my %old_ovfj = get_ovfj();
+	foreach ('Datum', 'Band', 'TlnManuell', 'OVFJDatei') {
+		$ovfj{$_} = $old_ovfj{$_};
+	}
+	set_ovfj($selfile, %ovfj);
+	%orig_ovfj = %old_ovfj; # Hack: Import soll nur GUI updaten
+}
+
+
+
 sub open_file_general {
 	CheckForSaveGenfile()
 	 or return;		# Abbruch durch Benutzer
@@ -903,6 +949,7 @@ sub do_eval_ovfj {
 	my $success = 0;
 	my $retval;
 	
+	$mw->Busy();
 	do_reset_eval();
 	my %general = get_general();
 	my %tn;					# Hash für die Teilnehmer, Elemente sind wiederum Hashes
@@ -932,6 +979,7 @@ sub do_eval_ovfj {
 		last if ($retval == 2);	# systematischer Fehler, Abbruch der Schleife
 	}
 	OVJ::export(\%general,\%tn,\@ovfjlist,\@ovfjanztlnlist) if ($success);
+	$mw->Unbusy();
 }
 
 
