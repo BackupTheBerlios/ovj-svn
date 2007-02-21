@@ -68,7 +68,7 @@ sub open {
 			foreach (qw/firefox konqueror/) {
 				{ exec $_, @arg }; # Hier Ende bei Erfolg!
 			}
-			exit 1; # Hier Ende bei Fehler
+			CORE::exit 1; # Hier Ende bei Fehler
 		}
 		return $pid;
 	}
