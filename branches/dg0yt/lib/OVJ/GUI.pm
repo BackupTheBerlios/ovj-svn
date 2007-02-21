@@ -117,6 +117,7 @@ sub init {
 	make_ovfj_list($mw)->grid(-sticky => 'nswe');
 	make_meldungen($mw)->grid(-sticky => 'nswe');
 
+	set_general();
 	set_patterns(OVJ::read_patterns());
 
 	return $mw;
