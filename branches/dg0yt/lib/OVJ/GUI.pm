@@ -860,7 +860,10 @@ sub open_file_general {
 			-filetypes  => $types,
 			-title      => "Generelle Daten laden");
 		return unless $filename;
-		$filename =~ s(^.*/([^/]+)/.*$)($1);	# tiefster Verzeichnisname
+		$filename =~ s(^.*/([^/]+)/(.*)$)($1);	# tiefster Verzeichnisname
+		if ($2 ne $1) {
+			meldung(OVJ::WARNUNG, "Ignoriere Dateinamen '$2'. Verwende Verzeichnisnamen '$1'.");
+		}
 	}
 	if ($filename ne UNNAMED) {
 		clear_meldung();
