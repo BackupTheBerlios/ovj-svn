@@ -849,7 +849,7 @@ sub do_import_ovfjfile {
 	(-e $dir && -d $dir)
 	 or return meldung(OVJ::FEHLER, "Verzeichnis '$dir' nicht vorhanden");
 
-	my $types = [['Text Files','.txt'],['All Files','*',]];
+	my $types = [['OVJ Files','*_ovj.txt'],['All Files','*',]];
 	# Unter KDE/Linux öffnet getOpenFile sein Fenster hinter 
 	# den anderen OVJ-Fenstern ... Tk::Fbox tut das selbe, aber richtig
 	# http://www.perltk.org/index.php?option=com_content&task=view&id=21&Itemid=28
