@@ -63,7 +63,9 @@ sub init {
 		 or return OVJ::GUI::meldung(OVJ::FEHLER, 
 		   "Konnte Verzeichnis '$dir' nicht erstellen: $!");
 	}
-	OVJ::GUI::open_file_general($config{LastGenFile});
+	if ($config{LastGenFile} && $config{LastGenFile} ne 'Neu') {
+		OVJ::GUI::open_file_general($config{LastGenFile});
+	}
 	return 1;
 }
 

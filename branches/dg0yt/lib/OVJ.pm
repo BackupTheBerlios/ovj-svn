@@ -69,10 +69,7 @@ use vars qw(
 	$outputpath
 	$reportpath
 	$genfilename
-	$sep
 );
-
-$sep = ($^O =~ /Win/i) ? '\\' : '/';	# Kai, fuer Linux und Win32 Portabilitaet
 
 my $patternfilename = "OVFJ_Muster.txt";
 my $overridefilename = "Override.txt";
@@ -591,17 +588,17 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 	my $nicknames = get_nicknames($general->{Spitznamen});  	# Spitznamen einlesen
 	$overrides = get_overrides($overridefilename);		# Lade die Override-Datei (falls vorhanden)
 
-	unless (-e $reportpath.$sep.$genfilename && -d $reportpath.$sep.$genfilename)
+	unless (-e $reportpath.'/'.$genfilename && -d $reportpath.'/'.$genfilename)
 	{
 		meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$reportpath."\'");
-		unless (mkdir($reportpath.$sep.$genfilename))
+		unless (mkdir($reportpath.'/'.$genfilename))
 		{
-			meldung(FEHLER,"Konnte Verzeichnis \'".$reportpath.$sep.$genfilename."\' nicht erstellen".$!);
+			meldung(FEHLER,"Konnte Verzeichnis \'".$reportpath.'/'.$genfilename."\' nicht erstellen".$!);
 			return 1;	# Fehler
 		}
 	}
 	
-	if (!open (OUTFILE,">",$reportpath.$sep.$genfilename.$sep.$ovfjrepfilename))
+	if (!open (OUTFILE,">",$reportpath.'/'.$genfilename.'/'.$ovfjrepfilename))
 	{
 		meldung(FEHLER,"Kann '$ovfjrepfilename' nicht schreiben");
 		return 1;	# Fehler
@@ -624,14 +621,14 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 		return 1;	# Fehler
 	}	
 	
-	unless (-e $inputpath.$sep.$genfilename && -d $inputpath.$sep.$genfilename)
+	unless (-e $inputpath.'/'.$genfilename && -d $inputpath.'/'.$genfilename)
 	{
-		meldung(FEHLER,"Verzeichnis \'".$inputpath.$sep.$genfilename."\' nicht vorhanden");
+		meldung(FEHLER,"Verzeichnis \'".$inputpath.'/'.$genfilename."\' nicht vorhanden");
 		close (OUTFILE) || die "close: $!";
 		return 2;	# Fehler mit Schleifenabbruch
 	}
 	
-	if (!open (INFILE,"<",$inputpath.$sep.$genfilename.$sep.$ovfj->{"OVFJDatei"}))
+	if (!open (INFILE,"<",$inputpath.'/'.$genfilename.'/'.$ovfj->{"OVFJDatei"}))
 	{
 		RepMeld(*OUTFILE,"FEHLER: Kann OVFJ Datei ".$ovfj->{"OVFJDatei"}." nicht lesen");
 		close (OUTFILE) || die "close: $!";
@@ -1031,29 +1028,29 @@ sub export {
 
 	$rawresultfilename = "OVJ_Ergebnisse_".$general->{"Distriktskenner"}."_".$general->{Jahr}."raw.txt";
 	
-	unless (-e $outputpath.$sep.$genfilename && -d $outputpath.$sep.$genfilename)
+	unless (-e $outputpath.'/'.$genfilename && -d $outputpath.'/'.$genfilename)
 	{
 		meldung(HINWEIS,"Erstelle Verzeichnis \'".$genfilename."\' in \'".$outputpath."\'");
-		unless (mkdir($outputpath.$sep.$genfilename))
+		unless (mkdir($outputpath.'/'.$genfilename))
 		{
-			meldung(FEHLER,"Konnte Verzeichnis \'".$outputpath.$sep.$genfilename."\' nicht erstellen".$!);
+			meldung(FEHLER,"Konnte Verzeichnis \'".$outputpath.'/'.$genfilename."\' nicht erstellen".$!);
 			return;
 		}
 	}	
 	
-	if (!open (ROUTFILE,">",$outputpath.$sep.$genfilename.$sep.$rawresultfilename))
+	if (!open (ROUTFILE,">",$outputpath.'/'.$genfilename.'/'.$rawresultfilename))
 	{
 		meldung(FEHLER,"Kann ".$rawresultfilename." nicht schreiben");
 		return;
 	}
 	$asciiresultfilename = "OVJ".$general->{"Distriktskenner"}.$general->{Jahr}.".txt";
-	if (!open (AOUTFILE,">",$outputpath.$sep.$genfilename.$sep.$asciiresultfilename))
+	if (!open (AOUTFILE,">",$outputpath.'/'.$genfilename.'/'.$asciiresultfilename))
 	{
 		meldung(FEHLER,"Kann ".$asciiresultfilename." nicht schreiben");
 		return;
 	}
 	$htmlresultfilename = "OVJ_Ergebnisse_".$general->{"Distriktskenner"}."_".$general->{Jahr}.".htm";
-	if (!open (HOUTFILE,">",$outputpath.$sep.$genfilename.$sep.$htmlresultfilename))
+	if (!open (HOUTFILE,">",$outputpath.'/'.$genfilename.'/'.$htmlresultfilename))
 	{
 		meldung(FEHLER,"Kann ".$htmlresultfilename." nicht schreiben");
 		return;
@@ -1278,7 +1275,7 @@ sub read_genfile {
 	defined $filename or carp "filename required";
 	if ($filename !~ /\/|\\/) {
 		defined $configpath or carp "'configpath' required for '$filename'";
-		$filename = $configpath.$sep.$filename.$sep.$filename.'.txt';
+		$filename = $configpath.'/'.$filename.'/'.$filename.'.txt';
 	}
 
 	open (INFILE, '<', $filename)
@@ -1310,13 +1307,13 @@ sub write_genfile {
 	if ($filename !~ /\/|\\/) {
 		defined $configpath or carp "'configpath' required for '$filename'";
 		foreach my $path ($configpath, $inputpath) {
-			unless (-d $path.$sep.$filename) {
-				meldung(HINWEIS,"Erstelle Verzeichnis '$path$sep$filename'");
-				mkdir($path.$sep.$filename)
-				 or return meldung(FEHLER,"Konnte Verzeichnis '$path$sep$filename' nicht erstellen: $!");
+			unless (-d $path.'/'.$filename) {
+				meldung(HINWEIS,"Erstelle Verzeichnis '$path/$filename'");
+				mkdir($path.'/'.$filename)
+				 or return meldung(FEHLER,"Konnte Verzeichnis '$path/$filename' nicht erstellen: $!");
 			}
 		}
-		$filename = $configpath.$sep.$filename.$sep.$filename.'.txt';
+		$filename = $configpath.'/'.$filename.'/'.$filename.'.txt';
 	}
 
 	open (OUTFILE, '>', $filename)
@@ -1367,7 +1364,7 @@ sub meldung_callback_remove {
 
 #Lesen einer Input-Datei
 sub read_ovfj_infile {
-	my $filename = $inputpath.$sep.$genfilename.$sep.(shift);
+	my $filename = $inputpath.'/'.$genfilename.'/'.(shift);
 	open my $infile, '<', $filename
 	 or return meldung(FEHLER, "Kann '$filename' nicht lesen: $!");
 	my @data = <$infile>;
@@ -1379,17 +1376,17 @@ sub read_ovfj_infile {
 #OVFJ Datei vorhanden ?
 sub exist_ovfjfile {
 	my $ovfjfilename = (shift) . "_ovj.txt";
-	return -f $configpath.$sep.$genfilename.$sep.$ovfjfilename;
+	return -f $configpath.'/'.$genfilename.'/'.$ovfjfilename;
 }
 
 #Lesen der Daten aus einer OVFJ Datei
 sub read_ovfjfile {
 	my $filename = shift;
-	my $ovfjfilename = ($filename =~ /$sep/) ? 
+	my $ovfjfilename = ($filename =~ /\//) ? 
 		$filename :
-		$configpath.$sep.$genfilename.$sep.$filename . "_ovj.txt";
+		$configpath.'/'.$genfilename.'/'.$filename . "_ovj.txt";
 	open my $infile, $ovfjfilename
-	 or return meldung(FEHLER, "Kann '$filename' nicht lesen: $!");
+	 or return meldung(FEHLER, "Kann '$ovfjfilename' nicht lesen: $!");
 
 	my %ovfj;
 	my $ovfj = '';
@@ -1412,7 +1409,7 @@ sub read_ovfjfile {
 sub write_ovfjfile {
 	my $ovfjfilename = (shift) . "_ovj.txt";;
 	my $ovfj = shift; # Referenz auf %ovfj
-	open my $outfile, '>', $configpath.$sep.$genfilename.$sep.$ovfjfilename
+	open my $outfile, '>', $configpath.'/'.$genfilename.'/'.$ovfjfilename
 	 or return meldung(FEHLER, "Kann '$ovfjfilename' nicht schreiben: $!");
 	print $outfile "#OVFJ Datei\n";
 	foreach my $key (keys %$ovfj) {
@@ -1427,7 +1424,7 @@ sub write_ovfjfile {
 sub import_fjfile {
 	my $filename = shift;
 	my %ovfj = ( OVFJDatei => $filename );
-	open my $infile, '<', $inputpath.$sep.$genfilename.$sep.$filename
+	open my $infile, '<', $inputpath.'/'.$genfilename.'/'.$filename
 	 or return meldung(FEHLER, "Kann OVFJ Datei '$filename' nicht lesen: $!");
 	my $tp;
 	while (<$infile>) {

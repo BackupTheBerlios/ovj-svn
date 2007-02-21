@@ -117,6 +117,7 @@ sub init {
 	make_ovfj_list($mw)->grid(-sticky => 'nswe');
 	make_meldungen($mw)->grid(-sticky => 'nswe');
 
+	$OVJ::genfilename = 'Neu';
 	set_general();
 	set_patterns(OVJ::read_patterns());
 
@@ -142,7 +143,8 @@ sub make_menu {
 				[ Button => "Öffnen...", -underline => 1, -command => \&open_file_general],
 				[ Button => "Importieren...", -underline => 0, -command => \&import_file_general],
 				[ Button => "Speichern", -underline => 0, -command => \&save_file_general],
-				[ Button => "Speichern unter...", -underline => 0, -command => \&save_as_file_general],
+# "Speichern unter müsste Input-/Config-Verzeichnisse kopieren
+#				[ Button => "Speichern unter...", -underline => 0, -command => \&save_as_file_general],
 				[ Separator => "--" ],
 				[ Button => "Beenden", -underline => 0, -command => \&Leave] ] )
 );#								->pack(-side => 'left');
@@ -252,12 +254,8 @@ sub make_ovfj_list {
 	my ($col, $row) = (3, 1);
 	$fr0->Button(
 	        -text => 'OV-Wettbewerb bearbeiten',
-	        -command => sub{do_edit_ovfj(0)})
+	        -command => \&do_edit_ovfj )
 	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
-#	$fr0->Button(
-#	        -text => 'Erzeugen aus aktuellem OV-Wettbewerb',
-#	        -command => sub{do_edit_ovfj(1)})
-#	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
 	$exp_eval_button = $fr0->Button(
 	        -text => 'OV-Wettbewerb auswerten',
 	        -command => sub {
@@ -456,7 +454,7 @@ sub do_reset {
 	CheckForSaveGenfile()
 	 or return;		# Abbruch durch Benutzer
 	set_general();
-	$OVJ::genfilename = '';
+	$OVJ::genfilename = 'Neu';
 	set_general_data_label($OVJ::genfilename);
 }
 
@@ -466,10 +464,12 @@ sub set_general {
 	$orig_general{Exclude_Checkmark} ||= 0;
 	$check_ExcludeTln->{Value} = $orig_general{Exclude_Checkmark}; 
 	$orig_general{ovfj_link} ||= [];
-	$fjlistbox->selectAll();
-	$fjlistbox->deleteSelected();
-	$fjlistbox->insert('end', join("\n", @{$orig_general{ovfj_link}}));
+#	$fjlistbox->selectAll();
+#	$fjlistbox->deleteSelected();
+	$fjlistbox->Contents( join("\n", @{$orig_general{ovfj_link}}) );
 	$orig_ovfj_link = $fjlistbox->Contents();
+	$fjlistbox->markSet('insert','0.0'); # Workaround für Bug bei ersten Cursorbewegungen
+	$fjlistbox->see('insert');
 #	map { $fjlistbox->insert('end', "$_\n") } @{$general{ovfj_link}};
 	map {
 		$orig_general{$_} ||= '';
@@ -514,17 +514,20 @@ sub get_selected_ovfj {
 
 
 sub set_ovfj {
-	my $ovfjname = shift;
+	my $ovfjname = shift; # FIXME: unbenutzt, aber sinnvoll
 	%orig_ovfj = @_;
+	modify_ovfj(@_);
+}
+
+sub modify_ovfj {
+	my %new_ovfj = @_;
 if (defined $gui_ovfj{AusrichtDOK}) { #FIXME
 	map {
 		$gui_ovfj{$_}->delete(0, "end");
-		$gui_ovfj{$_}->insert(0, $orig_ovfj{$_});
+		$gui_ovfj{$_}->insert(0, $new_ovfj{$_});
 	} keys %gui_ovfj;
 	$gui_ovfj_view->configure(-state => 'normal');
-	$gui_ovfj_view->selectAll();
-	$gui_ovfj_view->deleteSelected();
-	$gui_ovfj_view->Contents(OVJ::read_ovfj_infile($orig_ovfj{OVFJDatei})) if $orig_ovfj{OVFJDatei};
+	$gui_ovfj_view->Contents(OVJ::read_ovfj_infile($new_ovfj{OVFJDatei})) if $new_ovfj{OVFJDatei};
 	$gui_ovfj_view->configure(-state => 'disabled');
 } # FIXME
 }
@@ -620,7 +623,7 @@ END_ABOUT
 # Verzeichnis durch globale Variable vorgegeben
 # Parameter: Hilfe-Datei (optional, Default: index.htm)
 sub show_help {
-	my $location = $help_dir . $OVJ::sep . (shift || 'index.htm');
+	my $location = $help_dir . '/' . (shift || 'index.htm');
 	OVJ::Browser::open($location);
 }
 
@@ -706,6 +709,25 @@ sub CheckForSaveGenfile {
 }
 
 
+#Prüfen, ob Generelle Daten verändert wurde, ohne gespeichert worden zu
+#sein
+sub CheckForGenfilename {
+	if ($OVJ::genfilename eq 'Neu') {
+		my $response = $mw->messageBox(
+			-icon    => 'question', 
+			-title   => "Generelle Daten speichern?", 
+			-message => "Die generellen Daten wurden noch nicht gespeichert.\n\n".
+						"Speichern?", 
+			-type    => 'OkCancel', 
+			-default => 'Ok');
+		if    ($response eq 'Cancel') { return 0 }
+		elsif ($response eq 'Ok')    { return save_as_file_general() }
+	}
+	
+	return 1;
+}
+
+
 #Exit Box aus dem 'Datei' Menu und 'Exit' Button
 sub Leave {
 #	return unless (CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
@@ -777,8 +799,9 @@ sub clear_meldung {
 
 #Auswahl einer Veranstaltung durch den Anwender
 sub do_edit_ovfj {
-	my ($choice) = @_;	# Beim Erzeugen: 0 = neu, 1 = aus aktuellem OV Wettbewerb. Wird durchgereicht.
 	my $ovfjname = get_selected_ovfj()
+	 or return;
+	CheckForGenfilename() 
 	 or return;
 	do_ovfj_dialog($ovfjname);
 #	CreateEdit_ovfj($ovfjname, $choice);
@@ -820,7 +843,7 @@ sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
 sub do_select_fjfile {
 	my $parent = $_[0] 
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
-	my $fjdir = $OVJ::inputpath.$OVJ::sep.$OVJ::genfilename;
+	my $fjdir = $OVJ::inputpath.'/'.$OVJ::genfilename;
 	(-e $fjdir && -d $fjdir)
 	 or return meldung(OVJ::FEHLER, "Verzeichnis '$fjdir' nicht vorhanden");
 	
@@ -838,14 +861,14 @@ sub do_select_fjfile {
 	$selfile =~ s/^.*\///;
 	my %ovfj = OVJ::import_fjfile($selfile)
 	 or return;
-	set_ovfj($selfile, %ovfj);
+	modify_ovfj(%ovfj);
 }
 
 
 sub do_import_ovfjfile {
 	my $parent = $_[0] 
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
-	my $dir = $OVJ::configpath.$OVJ::sep.$OVJ::genfilename;
+	my $dir = $OVJ::configpath.'/'.$OVJ::genfilename;
 	(-e $dir && -d $dir)
 	 or return meldung(OVJ::FEHLER, "Verzeichnis '$dir' nicht vorhanden");
 
@@ -867,8 +890,7 @@ sub do_import_ovfjfile {
 	foreach ('Datum', 'Band', 'TlnManuell', 'OVFJDatei') {
 		$ovfj{$_} = $old_ovfj{$_};
 	}
-	set_ovfj($selfile, %ovfj);
-	%orig_ovfj = %old_ovfj; # Hack: Import soll nur GUI updaten
+	modify_ovfj(%ovfj);
 }
 
 
@@ -927,7 +949,7 @@ sub save_file_general {
 
 sub save_as_file_general {
 	my $filename = shift;
-	if (! $filename) {
+	if (! $filename || $filename eq 'Neu') {
 		my $types = [['Text Files','.txt'],['All Files','*',]];
 		$filename = $mw->getSaveFile(
 			-initialdir => $OVJ::configpath,
@@ -946,6 +968,7 @@ sub save_as_file_general {
 # Auswertung und Export von OVFJ
 # Parameter: Liste der OVFJ
 sub do_eval_ovfj {
+	CheckForGenfilename() or return;
 	my $i = 1;
 	my $success = 0;
 	my $retval;
@@ -966,7 +989,7 @@ sub do_eval_ovfj {
 #		next if (OVJ::GUI::CreateEdit_ovfj($ovfjname,2)==1);
 		my %ovfj = OVJ::read_ovfjfile($ovfjname)
 		 or next;
-		set_ovfj($ovfjname, %ovfj);
+#		set_ovfj($ovfjname, %ovfj);
 		$retval = OVJ::eval_ovfj($i++,
 		  \%general,
 		  \%tn,
