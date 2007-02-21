@@ -36,8 +36,8 @@ use Carp;
 
 use Tk;
 use Tk::DialogBox;
-use Tk::NoteBook;
 use Tk::FBox;
+
 use OVJ 0.97;
 use OVJ::Browser 0.1;
 
@@ -56,16 +56,25 @@ BEGIN {
 	$REVDATE = "$4.$3.$2";
 }
 
+use constant UNNAMED => 'Unbenannt';
+
 my $help_dir = "doku";
 
 my $mw;
-my %gui_general;
 my $gui_general_label;
+my %gui_general;
+my $gui_ExcludeTln;
+my $gui_fjlist;
+my $gui_meldung;
+
+my $edit_ovfj_button;
+my $eval_ovfj_button;
+my $eval_all_button;
+
 my %gui_ovfj;
-my $gui_patterns;
 my $gui_ovfj_view;
-my $meldung;
-my $check_ExcludeTln;
+
+my $gui_patterns;
 
 my $curr_patterns;
 my $orig_patterns;
@@ -73,20 +82,11 @@ my %orig_ovfj;
 my $orig_ovfj_link;
 my %orig_general;
 
-# my %auswerthash;		# Hash zur Kontrolle, welche OVFJ schon ausgewertet sind
+=head2 sub run
 
-# use vars qw(
-my $fjlistbox;
-my $reset_eval_button;
-my $exp_eval_button;
-#my $ovfj_eval_button;
-#my $ovfj_fileset_button;
-#my $ovfj_save_button;
-#my $copy_pattern_button;
-my $select_pattern_button;
-my $ovfjnamelabel;
-#);
+Kontrollfluss an GUI übergeben.
 
+=cut
 sub run {
 	# Warnungen abfangen
 	$SIG{'__WARN__'} = sub {
@@ -94,15 +94,25 @@ sub run {
 		chomp $error;
 		meldung(OVJ::WARNUNG, $error);
 	};
+	# OVJ-Meldungen abfangen
 	OVJ::meldung_callback_add(\&meldung);
 	
 	MainLoop();
 	
-	# GUI beendet, Warnungen nicht mehr abfangen
+	# GUI beendet, Meldungen und Warnungen nicht mehr abfangen
 	OVJ::meldung_callback_remove(\&meldung);
 	delete $SIG{'__WARN__'};
 }
 
+=head2 sub init(parameter => wert, ...)
+
+GUI initialisieren.
+
+Parameter:	Parameterliste (derzeit unbenutzt)
+
+Rückgabe: ein Tk::MainWindow
+
+=cut
 sub init {
 	my %config = @_;
 	
@@ -111,69 +121,59 @@ sub init {
 	$mw->gridColumnconfigure(0, -weight => 1);
 	$mw->gridRowconfigure(2, -weight => 1);
 
-#	make_menu($mw)->grid(-sticky => 'nswe');
 	$mw->configure(-menu => make_menu($mw));
 	make_general($mw)->grid(-sticky => 'nswe');
 	make_ovfj_list($mw)->grid(-sticky => 'nswe');
 	make_meldungen($mw)->grid(-sticky => 'nswe');
 
-	$OVJ::genfilename = 'Neu';
-	set_general();
 	set_patterns(OVJ::read_patterns());
+	reset_general();
 
 	return $mw;
 }
 
 
-# Menü
+# Menü aufbauen
 sub make_menu {
 	my $parent = shift
-	  or carp "Parameter für übergeordnetes Fenster fehlt";
+	  or croak "Parameter für übergeordnetes Fenster fehlt";
 	
-#my $menu_bar = $parent->Frame(-relief => 'raised', -borderwidth => 1);
-	my $menu_bar = $parent->Menu( -type=>'menubar' );#, -menuitems => [
-#		[ Menubutton => "Hilfe", -underline => 1, -menuitems => [
-#			[ Button => "Über OVJ...", -underline => 1,-command => \&About] 
-#		] ]
-# 	]);
-	
+	my $menu_bar = $parent->Menu( -type=>'menubar' );
 	$menu_bar->add('cascade', -label => 'Datei', -underline => 0, -menu => 
-		my $file_menu = $menu_bar->Menu( -tearoff => 0, -menuitems => [
-				[ Button => "Neu", -underline => 0, -command => \&do_reset],
-				[ Button => "Öffnen...", -underline => 1, -command => \&open_file_general],
-				[ Button => "Importieren...", -underline => 0, -command => \&import_file_general],
-				[ Button => "Speichern", -underline => 0, -command => \&save_file_general],
-# "Speichern unter müsste Input-/Config-Verzeichnisse kopieren
-#				[ Button => "Speichern unter...", -underline => 0, -command => \&save_as_file_general],
-				[ Separator => "--" ],
-				[ Button => "Beenden", -underline => 0, -command => \&Leave] ] )
-);#								->pack(-side => 'left');
-#	$menu_bar->Menubutton(-text => 'Hilfe', -underline => 0, , -menuitems => [
+		$menu_bar->Menu( -tearoff => 0, -menuitems => [
+			[ Button => "Neu", -underline => 0, -command => \&reset_general],
+			[ Button => "Öffnen...", -underline => 1, -command => \&open_file_general],
+			[ Button => "Importieren...", -underline => 0, -command => \&import_file_general],
+			[ Button => "Speichern", -underline => 0, -command => \&save_file_general],
+			# "Speichern unter" müsste Input-/Config-Verzeichnisse kopieren
+			# [ Button => "Speichern unter...", -underline => 0, -command => \&save_as_file_general],
+			[ Separator => "--" ],
+			[ Button => "Beenden", -underline => 0, -command => \&Leave] 
+		] )
+	);
 	$menu_bar->add('cascade', -label => 'Hilfe', -underline => 0, -menu => 
 		$menu_bar->Menu( -tearoff => 0, -menuitems => [
-				[ Button => "Hilfethemen", -underline => 0,-command => \&show_help],
-				[ Separator => "--" ],
-				[ Button => "Über OVJ...", -underline => 1,-command => \&About] ])
-);#								->pack(-side => 'left');
-#	$menu_bar->Label(-text => OVJ::ovjinfo($REVISION, $REVDATE))->pack();
-#	$parent->bind('<Alt-d>', sub { $menu_bar->invoke() });
+			[ Button => "Hilfethemen", -underline => 0,-command => \&show_help],
+			[ Separator => "--" ],
+			[ Button => "Über OVJ", -underline => 1,-command => \&About] 
+		] )
+	);
 	return $menu_bar;
 }
     
 # Allgemeine Daten
 sub make_general {
 	my $parent = shift
-	  or carp "Parameter für übergeordnetes Fenster fehlt";
+	  or croak "Parameter für übergeordnetes Fenster fehlt";
 
 	my $fr00 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
 	my $fr0 = $fr00->Frame()->pack(-fill => 'both', -padx => 5, -pady => 5);
 
 	$fr0->gridColumnconfigure([1,4,7], -weight => 1);
 	$fr0->gridColumnconfigure([2,5,8], -minsize => 15);
-#	$fr0->gridRowconfigure([1,4], -pad => 15);
 	my $all_columns = 11;
 
-	$gui_general_label = $fr0->Label(-text => 'OV-Jahresauswertung: Neu', -anchor => 'w')->grid(
+	$gui_general_label = $fr0->Label(-text => 'OV-Jahresauswertung', -anchor => 'w')->grid(
 	'-','-','-','-','-','-','-','-',
 	$fr0->Button(
 	        -text => 'Hilfe',
@@ -224,9 +224,9 @@ sub make_general {
 	$gui_general{Spitznamen} = $fr0->Entry(-width => 15),
 	-sticky => 'we');
 
-	$check_ExcludeTln = $fr0->Checkbutton(
+	$gui_ExcludeTln = $fr0->Checkbutton(
 		-text => "Beim Export Teilnehmer ohne offizielle Veranstaltung im akt. Jahr ausschliessen")
-	  ->grid(-sticky => 'w', -columnspan => $all_columns);
+	  ->grid('-','-','-','-','-','-','-','-','-','-',-sticky => 'w');
 	
 	return $fr00;
 }
@@ -234,7 +234,7 @@ sub make_general {
 # Liste der OV-Wettbewerbe
 sub make_ovfj_list {
 	my $parent = shift
-	  or carp "Parameter für übergeordnetes Fenster fehlt";
+	  or croak "Parameter für übergeordnetes Fenster fehlt";
 	
 	my $fr00 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
 	my $fr0 = $fr00->Frame()->pack(-fill => 'both', -padx => 5, -pady => 5);
@@ -247,36 +247,34 @@ sub make_ovfj_list {
 	$fr0->Label(-text => 'Liste der OV-Wettbewerbe')
 	  ->grid(-sticky => 'nw', -columnspan => 3);
 	
-	$fjlistbox = $fr0->Scrolled('Text',
+	$gui_fjlist = $fr0->Scrolled('Text',
 		-scrollbars =>'oe',width => 30, height => 7)
 	  ->grid(-row => 1, -column => 1, -sticky => 'wens', -rowspan => 4);
 	
 	my ($col, $row) = (3, 1);
-	$fr0->Button(
+	$edit_ovfj_button = $fr0->Button(
 	        -text => 'OV-Wettbewerb bearbeiten',
-	        -command => \&do_edit_ovfj )
+	        -command => \&do_edit_ovfj,
+	        -state => 'disabled')
 	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
-	$exp_eval_button = $fr0->Button(
+	$eval_ovfj_button = $fr0->Button(
 	        -text => 'OV-Wettbewerb auswerten',
 	        -command => sub {
 				my $ovfjname = get_selected_ovfj()
 				 or return;
 				do_eval_ovfj($ovfjname);
-			} )
-#	        -state => 'disabled')
+			},
+	        -state => 'disabled')
 	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
 	$row++;
-	$fr0->Button(
+	$eval_all_button = $fr0->Button(
 	        -text => 'Jahresauswertung erstellen',
 	        -command => sub{ 
 				my %general = get_general();
-				do_eval_ovfj(@{$general{ovfj_link}})})
+				do_eval_ovfj( @{$general{ovfj_link}} )
+			},
+	        -state => 'disabled')
 	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
-#	$reset_eval_button = $fr0->Button(
-#	        -text => 'Auswertung im Speicher löschen',
-#	        -command => \&do_reset_eval,
-#	        -state => 'disabled')
-#	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
 	
 	return $fr00;
 }
@@ -285,14 +283,13 @@ sub make_ovfj_list {
 # Wettbewerbsdaten
 sub make_ovfj_detail {
 	my $parent = shift
-	  or carp "Parameter für übergeordnetes Fenster fehlt";
+	  or croak "Parameter für übergeordnetes Fenster fehlt";
 	
 	my $fr0 = $parent->Frame();
 	$fr0->gridColumnconfigure([1,4,7], -weight => 1);
 	$fr0->gridColumnconfigure([2,5,8], -minsize => 15);
 	$fr0->gridRowconfigure([5], -weight => 1);
 
-#	$ovfj_fileset_button = $fr0->Button(
 	$fr0->Button(
 	        -text => 'Ergebnisliste',
 	        -state => 'normal',
@@ -334,7 +331,7 @@ sub make_ovfj_detail {
 	$gui_ovfj{Verantw_GebJahr} = $fr0->Entry(-width => 4),
 	-sticky => 'we');
 
-	$select_pattern_button = $fr0->Button(
+	$fr0->Button(
 		-text    => 'Muster', 
 		-state   => 'normal',
 		-command => sub { do_pattern_dialog($parent) } ) ->grid(
@@ -353,13 +350,13 @@ sub make_ovfj_detail {
 # Statusmeldungen
 sub make_meldungen {
 	my $parent = shift
-	  or carp "Parameter für übergeordnetes Fenster fehlt";
+	  or croak "Parameter für übergeordnetes Fenster fehlt";
 	
 	my $fr5 = $parent->Frame(-borderwidth => 1, -relief => 'raised');
 	$fr5->gridColumnconfigure(0, -weight => 1);
 	$fr5->gridRowconfigure(1, -weight => 1);
 	$fr5->Label(-text => 'Meldungen')->grid(-stick => "w");
-	$meldung = $fr5->Scrolled('Listbox',-scrollbars =>'e',-width => 80, -height => 6)
+	$gui_meldung = $fr5->Scrolled('Listbox',-scrollbars =>'e',-width => 80, -height => 6)
 	  ->grid(-stick => "nswe");
 	return $fr5;
 }
@@ -374,7 +371,11 @@ sub do_pattern_dialog {
 	# http://www.annocpan.org/~NI-S/Tk-804.027/pod/DialogBox.pod
 	$dlg->protocol( WM_DELETE_WINDOW => sub { 
 		$dlg->{selected_button} = 'Abbrechen' } );
-	my $textbox = $dlg->add('Scrolled','Text',-wrap=>'none',-scrollbars =>'osoe',-width => 80, -height => 6)
+	my $textbox = $dlg->add('Scrolled', 'Text', 
+		-wrap => 'none',
+		-scrollbars => 'osoe',
+		-width => 80, 
+		-height => 6)
 	  ->pack(-fill => 'both', -expand => 1);
 	$textbox->Contents($orig_patterns);
 	while (1) {
@@ -387,8 +388,8 @@ sub do_pattern_dialog {
 				$pattern =~ s/\/\/.*$//;	# Entferne Kommentare beim Kopieren
 				$pattern =~ s/\s+$//;		# Entferne immer Leerzeichen nach dem Muster
 				my %ovfj_tmp = get_ovfj();
-				$gui_ovfj{Auswertungsmuster}->delete(0, "end");
-				$gui_ovfj{Auswertungsmuster}->insert(0, $pattern);
+				$ovfj_tmp{Auswertungsmuster} = $pattern;
+				modify_ovfj(%ovfj_tmp);
 			}
 		}
 		elsif ($sel eq 'Speichern') {
@@ -417,8 +418,10 @@ sub do_ovfj_dialog {
 	# http://www.annocpan.org/~NI-S/Tk-804.027/pod/DialogBox.pod
 	$dlg->protocol( WM_DELETE_WINDOW => sub { 
 		$dlg->{selected_button} = 'Abbrechen' } );
-	my $fr = $dlg->add('Frame', -relief => 'flat')->pack(-fill => 'both', -expand => 1);
-	make_ovfj_detail($fr)->pack(-fill => 'both', -expand=>1);
+	my $fr = $dlg->add('Frame', -relief => 'flat')
+	  ->pack(-fill => 'both', -expand => 1);
+	make_ovfj_detail($fr)
+	  ->pack(-fill => 'both', -expand => 1);
 	
 	if (OVJ::exist_ovfjfile($ovfjname)) {
 		set_ovfj($ovfjname, OVJ::read_ovfjfile($ovfjname));
@@ -450,40 +453,29 @@ sub do_ovfj_dialog {
 	}
 }
 
-sub do_reset {
-	CheckForSaveGenfile()
-	 or return;		# Abbruch durch Benutzer
-	set_general();
-	$OVJ::genfilename = 'Neu';
-	set_general_data_label($OVJ::genfilename);
+sub reset_general {
+	set_general() if CheckForSaveGenfile();
 }
 
 sub set_general {
-#	return unless @_;
-	%orig_general = @_;
-	$orig_general{Exclude_Checkmark} ||= 0;
-	$check_ExcludeTln->{Value} = $orig_general{Exclude_Checkmark}; 
-	$orig_general{ovfj_link} ||= [];
-#	$fjlistbox->selectAll();
-#	$fjlistbox->deleteSelected();
-	$fjlistbox->Contents( join("\n", @{$orig_general{ovfj_link}}) );
-	$orig_ovfj_link = $fjlistbox->Contents();
-	$fjlistbox->markSet('insert','0.0'); # Workaround für Bug bei ersten Cursorbewegungen
-	$fjlistbox->see('insert');
-#	map { $fjlistbox->insert('end', "$_\n") } @{$general{ovfj_link}};
-	map {
-		$orig_general{$_} ||= '';
-		$gui_general{$_}->delete(0, "end");
-		$gui_general{$_}->insert(0, $orig_general{$_});
-	} keys %gui_general;
-	do_reset_eval();
-#	$ovfj_eval_button->configure(-state => 'disabled');
-#	$ovfj_fileset_button->configure(-state => 'disabled');
-#	$ovfj_save_button->configure(-state => 'disabled');
-#	$copy_pattern_button->configure(-state => 'disabled');
-#	$select_pattern_button->configure(-state => 'disabled');
-#	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ");
+	set_genfilename(shift);
+	modify_general(@_);
+	%orig_general = get_general();
+	$orig_ovfj_link = $gui_fjlist->Contents();
 	return 1;
+}
+
+sub modify_general {
+	my %new_general = @_;
+	$gui_ExcludeTln->{Value} = $new_general{Exclude_Checkmark} || 0; 
+	$new_general{ovfj_link} ||= [];
+	$gui_fjlist->Contents( join("\n", @{$new_general{ovfj_link}}) );
+	$gui_fjlist->markSet('insert','0.0'); # Workaround für Bug bei ersten Cursorbewegungen
+	$gui_fjlist->see('insert');
+	map {
+		$gui_general{$_}->delete(0, "end");
+		$gui_general{$_}->insert(0, $new_general{$_} || '');
+	} keys %gui_general;
 }
 
 #Aktualisieren der aktuellen Generellen Daten im Hash
@@ -492,75 +484,73 @@ sub get_general {
 	while (my ($key,$value) = each(%gui_general)) {
 		$general{$key} = $value->get();
 	}
-	$general{Exclude_Checkmark} = $check_ExcludeTln->{Value};
-	@{$general{ovfj_link}} = split "\n", $fjlistbox->Contents();
+	$general{Exclude_Checkmark} = $gui_ExcludeTln->{Value};
+	@{$general{ovfj_link}} = split "\n", $gui_fjlist->Contents();
 	return %general;
 }
 
 # Test auf Änderungen
 sub general_modified {
 	defined $orig_general{ovfj_link} or return;
-	$orig_general{Exclude_Checkmark} ne $check_ExcludeTln->{Value}
+	$orig_general{Exclude_Checkmark} ne $gui_ExcludeTln->{Value}
 	or grep {
 		$gui_general{$_}->get() ne ($orig_general{$_} || "");
 	} keys %gui_general
-	or $orig_ovfj_link ne $fjlistbox->Contents();
+	or $orig_ovfj_link ne $gui_fjlist->Contents();
 }
 
 
 sub get_selected_ovfj {
-	return get_selected($fjlistbox);
+	return get_selected($gui_fjlist);
 }
 
 
 sub set_ovfj {
-	my $ovfjname = shift; # FIXME: unbenutzt, aber sinnvoll
-	%orig_ovfj = @_;
+	my $ovfjname = shift; # FIXME: unbenutzt, aber evt. sinnvoll
 	modify_ovfj(@_);
+	%orig_ovfj = get_ovfj();
+	return 1;
 }
 
 sub modify_ovfj {
 	my %new_ovfj = @_;
-if (defined $gui_ovfj{AusrichtDOK}) { #FIXME
-	map {
-		$gui_ovfj{$_}->delete(0, "end");
-		$gui_ovfj{$_}->insert(0, $new_ovfj{$_});
-	} keys %gui_ovfj;
-	$gui_ovfj_view->configure(-state => 'normal');
-	$gui_ovfj_view->Contents(OVJ::read_ovfj_infile($new_ovfj{OVFJDatei})) if $new_ovfj{OVFJDatei};
-	$gui_ovfj_view->configure(-state => 'disabled');
-} # FIXME
+	# GUI schon initialisiert ?
+	if (defined $gui_ovfj{AusrichtDOK}) { 
+		map {
+			$gui_ovfj{$_}->delete(0, "end");
+			$gui_ovfj{$_}->insert(0, $new_ovfj{$_} || '');
+		} keys %gui_ovfj;
+		$gui_ovfj_view->configure(-state => 'normal');
+		$gui_ovfj_view->Contents(
+			$new_ovfj{OVFJDatei} ? OVJ::read_ovfj_infile($new_ovfj{OVFJDatei}) : '' );
+		$gui_ovfj_view->configure(-state => 'disabled');
+	}
+	return 1;
 }
 
 sub get_ovfj {
 	my %ovfj;
-if (defined $gui_ovfj{AusrichtDOK}) { #FIXME
-	while (my ($key,$value) = each(%gui_ovfj)) {
-		$ovfj{$key} = $value->get();
+	# GUI schon initialisiert ?
+	if (defined $gui_ovfj{AusrichtDOK}) { 
+		while (my ($key,$value) = each(%gui_ovfj)) {
+			$ovfj{$key} = $value->get();
+		}
+		foreach my $key (qw(AusrichtDOK Verantw_CALL Verantw_DOK)) {
+			$ovfj{$key} = uc $ovfj{$key};
+		}
 	}
-	foreach my $key (qw(AusrichtDOK Verantw_CALL Verantw_DOK)) {
-		$ovfj{$key} = uc $ovfj{$key};
-	}
-} # FIXME
 	return %ovfj;
 }
 
 # Test auf Änderungen
 sub ovfj_modified {
-	return unless defined $gui_ovfj{AusrichtDOK}; #FIXME
+	# GUI schon initialisiert ?
+	return unless defined $gui_ovfj{AusrichtDOK};
 	grep {
 		$gui_ovfj{$_}->get ne ($orig_ovfj{$_} || "");
 	} keys %gui_ovfj;
 }
 
-sub clear_ovfj {
-	while (my ($key,$value) = each(%gui_ovfj)) {
-		$value->delete(0, 'end');
-	}
-	%orig_ovfj = ();
-}
-
-# FIXME: Unify file selection code
 
 #Auswahl der Spitznamen Datei per Button
 sub do_get_nickfile {
@@ -591,10 +581,14 @@ sub do_select_pmfile {
 	}
 }
 
-sub set_general_data_label {
-	my $label = "OV-Jahresauswertung: ";
-	$label .= (@_ && $_[0]) ? $_[0] : 'Neu';
-	$gui_general_label->configure(-text => $label);
+sub set_genfilename {
+	$OVJ::genfilename = shift || UNNAMED;
+	$gui_general_label->configure(
+		-text => "OV-Jahresauswertung: $OVJ::genfilename" );
+	my $button_state = ($OVJ::genfilename ne UNNAMED) ? 'normal' : 'disabled';
+	foreach ($edit_ovfj_button, $eval_ovfj_button, $eval_all_button) {
+		$_->configure(-state => $button_state);
+	}
 }
 
 #Über Box aus dem 'Hilfe' Menu
@@ -712,7 +706,7 @@ sub CheckForSaveGenfile {
 #Prüfen, ob Generelle Daten verändert wurde, ohne gespeichert worden zu
 #sein
 sub CheckForGenfilename {
-	if ($OVJ::genfilename eq 'Neu') {
+	if ($OVJ::genfilename eq UNNAMED) {
 		my $response = $mw->messageBox(
 			-icon    => 'question', 
 			-title   => "Generelle Daten speichern?", 
@@ -728,10 +722,8 @@ sub CheckForGenfilename {
 }
 
 
-#Exit Box aus dem 'Datei' Menu und 'Exit' Button
+#Datei/Beenden oder Fenster schließen
 sub Leave {
-#	return unless (CheckForOverwriteOVFJ());	# Abbruch durch Benutzer
-#	return unless (CheckForUnsavedPatterns());	# Abbruch durch Benutzer
 	return unless (CheckForSaveGenfile());		# Abbruch durch Benutzer
 	$mw->destroy();
 }
@@ -748,7 +740,7 @@ sub meldung {
 	elsif ($type eq OVJ::WARNUNG) { $err_icon = 'warning' }
 
 	if ($err_icon) {
-		$meldung->insert('end', "$type: $message");
+		$gui_meldung->insert('end', "$type: $message");
 		$mw->messageBox(
 			-icon    => $err_icon, 
 			-title   => $type, 
@@ -757,13 +749,17 @@ sub meldung {
 	}
 	else {
 		# Einfache Meldung
-		$meldung->insert('end', "$message");
+		$gui_meldung->insert('end', "$message");
 	}
-	$meldung->see('end');
-	$meldung->update();
+	$gui_meldung->see('end');
+	$gui_meldung->update();
 
 	return if ($type eq OVJ::FEHLER);
 	return 1;
+}
+
+sub clear_meldung {
+	$gui_meldung->delete(0,"end");
 }
 
 # Bestimmt einzelne ausgewählte Zeile aus Tk::Text
@@ -785,18 +781,6 @@ sub get_selected {
 	return $selected;
 }
 
-#Löschen aller Auswertungen im Speicher
-sub do_reset_eval {
-#	undef %auswerthash;
-	clear_ovfj();
-#	$ovfj_eval_button->configure(-state => 'normal');
-#	$exp_eval_button->configure(-state => 'disabled');
-}
-
-sub clear_meldung {
-	$meldung->delete(0,"end");
-}
-
 #Auswahl einer Veranstaltung durch den Anwender
 sub do_edit_ovfj {
 	my $ovfjname = get_selected_ovfj()
@@ -804,37 +788,6 @@ sub do_edit_ovfj {
 	CheckForGenfilename() 
 	 or return;
 	do_ovfj_dialog($ovfjname);
-#	CreateEdit_ovfj($ovfjname, $choice);
-}
-
-#Anlegen bzw. Editieren einer OVFJ Veranstaltung
-sub CreateEdit_ovfj { # Rueckgabewert: 0 = Erfolg, 1 = Misserfolg
-	my ($ovfjf_name,$choice) = @_;	# Beim Erzeugen: 0 = neu, 1 = aus aktuellem OV Wettbewerb, 
-												# 2 = explizites Laden aus Auswertungsschleife heraus
-	CheckForOverwriteOVFJ()
-	 or return;	# Abbruch durch Benutzer
-	$ovfjnamelabel->configure(-text => "OV Wettbewerb: ".$ovfjf_name);
-	my $ovfjfilename = $ovfjf_name;
-#	$::ovfjrepfilename = $ovfjf_name."_report_ovj.txt";
-#	if (-e $configpath.$sep.$OVJ::genfilename.$sep.$ovfjfilename) {
-		if (my %ovfj = OVJ::read_ovfjfile($ovfjfilename)) {
-			set_ovfj($ovfjfilename, %ovfj);
-		}
-		elsif ($choice == 0) {
-			clear_ovfj();
-		}
-		else {
-			# FIXME: Meldung aus OVJ.pm umleiten
-			meldung(OVJ::FEHLER, "Kann '$ovfjfilename' nicht lesen: $!");
-			return 1;
-		}
-#	$ovfj_fileset_button->configure(-state => 'normal');
-#	$ovfj_save_button->configure(-state => 'normal');
-#	$copy_pattern_button->configure(-state => 'normal');
-#	$select_pattern_button->configure(-state => 'normal');
-#	$ovfj_eval_button->configure(-state => 'normal');
-#	$exp_eval_button->configure(-state => 'normal');
-#		exists($auswerthash{$ovfjf_name}) ? 'disabled' : 'normal' );
 }
 
 
@@ -907,17 +860,13 @@ sub open_file_general {
 			-filetypes  => $types,
 			-title      => "Generelle Daten laden");
 		return unless $filename;
-		$filename =~ s/^.*\///;		# Pfadangaben entfernen
-		$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
+		$filename =~ s(^.*/([^/]+)/.*$)($1);	# tiefster Verzeichnisname
 	}
-	clear_meldung();
-	meldung(OVJ::HINWEIS,"Lade '$filename'");
-	set_general(OVJ::read_genfile($filename))
-	 or return;
-	$OVJ::genfilename = $filename;
-	set_general_data_label($OVJ::genfilename);
-# FIXME:	$config{"LastGenFile"} = $OVJ::genfilename;
-	return 1;
+	if ($filename ne UNNAMED) {
+		clear_meldung();
+		meldung(OVJ::HINWEIS,"Lade '$filename'");
+		set_general($filename, OVJ::read_genfile($filename));
+	}
 }
 
 sub import_file_general {
@@ -937,9 +886,7 @@ sub import_file_general {
 	$general{Jahr} = $general_alt{Jahr};
 	$general{PMVorjahr} = $general_alt{PMVorjahr};
 	$general{PMaktJahr} = $general_alt{PMaktJahr};
-	set_general(%general);
-	set_general_data_label($OVJ::genfilename);
-# FIXME:	$config{"LastGenFile"} = $OVJ::genfilename;
+	modify_general(%general);
 	return 1;
 }
 
@@ -949,7 +896,7 @@ sub save_file_general {
 
 sub save_as_file_general {
 	my $filename = shift;
-	if (! $filename || $filename eq 'Neu') {
+	if (! $filename || $filename eq UNNAMED) {
 		my $types = [['Text Files','.txt'],['All Files','*',]];
 		$filename = $mw->getSaveFile(
 			-initialdir => $OVJ::configpath,
@@ -958,11 +905,10 @@ sub save_as_file_general {
 		return unless $filename;
 		$filename =~ s/^.*\///;		# Pfadangaben entfernen
 		$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
-		set_general_data_label($filename);
 	}
+	set_genfilename($filename);
 	meldung(OVJ::HINWEIS, "Speichere '$filename'");
-	$OVJ::genfilename = $filename;
-	OVJ::write_genfile($OVJ::genfilename, get_general());
+	OVJ::write_genfile($filename, get_general());
 }
 
 # Auswertung und Export von OVFJ
@@ -974,7 +920,6 @@ sub do_eval_ovfj {
 	my $retval;
 	
 	$mw->Busy();
-	do_reset_eval();
 	my %general = get_general();
 	my %tn;					# Hash für die Teilnehmer, Elemente sind wiederum Hashes
 	my @ovfjlist;			# Liste aller ausgewerteten OV FJ mit Details der Kopfdaten
@@ -986,10 +931,8 @@ sub do_eval_ovfj {
 		my $ovfjname = $str;
 		my $ovfjrepfilename = $str . "_report_ovj.txt";
 		next if ($ovfjname !~ /\S+/);
-#		next if (OVJ::GUI::CreateEdit_ovfj($ovfjname,2)==1);
 		my %ovfj = OVJ::read_ovfjfile($ovfjname)
 		 or next;
-#		set_ovfj($ovfjname, %ovfj);
 		$retval = OVJ::eval_ovfj($i++,
 		  \%general,
 		  \%tn,
