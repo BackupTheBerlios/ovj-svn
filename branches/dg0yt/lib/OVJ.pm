@@ -1336,7 +1336,7 @@ sub write_genfile {
 sub meldung { 
 	my $level = shift;
 	my $message = shift;
-	carp "$level: $message" if ($level eq WARNUNG || $level eq FEHLER);
+	print STDERR "$level: $message" if ($level eq WARNUNG || $level eq FEHLER);
 	foreach (@meldung_callback) {
 		&$_($level, $message);
 	}
