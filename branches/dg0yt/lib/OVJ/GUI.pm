@@ -36,7 +36,7 @@ use Carp;
 
 use Tk;
 use Tk::DialogBox;
-use Tk::FBox;
+require Tk::FBox if ($^O !~ /MSwin32/);
 
 use OVJ 0.97;
 use OVJ::Browser 0.1;
@@ -390,6 +390,7 @@ sub do_pattern_dialog {
 				my %ovfj_tmp = get_ovfj();
 				$ovfj_tmp{Auswertungsmuster} = $pattern;
 				modify_ovfj(%ovfj_tmp);
+				last;
 			}
 		}
 		elsif ($sel eq 'Speichern') {
@@ -801,14 +802,18 @@ sub do_select_fjfile {
 	 or return meldung(OVJ::FEHLER, "Verzeichnis '$fjdir' nicht vorhanden");
 	
 	my $types = [['Text Files','.txt'],['All Files','*',]];
-	# Unter KDE/Linux öffnet getOpenFile sein Fenster hinter 
-	# den anderen OVJ-Fenstern ... Tk::Fbox tut das selbe, aber richtig
+	# Unter KDE/Linux öffnet getOpenFile sein Fenster *hinter* 
+	# den anderen OVJ-Fenstern ... 
+	# Tk::Fbox tut das selbe unter KDE problemlos,
+	# wird aber von pp unter Windows nicht ordentlich in eine .exe-Datei gepackt
 	# http://www.perltk.org/index.php?option=com_content&task=view&id=21&Itemid=28
-	#my $selfile = $parent->getOpenFile(
-	my $selfile = $parent->FBox(-type => 'open')->Show(
+	my %dialog_options = (
 		-initialdir => $fjdir,
 		-filetypes  => $types,
 		-title      => "FJ Datei auswählen");
+	my $selfile = ($^O =~ /MSWin32/) ?
+		$parent->getOpenFile(%dialog_options) :
+		$parent->FBox(-type => 'open')->Show(%dialog_options);
 	return unless ($selfile && $selfile ne "");
 
 	$selfile =~ s/^.*\///;
