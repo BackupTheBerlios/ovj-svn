@@ -1,3 +1,8 @@
+#
+# $Id$
+#
+# Copyright 2007 by Kai Pastor <dg0yt AT darc DOT de>
+
 use strict;
 use warnings FATAL => qw(all);
 
