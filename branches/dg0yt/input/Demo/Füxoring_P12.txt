@@ -1,0 +1,35 @@
+Ergebnisliste des 1. OV-P12-Foxoring
+
+Datum: 19.08.2006
+Band: 80m
+Sender: 12
+Laufzeitlimit: keines, aber Zieleinlauf bis 16.00Uhr
+Ort: Schönbuch bei Tübingen-Hagelloch, Parkplatz Bogentor
+Ausrichter: Matthias Kühlewein, DL3SDO, DOK P12
+Teilnehmerzahl: 15
+Laufstrecke: ca. 6 - 6,5 km
+
+Gelände: langgedehnte wie auch steile Steigungen, 
+         Höhenprofil von 425m - 515m, Start bei 470m
+         Steigungen und Gefälle insgesamt je ca. 210m
+Wetter:  warm, trocken, erste Regentropfen bei der Siegerehrung
+Technik: Tinyfox 80m Transmitter
+
+Platz Name                     Rufzeichen DOK   Baken  Laufzeit
+----------------------------------------------------------------
+    1 Barth, Wolf-Dietrich     DK7TD      P60      12     48:08
+    2 Gartner, Bernhard        DF7SF      P11      12     48:46
+    3 Jurtz, Klaus-Dieter        -         -       12     51:33
+    4 Roethe, Nick             DF1FO      F13      12     54:36  
+    5 Timm, Ulrich             DK2MF       -       12     66:26
+    6 Berger, Michael          DF7SA      P02      12     70:21
+    7 Ebert, Anke              DL9OCA     P60      12     70:28
+    8 Roethe, Brigitte           -         -       12     73:40
+    9 Stadler, Ewald           DJ2UE      P18      12     78:10
+   10 Schoor, Ulrich           DF6TZ      P06      12     84:21
+   11 Stadler, Helga           DK7SC      P18      11    129:20
+   12 Dettling, Brunhilde      DD9GC      P12      11    129:37
+<Keine Sonderpunkte>
+      Eipper, Ernst            DH1EE      P18      12     53:40 a.L.
+      Eipper, Carmen           DH3SC      P18      12     65:54 a.L.
+      Eipper, Jens                -       P18      12     65:55 a.L.
