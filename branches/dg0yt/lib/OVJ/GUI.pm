@@ -60,6 +60,9 @@ use constant UNNAMED => 'Unbenannt';
 
 my $help_dir = "doku";
 
+# Pfadseparator für "initialdir" der Tk-Dialoge; Perl selbst genügt '/'
+my $sep = $^O =~ /MSWin32/ ? '\\' : '/';
+
 my $mw;
 my $gui_general_label;
 my %gui_general;
@@ -225,7 +228,7 @@ sub make_general {
 	-sticky => 'we');
 
 	$gui_ExcludeTln = $fr0->Checkbutton(
-		-text => "Beim Export Teilnehmer ohne offizielle Veranstaltung im akt. Jahr ausschliessen")
+		-text => "Teilnehmer ohne offizielle Veranstaltung im aktuellen Jahr nicht exportieren")
 	  ->grid('-','-','-','-','-','-','-','-','-','-',-sticky => 'w');
 	
 	return $fr00;
@@ -366,7 +369,8 @@ sub do_pattern_dialog {
 	my $dlg = $parent->DialogBox(
 	  -title          => 'Musterkatalog',
 	  -buttons        => ['Übernehmen', 'Speichern', 'Hilfe', 'Abbrechen'],
-	  -default_button => 'Abbrechen',
+	  -default_button => '', # Kein Default-Button,
+	                         # da sonst Return-Taste nicht verwendbar
 	);
 	# http://www.annocpan.org/~NI-S/Tk-804.027/pod/DialogBox.pod
 	$dlg->protocol( WM_DELETE_WINDOW => sub { 
@@ -797,11 +801,10 @@ sub do_edit_ovfj {
 sub do_select_fjfile {
 	my $parent = $_[0] 
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
-	my $fjdir = $OVJ::inputpath.'/'.$OVJ::genfilename;
+	my $fjdir = $OVJ::inputpath.$sep.$OVJ::genfilename;
 	(-e $fjdir && -d $fjdir)
 	 or return meldung(OVJ::FEHLER, "Verzeichnis '$fjdir' nicht vorhanden");
 	
-	my $types = [['Text Files','.txt'],['All Files','*',]];
 	# Unter KDE/Linux öffnet getOpenFile sein Fenster *hinter* 
 	# den anderen OVJ-Fenstern ... 
 	# Tk::Fbox tut das selbe unter KDE problemlos,
@@ -809,7 +812,7 @@ sub do_select_fjfile {
 	# http://www.perltk.org/index.php?option=com_content&task=view&id=21&Itemid=28
 	my %dialog_options = (
 		-initialdir => $fjdir,
-		-filetypes  => $types,
+		-filetypes  => [['Text Files','.txt'],['All Files','*',]],
 		-title      => "FJ Datei auswählen");
 	my $selfile = ($^O =~ /MSWin32/) ?
 		$parent->getOpenFile(%dialog_options) :
@@ -826,19 +829,22 @@ sub do_select_fjfile {
 sub do_import_ovfjfile {
 	my $parent = $_[0] 
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
-	my $dir = $OVJ::configpath.'/'.$OVJ::genfilename;
+	my $dir = $OVJ::configpath.$sep.$OVJ::genfilename;
 	(-e $dir && -d $dir)
 	 or return meldung(OVJ::FEHLER, "Verzeichnis '$dir' nicht vorhanden");
 
-	my $types = [['OVJ Files','*_ovj.txt'],['All Files','*',]];
-	# Unter KDE/Linux öffnet getOpenFile sein Fenster hinter 
-	# den anderen OVJ-Fenstern ... Tk::Fbox tut das selbe, aber richtig
+	# Unter KDE/Linux öffnet getOpenFile sein Fenster *hinter* 
+	# den anderen OVJ-Fenstern ... 
+	# Tk::Fbox tut das selbe unter KDE problemlos,
+	# wird aber von pp unter Windows nicht ordentlich in eine .exe-Datei gepackt
 	# http://www.perltk.org/index.php?option=com_content&task=view&id=21&Itemid=28
-	#my $selfile = $parent->getOpenFile(
-	my $selfile = $parent->FBox(-type => 'open')->Show(
+	my %dialog_options = (
 		-initialdir => $dir,
-		-filetypes  => $types,
+		-filetypes  => [['Text Files','*_ovj.txt'],['All Files','*',]],
 		-title      => "OVFJ Datei auswählen");
+	my $selfile = ($^O =~ /MSWin32/) ?
+		$parent->getOpenFile(%dialog_options) :
+		$parent->FBox(-type => 'open')->Show(%dialog_options);
 	return unless ($selfile && $selfile ne "");
 
 #	$selfile =~ s/^.*\///;
