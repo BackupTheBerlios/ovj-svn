@@ -228,7 +228,7 @@ sub make_general {
 	-sticky => 'we');
 
 	$gui_ExcludeTln = $fr0->Checkbutton(
-		-text => "Teilnehmer ohne offizielle Veranstaltung im aktuellen Jahr nicht exportieren")
+		-text => "Beim Export Teilnehmer ohne offizielle Veranstaltung im aktuellen Jahr ausschliessen")
 	  ->grid('-','-','-','-','-','-','-','-','-','-',-sticky => 'w');
 	
 	return $fr00;
