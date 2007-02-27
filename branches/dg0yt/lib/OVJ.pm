@@ -1436,13 +1436,13 @@ sub import_fjfile {
 			$ovfj{AusrichtOV} = $tp;
 			next;
 		}
-		if (/^DOK:\s*([A-Z]\d{2})$/i) { # Case insensitive
+		if (/^DOK:\s*([A-Z]\d{2})/i) { # Case insensitive
 			$tp = uc($1);
 			$tp =~ s/\s+$//;
 			$ovfj{AusrichtDOK} = $tp;
 			next;
 		}
-		if (/^Datum:\s*(\d{1,2}\.\d{1,2}\.\d{2,4})$/) {
+		if (/^Datum:\s*(\d{1,2}\.\d{1,2}\.\d{2,4})/) {
 			$tp = $1;
 			$tp =~ s/\s+$//;
 			$ovfj{Datum} = $tp;
@@ -1454,10 +1454,10 @@ sub import_fjfile {
 			$tp =~ tr/,/ /;
 			my @fi = split(/\s+/, $tp);
 			$ovfj{Verantw_Vorname} = $fi[0] if (@fi >= 1);
-			$ovfj{Verantw_Name} = $fi[0] if (@fi >= 2);
-			$ovfj{Verantw_CALL} = $fi[0] if (@fi >= 3);
-			$ovfj{Verantw_DOK} = $fi[0] if (@fi >= 4);
-			$ovfj{Verantw_GebJahr} = $fi[0] if (@fi >= 5);
+			$ovfj{Verantw_Name} = $fi[1] if (@fi >= 2);
+			$ovfj{Verantw_CALL} = $fi[2] if (@fi >= 3);
+			$ovfj{Verantw_DOK} = $fi[3] if (@fi >= 4);
+			$ovfj{Verantw_GebJahr} = $fi[4] if (@fi >= 5);
 			next;
 		}
 		if (/^Teilnehmerzahl:\s*(\d+)/) {
