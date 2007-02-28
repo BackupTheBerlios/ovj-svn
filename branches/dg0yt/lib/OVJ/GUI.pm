@@ -400,7 +400,6 @@ sub do_pattern_dialog {
 		elsif ($sel eq 'Speichern') {
 			if ( OVJ::save_patterns($curr_patterns) ) {
 				$orig_patterns = $curr_patterns;
-				last;
 			}
 		}
 		elsif ($sel eq 'Hilfe') {
