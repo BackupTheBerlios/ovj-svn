@@ -1455,9 +1455,16 @@ sub import_fjfile {
 			my @fi = split(/\s+/, $tp);
 			$ovfj{Verantw_Vorname} = $fi[0] if (@fi >= 1);
 			$ovfj{Verantw_Name} = $fi[1] if (@fi >= 2);
-			$ovfj{Verantw_CALL} = $fi[2] if (@fi >= 3);
-			$ovfj{Verantw_DOK} = $fi[3] if (@fi >= 4);
-			$ovfj{Verantw_GebJahr} = $fi[4] if (@fi >= 5);
+			if (@fi >= 3)
+			{
+				splice(@fi,0,2);
+				foreach $tp (@fi)
+				{	
+					$ovfj{Verantw_CALL} = $tp if $tp =~ /\w{5,6}/;
+					$ovfj{Verantw_DOK} = $tp if $tp =~ /[A-Z]\d{2}/i;
+					$ovfj{Verantw_GebJahr} = $tp if $tp =~ /\d{4}/;
+				}
+			}
 			next;
 		}
 		if (/^Teilnehmerzahl:\s*(\d+)/) {
