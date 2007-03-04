@@ -1,0 +1,49 @@
+Ergebnisse - 80m - Peilwettbewerb C16 
+Samstag, 22.04.2006
+
+Organisation:       OV Traunstein
+Dok:                C16
+Datum:              22.04.2006
+Treffpunkt:         Baumburg in Altenmarkt
+Verantwortlich:     Hans Mörtl, DL3MBP
+Helfer:             Josef Zitzelsberger, DL1MCF
+Startzeit:          14:00
+Teilnehmerzahl:     25
+Limitzeit:          120 / 120 min
+Anzahl Sender:      11 / 9
+Band:               80m
+Wertung:            Kat. 11-Füchse/9-Füchse
+
+Platz   Kat.    Name                    Call    DOK   Laufzeit  TX
+-------------------------------------------------------------------
+  1     11-F    Hergert, Alexander      -       C18      42:45  11
+  2     11-F    Linke, Norbert          -       -        49:48  11
+  3     11-F    Hergert, Reinhard       DJ1MHR  C18      54:35  11
+  4     11-F    Pleli, Florian          DG7MFP  C16      62:45  11
+  5     11-F    Skomorowski, Dago       DJ5KZ   C14      68:35  11
+  6     11-F    Riedel, Heinz           DL2QT   C18      72:28  11
+  7     11-F    Wagner, Helmut          DJ0RZ   C12      73:55  11
+  8     11-F    Stadler, Hans           DF1MZ   C18      74:48  11
+  9     11-F    Zyhaliuk, Stefan        OE2SZM  OE       75:47  11
+ 10     11-F    Freitag, Peter          DL3MFQ  C12      81:20  11
+ 11     11-F    Denz, Wolfgang          -       -        81:21  11
+ 12     11-F    Schützinger, Franz      DL7MFS  C35      90:31  11
+ 13     11-F    Pingel, Matthias        DL4MHY  C13      92:45  11
+ 14     11-F    Schuhegger, Juliane     DL1MS   C16      76:37   8
+ 15     11-F    Schuhegger, Martin      DJ1EI   C16      78:23   8
+ 16     11-F    Moser, Georg            OE5MGM  OE       69:08   7
+  1     9-F     Mörtl, Martin           DC2MQ   -        44:50   9
+  2     9-F     Hug, Sabine             -       -        60:07   9
+  3     9-F     Kerner, Simon           -       -        48:32   6
+  4     9-F     Kerner, Norbert         -       -        48:40   6
+  5     9-F     Maurerlehner, Flori     -       OE       57:30   5
+  6     9-F     Maurerlehner, Florian   OE2MCL  OE       57:35   5
+  7     9-F     Schmidt, Josef          DC6SR   OE       80:49   5
+  8     9-F     Fellner, Josef          OE2JFM  OE       98:22   5
+  9     9-F     Ablinger, Karl          OE2ABL  C16      40:22   4
+-------------------------------------------------------------------
+
+Vielen Dank an alle Teilnehmer.
+Bis zum nächsten mal.
+
+Vy 73 de Hans Mörtl, DL3MBP

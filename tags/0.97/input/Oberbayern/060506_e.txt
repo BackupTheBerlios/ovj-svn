@@ -1,0 +1,37 @@
+Ergebnisse - 2m - Peilwettbewerb C35 
+Samstag, 06.05.2006
+
+Organisation:       OV Alztal
+Dok:                C35
+Datum:              06.05.2006
+Treffpunkt:         Gasthof Beilmeier , Lindach
+Verantwortlich:     Franz Schützinger, DL7MFS
+Startzeit:          14:00
+Teilnehmerzahl:     14
+Limitzeit:          120 min
+Anzahl Sender:      5
+Band:               2m
+Wertung:            Gesamtwertung
+
+Platz   Name                    Call    DOK   Laufzeit  TX
+-----------------------------------------------------------
+  1     Hergert, Alexander      -       C18      34:45   5
+  2     Barg, Dieter            DL9MFI  C13      49:24   5
+  3     Haupt, Herbert          OE7HHJ  OE       49:54   5
+  4     Modlich, Dieter         DF6CA   C02      50:07   5
+  5     Mörtl, Martin           DC2MQ   -        51:27   5
+  6     Stadler, Hans           DF1MZ   C18      59:25   5
+  7     Schuhegger, Juliane     DL1MS   C16      63:33   5
+  8     Haupt, Inge             -       OE       63:34   5
+  9     Schuhegger, Martin      DJ1EI   C16      64:00   5
+ 10     Maurerlehner, Flori     -       OE       65:29   5
+ 11     Maurerlehner, Florian   OE2MCL  OE       65:47   5
+ 12     Hergert, Reinhard       DJ1MHR  C18      76:17   5
+ 13     Riedel, Heinz           DL2QT   C18     103:20   3
+ 14     Jenus, Peter            DJ8XW   C18     142:09   4
+-----------------------------------------------------------
+
+Vielen Dank an alle Teilnehmer.
+Bis zum nächsten mal.
+
+Vy 73 de Franz Schützinger, DL7MFS

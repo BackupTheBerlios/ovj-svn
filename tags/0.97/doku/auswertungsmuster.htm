@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<title>OVJ Auswertungsmuster</title>
+<link rel="stylesheet" type="text/css" href="ovj.css">
+</head>
+<body>
+<b><a href="index.htm">Startseite</a></b><br><br>
+<h1>Auswertungsmuster</h1>
+<br>
+Um eine spaltenweise aufbereitete Ergebnisliste auswerten zu können,
+muss dem Programm der Aufbau der Liste mitgeteilt werden.<br>
+Dazu dient die Zeile Muster im Bereich des jeweiligen OV Wettbewerbs.<br>
+<img src="muster.png" alt="Muster">
+<br>
+<br>Das Fenster 'Musterkatalog' besteht aus einer rein textbasierten Sammlung
+verschiedener Auswertungsmuster.<br>
+Die Liste wird zusammmen mit den Generellen Daten geladen, kann aber separat abgespeichert
+werden (über den Button 'Speichern' unter der Liste).<br>
+Die Datei hat den festen Namen 'OVFJ_Muster.txt' und befindet sich direkt im Programmverzeichnis.<br>
+<img src="musterliste.png" alt="Lister der Auswertungsmuster"><br>
+<br>Über den Button 'Übernehmen' wird das Muster, wo sich der Cursor befindet, in die Zeile 'Muster' des
+jeweiligen OV Wettbewerbs kopiert.<br>
+Dabei werden eventuell vorhandene Kommentare (die mit // beginnen müssen), gelöscht, da das
+Musterfeld im OV Wettbewerb keine Kommentare enthalten darf.<br>
+Muster im Musterfeld müssen nicht in der Liste der Auswertungsmuster vorhanden sein oder aus
+dieser kopiert werden.<br>
+Über den Button 'Abbrechen' wird das Fenster geschlossen.<br>
+
+<h3>Aufbau eines Auswertungsmusters</h3>
+Ein Muster besteht aus mehreren Schlüsselwörtern, sonstigen Zeichen sowie Leerzeichen.<br>
+Jedes Schlüsselwort beginnt mit einem Großbuchstaben, gefolgt von mehreren Kleinbuchstaben.<br>
+Ein Fragezeichen direkt im Anschluss an ein Schlüsselwort bedeutet, dass der dem Schlüsselwort
+entsprechende Inhalt in der Ergebniste vorhanden sein kann, oder nicht.<br>
+<br>Ein Leerzeichen im Muster steht in der Ergebnisliste für <b>ein oder mehrere</b> Leerzeichen (Jeder Tabulator wird
+durch ein Leerzeichen ersetzt).<br>
+Sonstige Zeichen (z.B. das Komma) oder Zeichenketten müssen exakt so in der Ergebnisliste vorhanden sein.<br>
+<br>Die nachfolgende Tabelle beschreibt alle Schlüsselwörter und ihre Bedeutung. Ferner wird angegeben, bei
+welchen Daten das Muster erfolgreich trifft und welche Daten dann zurückgegeben werden.<br>
+<h3>Schlüsselwörter</h3>
+<table border="1">
+<thead>
+<tr>
+<th>
+Schlüsselwort
+</th>
+<th>
+Bedeutung
+</th>
+<th>
+benötigt
+</th>
+<th>
+liefert zurück
+</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>
+Platz
+</td>
+<td>
+Plazierung des Teilnehmers
+</td>
+<td>
+mindestens eine Zahl
+</td>
+<td>
+alle Zahlen
+</td>
+</tr>
+
+<tr>
+<td>
+Sender
+</td>
+<td>
+Anzahl gefundener Sender
+</td>
+<td>
+mindestens eine Zahl
+</td>
+<td>
+nichts (*)
+</td>
+</tr>
+
+<tr>
+<td>
+Geburtsjahr
+<br>Gebjahr
+</td>
+<td>
+Geburtsjahr des Teilnehmers
+</td>
+<td>
+genau 4 Zahlen
+</td>
+<td>
+genau 4 Zahlen
+</td>
+</tr>
+
+<tr>
+<td>
+Zeit
+</td>
+<td>
+Laufzeit
+</td>
+<td>
+Auswahl aus [.:[0-9]]
+</td>
+<td>
+nichts (*)
+</td>
+</tr>
+
+<tr>
+<td>
+Dok
+</td>
+<td>
+DOK des Teilnehmers
+</td>
+<td>
+alles außer Leerzeichen
+</td>
+<td>
+DOK (in Großbuchstaben) wenn Buchstabe gefolgt von Zahl gefolgt von Zahl
+<br>ansonsten ---
+</td>
+</tr>
+
+<tr>
+<td>
+Call
+<br>Rufzeichen
+</td>
+<td>
+Rufzeichen
+</td>
+<td>
+alles außer Leerzeichen
+</td>
+<td>
+Rufzeichen (in Großbuchstaben)
+<br>--- wenn Rufzeichen aus ein oder mehreren - besteht
+<br>--- wenn Rufzeichen nur aus Buchstaben besteht
+</td>
+</tr>
+
+<tr>
+<td>
+Egal
+<br>Ignorier
+<br>Ignoriere
+</td>
+<td>
+Ignoriere Text
+</td>
+<td>
+alles außer Leerzeichen
+</td>
+<td>
+nichts (*)
+</td>
+</tr>
+
+<tr>
+<td>
+Nachname
+</td>
+<td>
+Nachname
+</td>
+<td>
+Auswahl aus [-[a-z][A-Z]äöüÄÖÜß]<br>
+bzw. alle Zeichen, wenn von Anführungszeichen umschlossen
+</td>
+<td>
+alle Zeichen der Auswahl
+</td>
+</tr>
+
+<tr>
+<td>
+Vorname
+</td>
+<td>
+Vorname
+</td>
+<td>
+Auswahl aus [-[a-z][A-Z]äöüÄÖÜß]<br>
+bzw. alle Zeichen, wenn von Anführungszeichen umschlossen
+</td>
+<td>
+alle Zeichen der Auswahl
+</td>
+</tr>
+
+</tbody>
+</table>
+<br>
+<b>(*) Diese Daten werden von OVJ nicht für die Auswertung benötigt</b>
+<br>Da einige Felder wie z.B. Anzahl Sender, Laufzeit nicht für die Auswertung benötigt werden,
+könnten die Felder 'Sender', 'Zeit' z.B. durch 'Egal' ersetzt werden.<br>
+Da aber 'Sender' und 'Zeit' ein
+exaktes Format benötigen (im Gegensatz zu 'Egal', das alles nimmt), sinkt damit das Risiko irrtümlich
+einen falschen Treffer zu landen.<br>
+</body>
+</html>
