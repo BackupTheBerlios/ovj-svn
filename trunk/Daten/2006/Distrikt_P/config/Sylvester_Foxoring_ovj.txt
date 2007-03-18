@@ -1,0 +1,13 @@
+#OVFJ Datei
+AusrichtDOK = P12
+Band = 2
+Datum = 31.12.2006
+Verantw_DOK = F13
+Verantw_GebJahr = 1953
+Verantw_Vorname = Nick
+Auswertungsmuster = Platz. Nachname, Vorname Call Sender Zeit
+Verantw_Name = Roethe
+Verantw_CALL = DF1FO
+AusrichtOV = Tübingen
+TlnManuell = 
+OVFJDatei = Sylvester_Foxoring.txt
