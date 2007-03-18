@@ -7,8 +7,8 @@
 # Script zum Erzeugen der OV Jahresauswertung für
 # OV Peilwettbewerbe
 # Autor:   Matthias Kuehlewein, DL3SDO
-# Version: 0.96
-# Datum:   14.1.2007
+# Version: 0.971
+# Datum:   18.3.2007
 #
 #
 # Copyright (C) 2007  Matthias Kuehlewein, DL3SDO
@@ -1018,7 +1018,7 @@ sub export {
 	my $addoutput = '';
 	my $ExcludeTln;
 	my $ovfjlistelement;
-	my ($i,$str2);
+	my ($i,$str2,$punktstr);
 	my %maxlen = ("kombiname",0, #Vorbelegen um Abfrage unten zu sparen
 					  "gebjahr",length("GebJahr  "),
 					  "wwbw",length("Wettbewerbe"));
@@ -1129,10 +1129,10 @@ sub export {
 	printf HOUTFILE "</tbody></table><br>\n";
 
 	printf HOUTFILE "<br><table border=\"1\">\n";
-	printf HOUTFILE "<thead><tr><th colspan=\"11\">Teilnehmer der OV-Wettbewerbe</b></th></tr>\n";
+	printf HOUTFILE "<thead><tr><th colspan=\"12\">Teilnehmer der OV-Wettbewerbe</b></th></tr>\n";
 	printf HOUTFILE "<tr><th>Name, Vorname</th><th>Call</th><th>DOK</th><th>Geburtsjahr</th>";
 	printf HOUTFILE "<th>PM im Vorjahr</th><th>Wettbewerbe</th><th>Anzahl OV FJ</th>";
-	printf HOUTFILE "<th>Anz. Platz 1</th><th>Anz. Platz 2</th><th>Anz. Ausrichter</th><th>Anz. Helfer</th></tr></thead>\n<tbody>\n";
+	printf HOUTFILE "<th>Anz. Platz 1</th><th>Anz. Platz 2</th><th>Anz. Ausrichter</th><th>Anz. Helfer</th><th>Punkte</th></tr></thead>\n<tbody>\n";
 
 	foreach $tnkey (sort keys %$tn)
 	{
@@ -1163,7 +1163,7 @@ sub export {
 
 	my $str = "Name, Vorname"." "x($maxlen{kombiname}-length("Name, Vorname")+4)."Call"." "x($maxlen{call}-length("Call")+2);
 	$str .= "DOK"." "x($maxlen{dok}-length("DOK")+2)."GebJahr  "."PMVJ?  "."Wettbewerbe"." "x($maxlen{wwbw}-length("Wettbewerbe")+1);
-	$str .= "AnzFJ  "."Platz1  "."Platz2  "."Ausrichter  "."Helfer";
+	$str .= "AnzFJ  "."Platz1  "."Platz2  "."Ausrichter  "."Helfer  "."Punkte";
 	$str2 = $str;
 	$str .= "  akt.Jahr" if ($ExcludeTln == 0);
 
@@ -1185,6 +1185,8 @@ sub export {
 			next;
 		}
 
+		$punktstr = sprintf("%u",$tn->{$tnkey}->{anzwwbw}+$tn->{$tnkey}->{anzpl1}*2+$tn->{$tnkey}->{anzpl2}+$tn->{$tnkey}->{anzausr});
+
 		$str = $tn->{$tnkey}->{nachname}.", ".
 		$tn->{$tnkey}->{vorname}." "x($maxlen{kombiname}-length($tn->{$tnkey}->{nachname}.$tn->{$tnkey}->{vorname})+2).
 		$tn->{$tnkey}->{call}." "x($maxlen{call}-length($tn->{$tnkey}->{call})+2).
@@ -1192,13 +1194,14 @@ sub export {
 		$tn->{$tnkey}->{gebjahr}." "x($maxlen{gebjahr}-length($tn->{$tnkey}->{gebjahr})+1).
 		($tn->{$tnkey}->{pmvj} ? "JA" : "--")."    ".
 		$tn->{$tnkey}->{wwbw}." "x($maxlen{wwbw}-length($tn->{$tnkey}->{wwbw})+3).
-		$tn->{$tnkey}->{anzwwbw}."      ".($tn->{$tnkey}->{anzwwbw}<10 ? " " : "").
-		$tn->{$tnkey}->{anzpl1}."       ".
-		$tn->{$tnkey}->{anzpl2}."        ".
-		$tn->{$tnkey}->{anzausr}."         ".
-		$tn->{$tnkey}->{anzhelf};
+		substr($tn->{$tnkey}->{anzwwbw}."       ",0,8).
+		substr($tn->{$tnkey}->{anzpl1}."       ",0,8).
+		substr($tn->{$tnkey}->{anzpl2}."        ",0,9).
+		substr($tn->{$tnkey}->{anzausr}."         ",0,10).
+		substr($tn->{$tnkey}->{anzhelf}."       ",0,8).
+		substr($punktstr."  ",0,2);
 		$str2 = $str;
-		$str .= ($tn->{$tnkey}->{aktjahr} != 2 ? "       Nein" : "");
+		$str .= ($tn->{$tnkey}->{aktjahr} != 2 ? "      Nein" : "");
 		
 		printf ROUTFILE $str."\n";
 		printf AOUTFILE $str2."\n";
@@ -1207,7 +1210,8 @@ sub export {
 		printf HOUTFILE "<td>".($tn->{$tnkey}->{call} eq "" ? "&nbsp;" : $tn->{$tnkey}->{call})."</td><td>".($tn->{$tnkey}->{dok} eq "" ? "&nbsp;" : $tn->{$tnkey}->{dok})."</td>\n";
 		printf HOUTFILE "<td>".($tn->{$tnkey}->{gebjahr} eq "" ? "&nbsp;" : $tn->{$tnkey}->{gebjahr})."</td><td>".($tn->{$tnkey}->{pmvj} ? "JA" : "--")."</td>";
 		printf HOUTFILE "<td>".$tn->{$tnkey}->{wwbw}."</td><td>".$tn->{$tnkey}->{anzwwbw}."</td>\n";
-		printf HOUTFILE "<td>".$tn->{$tnkey}->{anzpl1}."</td><td>".$tn->{$tnkey}->{anzpl2}."</td><td>".$tn->{$tnkey}->{anzausr}."</td><td>".$tn->{$tnkey}->{anzhelf}."</td></tr>\n";
+		printf HOUTFILE "<td>".$tn->{$tnkey}->{anzpl1}."</td><td>".$tn->{$tnkey}->{anzpl2}."</td><td>".$tn->{$tnkey}->{anzausr}."</td><td>".$tn->{$tnkey}->{anzhelf}."</td>";
+		printf HOUTFILE "<td>".$punktstr."</td></tr>\n";
 	}
 	
 	if ($addoutput ne "")
@@ -1484,3 +1488,4 @@ sub import_fjfile {
 
 
 1;
+
