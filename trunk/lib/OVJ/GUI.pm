@@ -148,8 +148,8 @@ sub make_menu {
 			[ Button => "Öffnen...", -underline => 1, -command => \&open_file_general],
 			[ Button => "Importieren...", -underline => 0, -command => \&import_file_general],
 			[ Button => "Speichern", -underline => 0, -command => \&save_file_general],
-			# "Speichern unter" müsste Input-/Config-Verzeichnisse kopieren
-			# [ Button => "Speichern unter...", -underline => 0, -command => \&save_as_file_general],
+			# FIXME: "Speichern unter" müsste Input-/Config-Verzeichnisse kopieren
+			[ Button => "Speichern unter...", -underline => 0, -command => \&save_as_file_general],
 			[ Separator => "--" ],
 			[ Button => "Beenden", -underline => 0, -command => \&Leave] 
 		] )
@@ -858,43 +858,54 @@ sub do_import_ovfjfile {
 
 
 
-sub open_file_general {
+sub open_file_general { #FIXME: umbenennen
 	CheckForSaveGenfile()
 	 or return;		# Abbruch durch Benutzer
 
 	my $filename = shift;
 	if (! $filename) {
-		my $types = [['Text Files','.txt'],['All Files','*',]];
+		my $types = [['OVJ-Projekt', '.ovj'],['Textdatei','.txt'],['Alle Dateien','*',]];
 		$filename = $mw->getOpenFile(
 			-initialdir => $OVJ::configpath,
 			-filetypes  => $types,
-			-title      => "Generelle Daten laden");
+			-title      => "OVJ-Projekt laden");
 		return unless $filename;
-		$filename =~ s(^.*/([^/]+)/(.*?)(?:.txt)?$)($1);	# tiefster Verzeichnisname
-		if ($2 ne $1) {
-			meldung(OVJ::WARNUNG, "Ignoriere Dateinamen '$2'. Verwende Verzeichnisnamen '$1'.");
-		}
 	}
-	if ($filename ne UNNAMED) {
+	if ($filename =~ /\.ovj$/) {        # .ovj: OVJ-Projekt
+		clear_meldung();
+		meldung(OVJ::HINWEIS,"Lade '$filename'");
+		my %XXX;
+		tie %XXX, 'Config::IniFiles', (-file => $filename);
+		set_general($filename, %{$XXX{General}}); #XXX
+		untie %XXX;
+	}
+	elsif ($filename) { # .txt oder keine Erweiterung
 		clear_meldung();
 		meldung(OVJ::HINWEIS,"Lade '$filename'");
 		set_general($filename, OVJ::read_genfile($filename));
-	}
+	}		    
 }
 
 sub import_file_general {
-	my $types = [['Text Files','.txt'],['All Files','*',]];
+	my $types = [['OVJ-Projekt', '.ovj'],['Textdatei','.txt'],['Alle Dateien','*',]];
 	my $filename = $mw->getOpenFile(
 		-initialdir => $OVJ::configpath,
 		-filetypes  => $types,
-		-title      => "Generelle Daten importieren");
+		-title      => "OVJ-Projekt laden");
 	return unless $filename;
-	$filename =~ s/^.*\///;		# Pfadangaben entfernen
-	$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
-	meldung(OVJ::HINWEIS,"Importiere '$filename'");
-	my %general = OVJ::read_genfile($filename)
-	 or return;
+	my %general;
 	my %general_alt = OVJ::GUI::get_general();
+	if ($filename =~ /\.ovj$/) {        # .ovj: OVJ-Projekt
+		meldung(OVJ::HINWEIS,"Importiere '$filename'");
+		my %XXX;
+		tie %XXX, 'Config::IniFiles', (-file => $filename);
+		%general = %{$XXX{General}};
+		untie %XXX;
+	}
+	elsif ($filename) { # .txt oder keine Erweiterung
+		meldung(OVJ::HINWEIS,"Importiere '$filename'");
+		%general = OVJ::read_genfile($filename);
+	}		    
 	@{$general{ovfj_link}} = @{$general_alt{ovfj_link}};
 	$general{Jahr} = $general_alt{Jahr};
 	$general{PMVorjahr} = $general_alt{PMVorjahr};
@@ -910,18 +921,30 @@ sub save_file_general {
 sub save_as_file_general {
 	my $filename = shift;
 	if (! $filename || $filename eq UNNAMED) {
-		my $types = [['Text Files','.txt'],['All Files','*',]];
+		my $types = [['OVJ-Projekt', '.ovj'],['Textdatei','.txt'],['Alle Dateien','*',]];
 		$filename = $mw->getSaveFile(
 			-initialdir => $OVJ::configpath,
 			-filetypes  => $types,
-			-title      => "Generelle Daten speichern");
+			-title      => "OVJ-Projekt speichern");
 		return unless $filename;
-		$filename =~ s/^.*\///;		# Pfadangaben entfernen
-		$filename =~ s/\.txt$//;	# .txt Erweiterung entfernen
+		$filename .= '.ovj' unless $filename =~ /\.(?:ovj|txt)$/;
 	}
 	set_genfilename($filename);
-	meldung(OVJ::HINWEIS, "Speichere '$filename'");
-	OVJ::write_genfile($filename, get_general());
+	if ($filename =~ /\.ovj$/) {        # .ovj: OVJ-Projekt
+		meldung(OVJ::HINWEIS, "Speichere '$filename'");
+		my %XXX;
+		tie %XXX, 'Config::IniFiles';
+		tied(%XXX)->SetFileName($filename);
+		tied(%XXX)->ReadConfig();
+		%{$XXX{General}} = ();
+		%{$XXX{General}} = get_general(); 
+		tied(%XXX)->RewriteConfig();
+		untie %XXX;
+	}
+	elsif ($filename) { # .txt oder keine Erweiterung
+		meldung(OVJ::HINWEIS, "Speichere '$filename'");
+		OVJ::write_genfile($filename, get_general());
+	}
 }
 
 # Auswertung und Export von OVFJ

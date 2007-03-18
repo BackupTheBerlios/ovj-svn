@@ -36,19 +36,23 @@ use lib "lib";	# FIXME: relativ zum Programverzeichnis ermitteln
 use OVJ;
 BEGIN { print OVJ::ovjinfo() . "\n" }
 
-use OVJ::Inifile;
+use Config::IniFiles;
 use OVJ::GUI;
 
-my $inifilename = "OVJini.txt";
-my %config  = ();		# Konfigurationsdaten
-
-%config = OVJ::Inifile::read($inifilename)
+my $inifilename = "ovj.ini";
+my $inifile = Config::IniFiles->new();
+$inifile->SetFileName($inifilename);
+$inifile->ReadConfig()
  or warn "Kann INI-Datei '$inifilename' nicht lesen: $!";
+my %config;
+if ($inifile->val('LastSession','ProjectFile')) {
+	$config{LastGenFile} = $inifile->val('LastSession','ProjectFile');
+}
 OVJ::GUI::init(%config);
 init() or exit 1;
 OVJ::GUI::run();
-$config{LastGenFile} = $OVJ::genfilename;
-OVJ::Inifile::write($inifilename,%config)		# Speichern der Inidaten
+$inifile->setval('LastSession','ProjectFile', $OVJ::genfilename);
+$inifile->RewriteConfig()		# Speichern der Inidaten
  or warn "Kann INI-Datei '$inifilename' nicht schreiben: $!";
 exit 0;
 
