@@ -1,0 +1,13 @@
+#OVFJ Datei
+AusrichtDOK = P31
+Band = 80
+Datum = 10.09.2006
+Verantw_DOK = P31
+Verantw_GebJahr = 1975
+Verantw_Vorname = Marc
+Auswertungsmuster = Platz Vorname Nachname Call Zeit Sender Dok
+Verantw_Name = Landmann
+Verantw_CALL = DL5SEZ
+AusrichtOV = Ermstal
+TlnManuell = 
+OVFJDatei = P31_Herbst2006.txt

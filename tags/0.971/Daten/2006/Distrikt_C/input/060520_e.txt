@@ -1,0 +1,55 @@
+Ergebnisse - 80m - Peilwettbewerb C19 
+Samstag, 20.05.2006
+
+Organisation:       OV Moosschweige-Germering
+Dok:                C19
+Datum:              20.05.2006
+Treffpunkt:         Schusterhäusl, Germering
+Verantwortlich:     Heinz Herz, DH3MAG
+Helfer:             Roland Saeckl, DH2MQ
+Helfer:             Leonhard Rothwinkler, DG9CAH
+Startzeit:          14:00
+Teilnehmerzahl:     30
+Limitzeit:          120 min
+Anzahl Sender:      5
+Band:               80m
+Wertung:            Gesamtwertung
+
+Platz   Name                    Call    DOK   Laufzeit  TX
+-----------------------------------------------------------
+  1     Hergert, Alexander      -       C18      36:24   5
+  2     Lowack, Michael         DK1KC   B10      43:02   5
+  3     Barg, Dieter            DL9MFI  C13      47:25   5
+  4     Schmidt, Gerhard        DF8CF   C27      54:37   5
+  5     Mörtl, Hans             DL3MBP  C16      56:00   5
+  6     Berse, Matthias         DF1AAA  N28      58:06   5
+  7     Hug, Sabine             -       -        61:19   5
+  8     Hergert, Philipp        -       C18      61:24   5
+  9     Haupt, Herbert          OE7HHJ  OE       62:36   5
+ 10     Nützel, Andreas         DG4MIC  C19      65:19   5
+ 11     Sotzek, Rolf            -       -        65:20   5
+ 12     Wagner, Helmut          DJ0RZ   C12      73:57   5
+ 13     Stadler, Hans           DF1MZ   C18      73:59   5
+ 14     Freitag, Peter          DL3MFQ  C12      75:35   5
+ 15     Pingel, Matthias        DL4MHY  C13      76:22   5
+ 16     Hergert, Reinhard       DJ1MHR  C18      76:30   5
+ 17     Paley, Anatoly          -       -        80:22   5
+ 18     Artner, Alfred          DJ0GM   C22      81:37   5
+ 19     Rebmann, Leo            -       -        81:38   5
+ 20     Föderl, Annemarie       DJ0FR   C26      81:47   5
+ 21     Biber, Hedwig           DO2HBI  -        84:44   5
+ 22     Biber, Bruno            DB1CB   C30      86:41   5
+ 23     Soika, Hans-Michael     DH9MAB  O54      90:06   5
+ 24     Sojka, Stefan           -       -        90:10   5
+ 25     Sojka, Christian        -       -        90:12   5
+ 26     Bernhard, Lilo          DK3CK   C13      93:09   5
+ 27     Perreiter, Udo          DF7MF   C13      93:14   5
+ 28     Johne, Dieter           DL4MBU  C12      91:01   4
+ 29     Freitag, Iris           DG5MLH  C12     130:05   2
+ 30     ???, ???                -       -       130:05   2
+-----------------------------------------------------------
+
+Vielen Dank an alle Teilnehmer.
+Bis zum nächsten mal.
+
+Vy 73 de Heinz Herz, DH3MAG
