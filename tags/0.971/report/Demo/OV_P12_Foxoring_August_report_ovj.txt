@@ -1,0 +1,73 @@
+
+Ausrichter: Kühlewein, Matthias, 1970, DL3SDO, P12
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Kühlewein,Matthias ist bereits in Auswertung, Status: Ausrichter
+
+Teilnehmer: Barth, Wolf-Dietrich, , DK7TD, P60
+INFO: Erster Match mit:     1 Barth, Wolf-Dietrich     DK7TD      P60      12     48:08
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Barth,Wolf-Dietrich ist bereits in Auswertung, Status: 2 Extrapunkte für Platz 1 als Nicht-PM
+
+Teilnehmer: Gartner, Bernhard, , DF7SF, P11
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Gartner,Bernhard ist neu in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Jurtz, Klaus-Dieter, , ---, ---
+INFO: Overridedatensatz für Jurtz, Klaus-Dieter gefunden
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Jurtz,Klaus-Dieter ist neu in Auswertung, Status: 1 Extrapunkt für Platz 2 als Nicht-PM
+
+Teilnehmer: Roethe, Nick, , DF1FO, F13
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+INFO: Roethe, Nick als Roethe, Nickolas ueber Rufzeichen und Spitznamen in akt. PM Daten gefunden, verwende neuen Vornamen
+Roethe,Nickolas ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Timm, Ulrich, , DK2MF, ---
+INFO: Overridedatensatz für Timm, Ulrich gefunden
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Timm,Ulrich ist neu in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Berger, Michael, , DF7SA, P02
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Berger,Michael ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Ebert, Anke, , DL9OCA, P60
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Ebert,Anke ist bereits in Auswertung, Status: 
+
+Teilnehmer: Roethe, Brigitte, , ---, ---
+INFO: Overridedatensatz für Roethe, Brigitte gefunden
+INFO: Roethe, Brigitte in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund von 'IstInPMVJ Override'
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! 'IstInPMVJ' Override !
+Roethe,Brigitte ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Stadler, Ewald, , DJ2UE, P18
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Stadler,Ewald ist neu in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Schoor, Ulrich, , DF6TZ, P06
+INFO: Schoor, Ulrich als Schoor, Uli ueber Rufzeichen und Spitznamen in PMVorjahr gefunden, verwende neuen Vornamen
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname;Vorname ersetzt
+Schoor,Uli ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Stadler, Helga, , DK7SC, P18
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Stadler,Helga ist neu in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Dettling, Brunhilde, , DD9GC, P12
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname
+Dettling,Brunhilde ist neu in Auswertung, Status: 
+
+<Beginn Abschnitt ohne Sonderpunkte>
+
+Teilnehmer: Eipper, Ernst, , DH1EE, P18
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Eipper,Ernst ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Eipper, Carmen, , DH3SC, P18
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Eipper,Carmen ist bereits in Auswertung, Status: PM im Vorjahr
+
+Teilnehmer: Eipper, Jens, , ---, P18
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,DOK
+Eipper,Jens ist bereits in Auswertung, Status: PM im Vorjahr

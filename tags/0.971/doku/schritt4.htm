@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<title>Vorgehen Schritt 4</title>
+<link rel="stylesheet" type="text/css" href="ovj.css">
+</head>
+<body>
+<b><a href="index.htm">Startseite</a></b><br><br>
+<a href="schritt3.htm"><img src="navback.png" border="0" alt="NavigationZurueck"></a>
+<h1>Vorgehen Schritt für Schritt</h1>
+<h3>Auswertung</h3>
+<img src="ovliste.png" alt="Liste der OV Wettbewerbe"><br>
+Bei der Auswertung gibt es zwei Möglichkeiten:
+<ol>
+<li>Auswertung eines einzelnen Wettbewerbs</li>
+<li>Auswertung aller Wettbewerbe</li>
+</ol>
+<b>Um einen einzelnen Wettbewerb auszuwerten</b> setzt man den Cursor in die Zeile des entsprechenden Wettbewerbs<br>
+und drückt den Button 'OV-Wettbewerb auswerten'.<br>
+<b>Um alle Wettbewerbe auszuwerten</b> betätigt man den Button 'Jahresauswertung erstellen'.<br>
+Die Wettbewerbe werden der Reihe nach ausgewertet, entsprechend ihrer Reihenfolge in der Liste der OV-Wettbewerbe.<br>
+<br>Über das Feld 'Beim Export Teilnehmer ohne offizielle Veranstaltung im aktuellen Jahr ausschliessen' wird festgelegt, <br>
+ob in der Jahresauswertung alle Teilnehmer aufgeführt sind oder nur die Teilnehmer, welche im aktuellen Jahr mindestens<br>
+an einer offiziellen Peilveranstaltung des DARC teilgenommen haben, denn nur in diesem Fall werden ja Punkte aus OV Peilveranstaltungen gutgeschrieben.<br>
+Zur Feststellung der Teilnahme im akt. Jahr wird die akt. PM Datei genommen, diese muß dann natürlich entsprechend aktuell sein,<br>
+um alle offiziellen Wettbewerbe zu berücksichtigen!<br>
+<br>Bei der Auswertung werden Report-Dateien in einem projektspezifischen Unterverzeichnis des Verzeichnis 'report' erzeugt (z.B. in 'report\Demo').<br>
+<br>Die Jahresauswertungsdateien werden im projektspezifischen Unterverzeichnis des Verzeichnis 'output' abgelegt (z.B. in 'output\Demo'). Dies sind:
+<ul>
+<li>eine Textdatei mit dem Namen 'OVJXYYYY.txt' wobei X für den Distriktskenner und YYYY für das Jahr steht, also z.B. 'OVJP2006.txt'<br>
+Es reicht aus, diese Datei beim ARDF-Diplomsachbearbeiter einzureichen.</li>
+<li>eine HTML-Datei mit dem Namen 'OVJ_Ergebnisse_X_YYYY.htm' wobei X für den Distriktskenner und YYYY für das Jahr steht</li>
+<li>eine Rawdatei mit dem Namen 'OVJ_Ergebnisse_X_YYYYraw.txt' wobei X für den Distriktskenner und YYYY für das Jahr steht</li>
+</ul>
+Im projektspezifischen Unterverzeichnis des Verzeichnis 'report' befinden sich für jeden OV Wettbewerb detaillierte Informationen über die Auswertung:
+<ul>
+<li>welcher Teilnehmer aufgrund welcher Daten in der PM Datei (nicht) gefunden und wie klassifiziert wurde</li>
+<li>Datenunterschiede zwischen OVFJ Daten, PM Vorjahr Datei und aktueller PM Datei</li>
+<li>Namensersetzungen, Verwendung von <a href="override.htm" target="_blank">Override-Daten</a></li>
+<li>die Informationen, welche auch im 'Meldungen'-Fenster ausgegeben werden</li>
+</ul>
+Der Dateinamen wird aus dem Namen des jeweiligen OV Wettbewerbs mit angehängtem '_report_ovj.txt' gebildet.
+</body>
+</html>

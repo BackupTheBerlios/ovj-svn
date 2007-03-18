@@ -1,0 +1,39 @@
+Ergebnisliste Night-Foxoring des OV München West C13
+
+Organisation:       OV München West
+Dok:                C13
+Datum:              09.12.06 
+Treffpunkt:         Olympiapark München
+Verantwortlich:     Dieter Barg, DL9MFI
+Helfer:             Matthias Pingel, DL4MHY, C12
+Helfer:             Elisabeth Biber, SWL
+Startzeit:          16:40
+Teilnehmerzahl:     18
+Limitzeit:          120 min
+Anzahl Sender:      10
+Band:               80m
+Wertung:            Gesamtwertung
+
+Platz   Name                    Call    DOK   Laufzeit  TX
+-----------------------------------------------------------
+  1     Hergert, Philipp        -       C18      00:29  10
+  2     Lowack, Michael         DK1KC   B10      00:48  10
+  2     Prljaca, Mirzo          DK1MIR  -        00:48  10
+  3     Faber, Wolfgang         DF5CK   C01      00:57  10
+  3     Nützel, Andreas         DG4MIC  C19      00:57  10
+  4     Graf, Maria             -       -        01:00  10
+  4     Hug, Sabine             -       -        01:00  10
+  5     Eckart-Weissbäcker, Manfred DL1MFY  C13      01:07  10
+  5     Hergert, Reinhard       DJ1MHR  C18      01:07  10
+  5     Stadler, Hans           DF1MZ   C18      01:07  10
+  6     Hergert, Alexander      -       C18      01:14  10
+  6     Wildner, Dorothea       -       -        01:14  10
+  6     Wildner, Stephan        -       -        01:14  10
+  7     Freitag, Iris           DG5MLH  C12      00:57   7
+  7     Freitag, Peter          DL3MFQ  C12      00:57   7
+  8     Biber, Bruno            DB1CB   C30      00:48   2
+  8     Biber, Hedi             -       -        00:48   2
+  8     Biber, Hedwig           DO2HBI  -        00:48   2
+-----------------------------------------------------------
+
+Wertung nur pro Forma, da Veranstaltung der Gemütlichkeit.
