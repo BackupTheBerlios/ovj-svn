@@ -1,7 +1,0 @@
-# Initialisierungdaten
-# Kommentare fangen mit einer Raute an und werden beim Speichern erhalten
-# Die Inidatei wird beim Start von OVJ gelesen und beim Beenden gespeichert
-
-# Hier wird u.a. gespeichert, welche Generelle Daten zuletzt verwendet wurden
-
-LastGenFile = Demo
