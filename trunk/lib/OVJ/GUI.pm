@@ -458,7 +458,10 @@ sub do_ovfj_dialog {
 }
 
 sub reset_general {
-	set_general() if CheckForSaveGenfile();
+	if (CheckForSaveGenfile()) {
+		set_general();
+		clear_meldung();
+	}
 }
 
 sub set_general {
@@ -874,10 +877,13 @@ sub open_file_general { #FIXME: umbenennen
 	if ($filename =~ /\.ovj$/) {        # .ovj: OVJ-Projekt
 		clear_meldung();
 		meldung(OVJ::HINWEIS,"Lade '$filename'");
-		my %XXX;
-		tie %XXX, 'Config::IniFiles', (-file => $filename);
-		set_general($filename, %{$XXX{General}}); #XXX
-		untie %XXX;
+		my %ovj_file;
+		tie %ovj_file, 'Config::IniFiles';
+		tied(%ovj_file)->SetFileName($filename);
+		tied(%ovj_file)->ReadConfig()
+		  or return meldung(OVJ::FEHLER, "Konnte '$filename' nicht lesen: $!");
+		set_general($filename, %{$ovj_file{General}}); #ovj_file
+		untie %ovj_file;
 	}
 	elsif ($filename) { # .txt oder keine Erweiterung
 		clear_meldung();
@@ -897,10 +903,13 @@ sub import_file_general {
 	my %general_alt = OVJ::GUI::get_general();
 	if ($filename =~ /\.ovj$/) {        # .ovj: OVJ-Projekt
 		meldung(OVJ::HINWEIS,"Importiere '$filename'");
-		my %XXX;
-		tie %XXX, 'Config::IniFiles', (-file => $filename);
-		%general = %{$XXX{General}};
-		untie %XXX;
+		my %ovj_file;
+		tie %ovj_file, 'Config::IniFiles';
+		tied(%ovj_file)->SetFileName($filename);
+		tied(%ovj_file)->ReadConfig()
+		  or return meldung(OVJ::FEHLER, "Konnte '$filename' nicht lesen: $!");
+		%general = %{$ovj_file{General}};
+		untie %ovj_file;
 	}
 	elsif ($filename) { # .txt oder keine Erweiterung
 		meldung(OVJ::HINWEIS,"Importiere '$filename'");
@@ -932,14 +941,15 @@ sub save_as_file_general {
 	set_genfilename($filename);
 	if ($filename =~ /\.ovj$/) {        # .ovj: OVJ-Projekt
 		meldung(OVJ::HINWEIS, "Speichere '$filename'");
-		my %XXX;
-		tie %XXX, 'Config::IniFiles';
-		tied(%XXX)->SetFileName($filename);
-		tied(%XXX)->ReadConfig();
-		%{$XXX{General}} = ();
-		%{$XXX{General}} = get_general(); 
-		tied(%XXX)->RewriteConfig();
-		untie %XXX;
+		my %ovj_file;
+		tie %ovj_file, 'Config::IniFiles';
+		tied(%ovj_file)->SetFileName($filename);
+		tied(%ovj_file)->ReadConfig();
+		%{$ovj_file{General}} = ();
+		%{$ovj_file{General}} = get_general(); 
+		tied(%ovj_file)->RewriteConfig()
+		  or meldung(OVJ::FEHLER, "Konnte '$filename' nicht speichern: $!");
+		untie %ovj_file;
 	}
 	elsif ($filename) { # .txt oder keine Erweiterung
 		meldung(OVJ::HINWEIS, "Speichere '$filename'");
