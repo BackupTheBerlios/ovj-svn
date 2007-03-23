@@ -41,7 +41,7 @@ use vars qw(
 );
 
 BEGIN {
-	$VERSION = "0.97";
+	$VERSION = "0.971";
 	'$Id$' =~ 
 	 /Id: [^ ]+ (\d+) (\d{4})-(\d{2})-(\d{2}) /
 	 or die "Revision format has changed";
