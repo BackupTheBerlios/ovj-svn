@@ -1,6 +1,6 @@
 @echo off
 echo "$Id$"
-perl -v
+perl -v 2>NUL
 if not errorlevel 1 (
 	echo Verwende Perl aus Standard-PATH
 ) else if exist U:\Programme\ActivePerl\bin\perl.exe (
