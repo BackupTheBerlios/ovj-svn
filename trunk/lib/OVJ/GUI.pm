@@ -85,6 +85,9 @@ my %orig_ovfj;
 my $orig_ovfj_link;
 my %orig_general;
 
+# Unsere neue Projektstruktur
+my $project;
+
 =head2 sub run
 
 Kontrollfluss an GUI übergeben.
@@ -157,6 +160,8 @@ sub make_menu {
 	$menu_bar->add('cascade', -label => 'Hilfe', -underline => 0, -menu => 
 		$menu_bar->Menu( -tearoff => 0, -menuitems => [
 			[ Button => "Hilfethemen", -underline => 0,-command => \&show_help],
+			[ Button => "Homepage", -underline => 0,-command => \&show_homepage],
+			[ Button => "Fehler melden", -underline => 0,-command => \&report_bug],
 			[ Separator => "--" ],
 			[ Button => "Über OVJ", -underline => 1,-command => \&About] 
 		] )
@@ -426,9 +431,10 @@ sub do_ovfj_dialog {
 	  ->pack(-fill => 'both', -expand => 1);
 	make_ovfj_detail($fr)
 	  ->pack(-fill => 'both', -expand => 1);
-	
-	if (OVJ::exist_ovfjfile($ovfjname)) {
-		set_ovfj($ovfjname, OVJ::read_ovfjfile($ovfjname));
+
+	update_project();
+	if (exists $project->{"OVFJ $ovfjname"}) {
+		set_ovfj($ovfjname, %{$project->{"OVFJ $ovfjname"}});
 	}
 	else {
 		meldung(OVJ::INFO, "Noch keine Daten für '$ovfjname' gespeichert");
@@ -439,7 +445,8 @@ sub do_ovfj_dialog {
 		my $sel = $dlg->Show;
 		if ($sel eq 'Speichern') {
 			my %ovfj = get_ovfj();
-			OVJ::write_ovfjfile($ovfjname, \%ovfj );
+			# FIXME $project->{"OVFJ $ovfjname"} = { };
+			%{$project->{"OVFJ $ovfjname"}} = %ovfj;
 			last;
 		}
 		elsif ($sel eq 'Importieren...') {
@@ -601,14 +608,17 @@ sub set_genfilename {
 #Über Box aus dem 'Hilfe' Menu
 sub About {
 	my $tk_version = $Tk::VERSION || $Tk::Version || $Tk::version;
-	$mw->messageBox(-icon => 'info', 
-						-message => <<"END_ABOUT",
+	$mw->messageBox(-title   => 'Über OVJ',
+	                -icon    => 'info', 
+	                -type    => 'Ok',
+	                -message => <<"END_ABOUT" );
 OV Jahresauswertung
-by Matthias Kühlewein, DL3SDO
+(C) 2007 Matthias Kühlewein, DL3SDO
+         Kai Pastor, DG0YT
 
-Stark modifiziert von/
-Fehlerberichte an:
-Kai Pastor, DG0YT
+Download, Neuigkeiten,
+Fehlermeldungen, Änderungswünsche:
+http://developer.berlios.de/projects/ovj/
 
 OVJ Version $OVJ::VERSION
 - Kern: Revision $OVJ::REVISION ($OVJ::REVDATE)
@@ -616,7 +626,6 @@ OVJ Version $OVJ::VERSION
 - Tk: Version $tk_version
 - Plattform: $^O
 END_ABOUT
-						-title => 'Über', -type => 'Ok');
 }
 
 
@@ -626,6 +635,16 @@ END_ABOUT
 sub show_help {
 	my $location = $help_dir . '/' . (shift || 'index.htm');
 	OVJ::Browser::open($location);
+}
+
+# Homepage im Browser öffnen
+sub show_homepage {
+	OVJ::Browser::open('http://developer.berlios.de/projects/ovj/');
+}
+
+# Bug melden
+sub report_bug {
+	OVJ::Browser::open('http://developer.berlios.de/projects/ovj/');
 }
 
 
@@ -682,7 +701,8 @@ sub CheckForOverwriteOVFJ {
 		if    ($response eq 'Cancel') { return 0 }
 		elsif ($response eq 'Yes')    { 
 			my %ovfj = get_ovfj();
-			return OVJ::write_ovfjfile($ovfjname, \%ovfj) 
+			%{$project->{"OVFJ $ovfjname"}} = %ovfj;
+			set_ovfj($ovfjname, %ovfj);
 		}
 	}
 	
@@ -803,7 +823,7 @@ sub do_edit_ovfj {
 sub do_select_fjfile {
 	my $parent = $_[0] 
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
-	my $fjdir = $OVJ::inputpath.$sep.$OVJ::genfilename;
+	my $fjdir = OVJ::get_path($OVJ::genfilename, $OVJ::inputdir);
 	(-e $fjdir && -d $fjdir)
 	 or return meldung(OVJ::FEHLER, "Verzeichnis '$fjdir' nicht vorhanden");
 	
@@ -821,7 +841,7 @@ sub do_select_fjfile {
 		$parent->FBox(-type => 'open')->Show(%dialog_options);
 	return unless ($selfile && $selfile ne "");
 
-	$selfile =~ s/^.*\///;
+	$selfile =~ s/^$fjdir\/([^\/]+)$/$1/;
 	my %ovfj = OVJ::import_fjfile($selfile)
 	 or return;
 	modify_ovfj(%ovfj);
@@ -831,7 +851,7 @@ sub do_select_fjfile {
 sub do_import_ovfjfile {
 	my $parent = $_[0] 
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
-	my $dir = $OVJ::configpath.$sep.$OVJ::genfilename;
+	my $dir = OVJ::get_path($OVJ::genfilename, $OVJ::configdir);
 	(-e $dir && -d $dir)
 	 or return meldung(OVJ::FEHLER, "Verzeichnis '$dir' nicht vorhanden");
 
@@ -867,54 +887,45 @@ sub open_file_general { #FIXME: umbenennen
 
 	my $filename = shift;
 	if (! $filename) {
-		my $types = [['OVJ-Projekt', '.ovj'],['Textdatei','.txt'],['Alle Dateien','*',]];
+#		my $types = [['OVJ-Projekt', '.ovj'],['Textdatei','.txt'],['Alle Dateien','*',]];
+		my $types = [['OVJ-Projekt', '.ovj|.txt'],['Alle Dateien','*',]];
 		$filename = $mw->getOpenFile(
-			-initialdir => $OVJ::configpath,
+			-initialdir => $OVJ::configdir,
 			-filetypes  => $types,
 			-title      => "OVJ-Projekt laden");
 		return unless $filename;
 	}
-	if ($filename =~ /\.ovj$/) {        # .ovj: OVJ-Projekt
-		clear_meldung();
-		meldung(OVJ::HINWEIS,"Lade '$filename'");
-		my %ovj_file;
-		tie %ovj_file, 'Config::IniFiles';
-		tied(%ovj_file)->SetFileName($filename);
-		tied(%ovj_file)->ReadConfig()
-		  or return meldung(OVJ::FEHLER, "Konnte '$filename' nicht lesen: $!");
-		set_general($filename, %{$ovj_file{General}}); #ovj_file
-		untie %ovj_file;
-	}
-	elsif ($filename) { # .txt oder keine Erweiterung
-		clear_meldung();
-		meldung(OVJ::HINWEIS,"Lade '$filename'");
-		set_general($filename, OVJ::read_genfile($filename));
+	clear_meldung();
+	meldung(OVJ::HINWEIS,"Lade '$filename'");
+	my $ovj_file;
+	if ($filename =~ /\.txt$/i) { # .txt
+		$ovj_file = OVJ::convert_genfile($filename) or return;
+		OVJ::meldung(OVJ::WARNUNG, "Alle Änderungen werden als OVJ-Projekt (.ovj-Datei) gespeichert.");
 	}		    
+	else {
+		$ovj_file = OVJ::read_ovj_file($filename) or return;
+	}
+	set_project($filename, $ovj_file);
 }
 
 sub import_file_general {
 	my $types = [['OVJ-Projekt', '.ovj'],['Textdatei','.txt'],['Alle Dateien','*',]];
 	my $filename = $mw->getOpenFile(
-		-initialdir => $OVJ::configpath,
+		-initialdir => $OVJ::configdir,
 		-filetypes  => $types,
 		-title      => "OVJ-Projekt laden");
 	return unless $filename;
 	my %general;
 	my %general_alt = OVJ::GUI::get_general();
-	if ($filename =~ /\.ovj$/) {        # .ovj: OVJ-Projekt
-		meldung(OVJ::HINWEIS,"Importiere '$filename'");
-		my %ovj_file;
-		tie %ovj_file, 'Config::IniFiles';
-		tied(%ovj_file)->SetFileName($filename);
-		tied(%ovj_file)->ReadConfig()
-		  or return meldung(OVJ::FEHLER, "Konnte '$filename' nicht lesen: $!");
-		%general = %{$ovj_file{General}};
-		untie %ovj_file;
+	meldung(OVJ::HINWEIS,"Importiere '$filename'");
+	my $ovj_file;
+	if ($filename =~ /\.txt$/i) {
+		$ovj_file = OVJ::convert_genfile($filename) or return;
 	}
-	elsif ($filename) { # .txt oder keine Erweiterung
-		meldung(OVJ::HINWEIS,"Importiere '$filename'");
-		%general = OVJ::read_genfile($filename);
-	}		    
+	else {
+		$ovj_file = OVJ::read_ovj_file($filename) or return;
+	}
+	%general = %{$ovj_file->{General}};
 	@{$general{ovfj_link}} = @{$general_alt{ovfj_link}};
 	$general{Jahr} = $general_alt{Jahr};
 	$general{PMVorjahr} = $general_alt{PMVorjahr};
@@ -923,6 +934,7 @@ sub import_file_general {
 	return 1;
 }
 
+
 sub save_file_general {
 	return save_as_file_general($OVJ::genfilename);
 }
@@ -930,31 +942,18 @@ sub save_file_general {
 sub save_as_file_general {
 	my $filename = shift;
 	if (! $filename || $filename eq UNNAMED) {
-		my $types = [['OVJ-Projekt', '.ovj'],['Textdatei','.txt'],['Alle Dateien','*',]];
+		my $types = [['OVJ-Projekt', '.ovj'],['Alle Dateien','*',]];
 		$filename = $mw->getSaveFile(
-			-initialdir => $OVJ::configpath,
+#			-initialdir => $OVJ::configdir,
 			-filetypes  => $types,
 			-title      => "OVJ-Projekt speichern");
 		return unless $filename;
-		$filename .= '.ovj' unless $filename =~ /\.(?:ovj|txt)$/;
 	}
+	$filename =~ s/(\.txt|\.ovj)?$/.ovj/i;
+	meldung(OVJ::HINWEIS, "Speichere '$filename'");
 	set_genfilename($filename);
-	if ($filename =~ /\.ovj$/) {        # .ovj: OVJ-Projekt
-		meldung(OVJ::HINWEIS, "Speichere '$filename'");
-		my %ovj_file;
-		tie %ovj_file, 'Config::IniFiles';
-		tied(%ovj_file)->SetFileName($filename);
-		tied(%ovj_file)->ReadConfig();
-		%{$ovj_file{General}} = ();
-		%{$ovj_file{General}} = get_general(); 
-		tied(%ovj_file)->RewriteConfig()
-		  or meldung(OVJ::FEHLER, "Konnte '$filename' nicht speichern: $!");
-		untie %ovj_file;
-	}
-	elsif ($filename) { # .txt oder keine Erweiterung
-		meldung(OVJ::HINWEIS, "Speichere '$filename'");
-		OVJ::write_genfile($filename, get_general());
-	}
+	update_project();
+	OVJ::write_ovj_file($filename, $project);
 }
 
 # Auswertung und Export von OVFJ
@@ -966,7 +965,8 @@ sub do_eval_ovfj {
 	my $retval;
 	
 	$mw->Busy();
-	my %general = get_general();
+#	my %general = get_general();
+	update_project();
 	my %tn;					# Hash für die Teilnehmer, Elemente sind wiederum Hashes
 	my @ovfjlist;			# Liste aller ausgewerteten OV FJ mit Details der Kopfdaten
 	                  	# Elemente sind die %ovfj Daten
@@ -977,23 +977,38 @@ sub do_eval_ovfj {
 		my $ovfjname = $str;
 		my $ovfjrepfilename = $str . "_report_ovj.txt";
 		next if ($ovfjname !~ /\S+/);
-		my %ovfj = OVJ::read_ovfjfile($ovfjname)
-		 or next;
+#		my %ovfj = OVJ::read_ovfjfile($ovfjname)
+#		 or next;
 		$retval = OVJ::eval_ovfj($i++,
-		  \%general,
+		  $project->{General},
 		  \%tn,
 		  \@ovfjlist,
 		  \@ovfjanztlnlist,
-		  \%ovfj,
+		  $project->{"OVFJ $ovfjname"},
 		  $ovfjname,
 		  $ovfjrepfilename
 		);
 		$success = 1 if ($retval == 0);	# Stelle fest, ob wenigstens eine Auswertung erfolgreich war
 		last if ($retval == 2);	# systematischer Fehler, Abbruch der Schleife
 	}
-	OVJ::export(\%general,\%tn,\@ovfjlist,\@ovfjanztlnlist) if ($success);
+	OVJ::export($project->{General},\%tn,\@ovfjlist,\@ovfjanztlnlist) if ($success);
 	$mw->Unbusy();
 }
 
+
+# Aktuellen Stand des Projekts ermitteln
+sub update_project {
+#	$project{General} = (); FIXME
+	%{$project->{General}} = get_general();
+	return $project;
+}
+
+# Projekt auf neuen Stand bringen 
+sub set_project {
+	my ($name, $data) = (shift, shift);
+	$project = $data;
+	set_general($name, %{$project->{General}});
+	return $project;
+}
 
 1;

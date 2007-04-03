@@ -10,6 +10,9 @@ use Test::More tests => 2;
 
 use_ok ("OVJ::Browser");
 
-ok (OVJ::Browser::open('doku/index.htm'));
+SKIP: {
+	skip "OVJ::Browser::open test requires manual interaction", 1;
+	ok (OVJ::Browser::open('doku/index.htm'));
+};
 
 
