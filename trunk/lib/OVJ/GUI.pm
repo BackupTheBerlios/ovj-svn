@@ -60,9 +60,6 @@ use constant UNNAMED => 'Unbenannt';
 
 my $help_dir = "doku";
 
-# Pfadseparator für "initialdir" der Tk-Dialoge; Perl selbst genügt '/'
-my $sep = $^O =~ /MSWin32/ ? '\\' : '/';
-
 my $mw;
 my $gui_general_label;
 my %gui_general;
@@ -833,7 +830,7 @@ sub do_select_fjfile {
 	# wird aber von pp unter Windows nicht ordentlich in eine .exe-Datei gepackt
 	# http://www.perltk.org/index.php?option=com_content&task=view&id=21&Itemid=28
 	my %dialog_options = (
-		-initialdir => $fjdir,
+		-initialdir => tk_dir($fjdir),
 		-filetypes  => [['Text Files','.txt'],['All Files','*',]],
 		-title      => "FJ Datei auswählen");
 	my $selfile = ($^O =~ /MSWin32/) ?
@@ -861,7 +858,7 @@ sub do_import_ovfjfile {
 	# wird aber von pp unter Windows nicht ordentlich in eine .exe-Datei gepackt
 	# http://www.perltk.org/index.php?option=com_content&task=view&id=21&Itemid=28
 	my %dialog_options = (
-		-initialdir => $dir,
+		-initialdir => tk_dir($dir),
 		-filetypes  => [['Text Files','*_ovj.txt'],['All Files','*',]],
 		-title      => "OVFJ Datei auswählen");
 	my $selfile = ($^O =~ /MSWin32/) ?
@@ -890,7 +887,7 @@ sub open_file_general { #FIXME: umbenennen
 #		my $types = [['OVJ-Projekt', '.ovj'],['Textdatei','.txt'],['Alle Dateien','*',]];
 		my $types = [['OVJ-Projekt', ['.ovj','.txt']],['Alle Dateien','*',]];
 		$filename = $mw->getOpenFile(
-			-initialdir => $OVJ::configdir,
+			-initialdir => tk_dir(OVJ::get_path($OVJ::genfilename,$OVJ::configdir)),
 			-filetypes  => $types,
 			-title      => "OVJ-Projekt laden");
 		return unless $filename;
@@ -911,7 +908,7 @@ sub open_file_general { #FIXME: umbenennen
 sub import_file_general {
 	my $types = [['OVJ-Projekt', '.ovj'],['Textdatei','.txt'],['Alle Dateien','*',]];
 	my $filename = $mw->getOpenFile(
-		-initialdir => $OVJ::configdir,
+		-initialdir => tk_dir(OVJ::get_path($OVJ::genfilename,$OVJ::configdir)),
 		-filetypes  => $types,
 		-title      => "OVJ-Projekt laden");
 	return unless $filename;
@@ -1009,6 +1006,15 @@ sub set_project {
 	$project = $data;
 	set_general($name, %{$project->{General}});
 	return $project;
+}
+
+# Verwende plattformspezifischen Pfadseparator für "initialdir" der Tk-Dialoge
+# Perl selbst genügt '/'
+sub tk_dir {
+	my $dir = shift;
+	my $sep = $^O =~ /MSWin32/ ? '\\' : '/';
+	$dir =~ s/\//$sep/g;
+	return $dir;
 }
 
 1;
