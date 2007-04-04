@@ -644,7 +644,7 @@ sub show_homepage {
 
 # Bug melden
 sub report_bug {
-	OVJ::Browser::open('http://developer.berlios.de/projects/ovj/');
+	OVJ::Browser::open('http://developer.berlios.de/bugs/?group_id=8259');
 }
 
 
@@ -888,7 +888,7 @@ sub open_file_general { #FIXME: umbenennen
 	my $filename = shift;
 	if (! $filename) {
 #		my $types = [['OVJ-Projekt', '.ovj'],['Textdatei','.txt'],['Alle Dateien','*',]];
-		my $types = [['OVJ-Projekt', '.ovj|.txt'],['Alle Dateien','*',]];
+		my $types = [['OVJ-Projekt', ['.ovj','.txt']],['Alle Dateien','*',]];
 		$filename = $mw->getOpenFile(
 			-initialdir => $OVJ::configdir,
 			-filetypes  => $types,
