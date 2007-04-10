@@ -35,6 +35,7 @@ use strict;
 use Carp;
 
 use Tk;
+use Tk::Dialog;
 use Tk::DialogBox;
 require Tk::FBox if ($^O !~ /MSwin32/);
 
@@ -79,7 +80,9 @@ my $gui_patterns;
 my $curr_patterns;
 my $orig_patterns;
 my %orig_ovfj;
-my $orig_ovfj_link;
+my @curr_ovfj_link;
+my @curr_ovfj_link_modified;
+#my $orig_ovfj_link;
 my %orig_general;
 
 # Unsere neue Projektstruktur
@@ -247,16 +250,23 @@ sub make_ovfj_list {
 	$fr0->gridColumnconfigure(1, -weight => 2);
 	$fr0->gridColumnconfigure(2, -minsize => 15);
 	$fr0->gridColumnconfigure(3, -weight => 1);
-	$fr0->gridRowconfigure(3, -weight => 1, -minsize => 5);
+	$fr0->gridRowconfigure(5, -weight => 1, -minsize => 5);
 
 	$fr0->Label(-text => 'Liste der OV-Wettbewerbe')
 	  ->grid(-sticky => 'nw', -columnspan => 3);
 	
-	$gui_fjlist = $fr0->Scrolled('Text',
-		-scrollbars =>'oe',width => 30, height => 7)
-	  ->grid(-row => 1, -column => 1, -sticky => 'wens', -rowspan => 4);
+#	$gui_fjlist = $fr0->Scrolled('Text',
+#		-scrollbars =>'oe',width => 30, height => 7)
+	$gui_fjlist = $fr0->Scrolled('Listbox',
+		-scrollbars =>'osoe')
+	  ->grid(-row => 1, -column => 1, -sticky => 'wens', -rowspan => 6);
 	
 	my ($col, $row) = (3, 1);
+	$fr0->Button(
+	        -text => 'OV-Wettbewerb hinzufügen',
+	        -command => \&do_create_ovfj,
+	        -state => 'normal')
+	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
 	$edit_ovfj_button = $fr0->Button(
 	        -text => 'OV-Wettbewerb bearbeiten',
 	        -command => \&do_edit_ovfj,
@@ -270,6 +280,11 @@ sub make_ovfj_list {
 				do_eval_ovfj($ovfjname);
 			},
 	        -state => 'disabled')
+	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
+	$fr0->Button(
+	        -text => 'OV-Wettbewerb entfernen',
+	        -command => \&do_delete_ovfj,
+	        -state => 'normal')
 	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
 	$row++;
 	$eval_all_button = $fr0->Button(
@@ -345,7 +360,7 @@ sub make_ovfj_detail {
 	-sticky => 'we');
 
 	$fr0->Label(-text => "Datei-Inhalt", -anchor => 'nw') ->grid(
-	$gui_ovfj_view = $fr0->Scrolled('Text',-scrollbars =>'e',-width => 70, -height => 10, -state => 'disabled'),
+	$gui_ovfj_view = $fr0->Scrolled('Text',-scrollbars =>'ose',-width => 70, -height => 10, -state => 'disabled'),
 	'-','-','-','-','-','-','-','-','-',
 	-sticky => "nswe");
 
@@ -361,7 +376,7 @@ sub make_meldungen {
 	$fr5->gridColumnconfigure(0, -weight => 1);
 	$fr5->gridRowconfigure(1, -weight => 1);
 	$fr5->Label(-text => 'Meldungen')->grid(-stick => "w");
-	$gui_meldung = $fr5->Scrolled('Listbox',-scrollbars =>'e',-width => 80, -height => 6)
+	$gui_meldung = $fr5->Scrolled('Listbox',-scrollbars =>'ose',-width => 80, -height => 6)
 	  ->grid(-stick => "nswe");
 	return $fr5;
 }
@@ -417,8 +432,8 @@ sub do_ovfj_dialog {
 	my $ovfjname = shift
 	 or carp "OV-Wettbewerb?";
 	my $dlg = $mw->DialogBox(
-	  -title          => "'$ovfjname' bearbeiten",
-	  -buttons        => ['Speichern', 'Importieren...', 'Auswerten', 'Hilfe', 'Abbrechen'],
+	  -title          => sprintf("OVFJ %s", get_ovfj_string($ovfjname)),
+	  -buttons        => ['Übernehmen', 'Importieren...', 'Auswerten', 'Hilfe', 'Abbrechen'],
 	  -default_button => 'Abbrechen',
 	);
 	# http://www.annocpan.org/~NI-S/Tk-804.027/pod/DialogBox.pod
@@ -440,7 +455,7 @@ sub do_ovfj_dialog {
 	
 	while (1) {
 		my $sel = $dlg->Show;
-		if ($sel eq 'Speichern') {
+		if ($sel eq 'Übernehmen') {
 			my %ovfj = get_ovfj();
 			# FIXME $project->{"OVFJ $ovfjname"} = { };
 			%{$project->{"OVFJ $ovfjname"}} = %ovfj;
@@ -472,17 +487,30 @@ sub set_general {
 	set_genfilename(shift);
 	modify_general(@_);
 	%orig_general = get_general();
-	$orig_ovfj_link = $gui_fjlist->Contents();
+#	$orig_ovfj_link = $gui_fjlist->Contents();
 	return 1;
+}
+
+sub fjlist_sort {
+	return sort {
+		$project->{"OVFJ $a"}{Datum} =~ /^(\d?\d)\.(\d?\d)\.((?:19|20)\d\d)$/ or return -1;
+		my $dat_a = sprintf("%2d.%2d.%4d", $3, $2, $1);
+		$project->{"OVFJ $b"}{Datum} =~ /^(\d?\d)\.(\d?\d)\.((?:19|20)\d\d)$/ or return 1;
+		my $dat_b = sprintf("%2d.%2d.%4d", $3, $2, $1);
+		return $dat_a cmp $dat_b;
+	} @_;
 }
 
 sub modify_general {
 	my %new_general = @_;
 	$gui_ExcludeTln->{Value} = $new_general{Exclude_Checkmark} || 0; 
 	$new_general{ovfj_link} ||= [];
-	$gui_fjlist->Contents( join("\n", @{$new_general{ovfj_link}}) );
-	$gui_fjlist->markSet('insert','0.0'); # Workaround für Bug bei ersten Cursorbewegungen
-	$gui_fjlist->see('insert');
+	@curr_ovfj_link = fjlist_sort(@{$new_general{ovfj_link}});
+	$gui_fjlist->delete(0, 'end');
+	$gui_fjlist->insert(0, map { get_ovfj_string($_) } @curr_ovfj_link );
+#	$gui_fjlist->Contents( join("\n", @{$new_general{ovfj_link}}) );
+#	$gui_fjlist->markSet('insert','0.0'); # Workaround für Bug bei ersten Cursorbewegungen
+#	$gui_fjlist->see('insert');
 	map {
 		$gui_general{$_}->delete(0, "end");
 		$gui_general{$_}->insert(0, $new_general{$_} || '');
@@ -496,7 +524,8 @@ sub get_general {
 		$general{$key} = $value->get();
 	}
 	$general{Exclude_Checkmark} = $gui_ExcludeTln->{Value};
-	@{$general{ovfj_link}} = split "\n", $gui_fjlist->Contents();
+#	@{$general{ovfj_link}} = split "\n", $gui_fjlist->Contents();
+	@{$general{ovfj_link}} = @curr_ovfj_link;
 	return %general;
 }
 
@@ -506,13 +535,16 @@ sub general_modified {
 	$orig_general{Exclude_Checkmark} ne $gui_ExcludeTln->{Value}
 	or grep {
 		$gui_general{$_}->get() ne ($orig_general{$_} || "");
-	} keys %gui_general
-	or $orig_ovfj_link ne $gui_fjlist->Contents();
+	} keys %gui_general 
+	or grep { my $foo = $_; ! grep {$foo eq $_} @{$orig_general{ovfj_link}} } @curr_ovfj_link;
+;#FIXME	or $orig_ovfj_link ne $gui_fjlist->Contents();
 }
 
 
 sub get_selected_ovfj {
-	return get_selected($gui_fjlist);
+	my $sel = $gui_fjlist->curselection() or return;
+	return $curr_ovfj_link[$sel->[0]];
+#	return get_selected($gui_fjlist);
 }
 
 
@@ -537,6 +569,18 @@ sub modify_ovfj {
 		$gui_ovfj_view->configure(-state => 'disabled');
 	}
 	return 1;
+}
+
+sub get_ovfj_string {
+	my $ovfj = $project->{"OVFJ $_[0]"};
+	my @items;
+	push @items, $ovfj->{Datum} || 'Datum?';
+	push @items, $ovfj->{AusrichtOV} || 'OV?';
+	push @items, $ovfj->{AusrichtDOK} || 'DOK?';
+	push @items, $ovfj->{Band} || '?';
+	push @items, $ovfj->{OVFJDatei} || '?';
+	$items[-1] =~ s:^.*/::;
+	return sprintf "%s, %s (%s), Band: %s, Datei: %s", @items;
 }
 
 sub get_ovfj {
@@ -713,8 +757,8 @@ sub CheckForSaveGenfile {
 	if (general_modified()) {
 		my $response = $mw->messageBox(
 			-icon    => 'question', 
-			-title   => "Generelle Daten '$OVJ::genfilename' speichern?", 
-			-message => "Generelle Daten '$OVJ::genfilename' wurden geändert\n".
+			-title   => "Datei '$OVJ::genfilename' speichern?", 
+			-message => "Datei '$OVJ::genfilename' wurden geändert\n".
 			            "und noch nicht gespeichert.\n\n".
 						"Speichern?", 
 			-type    => 'YesNoCancel', 
@@ -805,13 +849,44 @@ sub get_selected {
 	return $selected;
 }
 
+#Anlage einer neuen Veranstaltung
+sub do_create_ovfj {
+	my $ovfjname = scalar @curr_ovfj_link;
+	while (grep /^$ovfjname$/, @curr_ovfj_link) { $ovfjname++ }
+	do_ovfj_dialog($ovfjname);
+	if (exists $project->{"OVFJ $ovfjname"}) {
+		my %new_general = get_general();
+		push @{$new_general{ovfj_link}}, $ovfjname;
+		modify_general(%new_general);
+	}
+}
+
 #Auswahl einer Veranstaltung durch den Anwender
 sub do_edit_ovfj {
 	my $ovfjname = get_selected_ovfj()
 	 or return;
-	CheckForGenfilename() 
+	CheckForGenfilename() #FIXME 
 	 or return;
 	do_ovfj_dialog($ovfjname);
+	modify_general(get_general()); # OVFJ-Liste aktualisieren
+}
+
+# Löschen einer Veranstaltung
+sub do_delete_ovfj {
+	my $ovfjname = get_selected_ovfj()
+	 or return;
+	my $dialog = $mw->Dialog(
+		-title => 'OV-Wettbewerb entfernen',
+		-bitmap => 'question',
+		-text => sprintf("OV-Wettbewerb '%s' löschen?", get_ovfj_string($ovfjname)),
+		-buttons => ['Löschen', 'Abbrechen'] );
+	my $answer = $dialog->Show();
+	if ($answer eq "Löschen") {
+		my %new_general = get_general();
+		@{$new_general{ovfj_link}} = grep !/^$ovfjname$/, @{$new_general{ovfj_link}};
+		delete $project->{"OVFJ $ovfjname"};
+		modify_general(%new_general);
+	}
 }
 
 
@@ -995,8 +1070,10 @@ sub do_eval_ovfj {
 
 # Aktuellen Stand des Projekts ermitteln
 sub update_project {
-#	$project{General} = (); FIXME
-	%{$project->{General}} = get_general();
+	my %update = get_general();
+	while (my ($key, $value) = each %update) {
+		$project->{General}{$key} = $value;
+	}
 	return $project;
 }
 
@@ -1014,7 +1091,7 @@ sub tk_dir {
 	my $dir = shift;
 	my $sep = $^O =~ /MSWin32/ ? '\\' : '/';
 	$dir =~ s/\//$sep/g;
-	return $dir;
+	return -d $dir ? $dir : '.';
 }
 
 1;
