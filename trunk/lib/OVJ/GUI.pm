@@ -199,7 +199,11 @@ sub make_general {
 	$gui_general{Jahr} = $fr0->Entry(-width => 4),
 	-sticky => 'we');
 		
-	$fr0->Label(-text => 'Name', -anchor => 'w')->grid(
+	#$fr0->Label(-text => 'Name', -anchor => 'w')->grid(
+	$fr0->Button(
+		-text    => 'Name', 
+		-state   => 'normal',
+		-command => sub { select_name_ovj($parent) } ) ->grid(
 	$gui_general{Name} = $fr0->Entry(-width => 16),
 	'x',
 	$fr0->Label(-text => 'Vorname', -anchor => 'w'),
@@ -275,8 +279,8 @@ sub make_ovfj_list {
 	$eval_ovfj_button = $fr0->Button(
 	        -text => 'OV-Wettbewerb auswerten',
 	        -command => sub {
-				my $ovfjname = get_selected_ovfj()
-				 or return;
+				my $ovfjname = get_selected_ovfj();
+				defined $ovfjname or return;
 				do_eval_ovfj($ovfjname);
 			},
 	        -state => 'disabled')
@@ -315,26 +319,35 @@ sub make_ovfj_detail {
 	        -state => 'normal',
 	        -command => sub{ do_select_fjfile($parent) } ) ->grid(
 	$gui_ovfj{OVFJDatei} = $fr0->Entry(-width => 20),
-	'x',
-	$fr0->Label(-text => 'Ausricht. OV', -anchor => 'w'),
-	$gui_ovfj{AusrichtOV} = $fr0->Entry(-width => 3),
-	'x',
-	$fr0->Label(-text => 'DOK', -anchor => 'w'),
-	$gui_ovfj{AusrichtDOK} = $fr0->Entry(-width => 4),
-	-sticky => 'we');
-
-	$fr0->Label(-text => 'Datum', -anchor => 'w') ->grid(
-	$gui_ovfj{Datum} = $fr0->Entry(-width => 10),
-	'x',
-	$fr0->Label(-text => 'Band', -anchor => 'w'),
-	$gui_ovfj{Band} = $fr0->Entry(-width => 2),
+	'-','-','-',
 	'x',
 	$fr0->Label(-text => 'Anz. Teilnehmer manuell', -anchor => 'w'),
 	'-','-','-',
 	$gui_ovfj{TlnManuell} = $fr0->Entry(-width => 2),
 	-sticky => 'we');
 
-	$fr0->Label(-text => 'Name', -anchor => 'w') ->grid(
+	$fr0->Label(-text => 'Datum', -anchor => 'w') ->grid(
+	$gui_ovfj{Datum} = $fr0->Entry(-width => 10),
+	'x',
+	#$fr0->Label(-text => 'Ausricht. OV', -anchor => 'w'),
+	$fr0->Button(
+		-text    => 'Ausricht. OV', 
+		-state   => 'normal',
+		-command => sub { select_ov($parent) } ),
+	$gui_ovfj{AusrichtOV} = $fr0->Entry(-width => 3),
+	'x',
+	$fr0->Label(-text => 'DOK', -anchor => 'w'),
+	$gui_ovfj{AusrichtDOK} = $fr0->Entry(-width => 4),
+	'x',
+	$fr0->Label(-text => 'Band', -anchor => 'w'),
+	$gui_ovfj{Band} = $fr0->Entry(-width => 2),
+	-sticky => 'we', -pady => 5);
+
+	#$fr0->Label(-text => 'Name', -anchor => 'w') ->grid(
+	$fr0->Button(
+		-text    => 'Name', 
+		-state   => 'normal',
+		-command => sub { select_name_ovfj($parent) } ) ->grid(
 	$gui_ovfj{Verantw_Name} = $fr0->Entry(),
 	'x',
 	$fr0->Label(-text => 'Vorname', -anchor => 'w'),
@@ -379,6 +392,181 @@ sub make_meldungen {
 	$gui_meldung = $fr5->Scrolled('Listbox',-scrollbars =>'ose',-width => 80, -height => 6)
 	  ->grid(-stick => "nswe");
 	return $fr5;
+}
+
+sub get_ov_catalogue {
+	my $project = shift;
+	my %catalogue;
+
+	foreach (@{$project->{General}{ovfj_link}}) {
+		my $ov  = $project->{"OVFJ $_"}{AusrichtOV}  || '?';
+		my $dok = $project->{"OVFJ $_"}{AusrichtDOK} || '?';
+		my $key = "$dok - $ov";
+		$catalogue{$key} = [$dok, $ov] unless ($key eq '? - ?');
+	}
+	return wantarray ? %catalogue : \%catalogue;
+}
+
+sub select_ov {
+	my $parent = shift || $mw;
+	my $dlg = $parent->DialogBox(
+	  -title          => 'OV-Katalog',
+	  -buttons        => ['Übernehmen', 'Aus anderem Projekt...', 'Hilfe', 'Abbrechen'],
+	  -default_button => '', # Kein Default-Button,
+	                         # da sonst Return-Taste nicht verwendbar
+	);
+	# http://www.annocpan.org/~NI-S/Tk-804.027/pod/DialogBox.pod
+	$dlg->protocol( WM_DELETE_WINDOW => sub { 
+		$dlg->{selected_button} = 'Abbrechen' } );
+	my $listbox = $dlg->add('Scrolled', 'Listbox', 
+		-scrollbars => 'osoe' )
+	  ->pack(-fill => 'both', -expand => 1);
+	my $ov_catalogue = get_ov_catalogue($project);
+	$listbox->insert(0, sort keys %$ov_catalogue);
+	while (1) {
+		$listbox->activate(0);
+		my $sel = $dlg->Show;
+		if ($sel eq 'Übernehmen') {
+			my $item = $listbox->curselection() or next;
+			my $record = $ov_catalogue->{$listbox->get($item->[0])};
+			my %ovfj_tmp = get_ovfj();
+			$ovfj_tmp{AusrichtDOK} = $record->[0];
+			$ovfj_tmp{AusrichtOV}  = $record->[1];
+			modify_ovfj(%ovfj_tmp);
+			last;
+		}
+		elsif ($sel eq 'Aus anderem Projekt...') {
+			my $types = [['OVJ-Projekt', '.ovj'],['Alle Dateien','*',]];
+			my $selfile = $mw->getOpenFile(
+				-initialdir => tk_dir(OVJ::get_path($OVJ::genfilename,$OVJ::configdir)),
+				-filetypes => $types, 
+				-title => "OVs aus anderem OVJ-Projekt einlesen" );
+			return if (!defined($selfile) || $selfile eq "");
+			my $other = OVJ::read_ovj_file($selfile) or next;
+			$ov_catalogue = get_ov_catalogue($other);
+			$listbox->delete(0, 'end');
+			$listbox->insert(0, sort keys %$ov_catalogue);
+		}
+		elsif ($sel eq 'Hilfe') {
+			warn "Noch nicht implementiert";
+#			show_help('auswertungsmuster.htm');
+		}
+		elsif ($sel eq 'Abbrechen') {
+			last;
+		}
+		else {
+			warn "Fehler: Kommando '$sel' nicht bekannt";
+			last;
+		}
+	}
+	return;
+}
+
+sub get_name_catalogue {
+	my $project = shift;
+	my %catalogue;
+
+	my $catalogue_add = sub {
+		my $input = shift;
+		my %record;
+		my $i = 0;
+		map {
+			$record{$_} = $input->{$_[$i++]} || ''
+		} qw/Name Vorname Call DOK GebJahr Telefon Home-BBS E-Mail/;
+		$record{CALL} = $record{Call}; # Vereinfachung bei Verwendern
+		my $key = "$record{Name}, $record{Vorname}, $record{Call}";
+		if ($key eq ', , ') {
+			return
+		}
+		elsif (exists $catalogue{$key}) {
+			map {
+				$catalogue{$key}->{$_} ||= $record{$_};
+			} qw/DOK GebJahr Telefon Home-BBS E-Mail/;
+		}
+		else {
+			$catalogue{$key} = \%record;
+		}
+	};
+		
+	&$catalogue_add($project->{General}, 
+	               qw/Name Vorname Call DOK - Telefon Home-BBS E-Mail/ );
+	foreach (@{$project->{General}{ovfj_link}}) {
+		&$catalogue_add($project->{"OVFJ $_"},
+		               qw/Verantw_Name Verantw_Vorname Verantw_CALL
+					      Verantw_DOK Verantw_GebJahr - - -/);
+	}
+	return wantarray ? %catalogue : \%catalogue;
+}
+
+sub select_name_ovj {
+	my $parent = shift || $mw;
+	my $record = do_name_dialog($parent) or return;
+	my %general_tmp = get_general();
+	map {
+		$general_tmp{$_} = $record->{$_}
+	} qw/Name Vorname Call DOK Telefon Home-BBS E-Mail/;
+	modify_general(%general_tmp);
+}
+
+sub select_name_ovfj {
+	my $parent = shift || $mw;
+	my $record = do_name_dialog($parent) or return;
+	my %ovfj_tmp = get_ovfj();
+	map {
+		$ovfj_tmp{"Verantw_$_"} = $record->{$_}
+	} qw/Name Vorname CALL DOK GebJahr/;
+	modify_ovfj(%ovfj_tmp);
+}
+
+sub do_name_dialog {
+	my $parent = shift || $mw;
+	my $dlg = $parent->DialogBox(
+	  -title          => 'Namenskatalog',
+	  -buttons        => ['Übernehmen', 'Aus anderem Projekt...', 'Hilfe', 'Abbrechen'],
+	  -default_button => '', # Kein Default-Button,
+	                         # da sonst Return-Taste nicht verwendbar
+	);
+	# http://www.annocpan.org/~NI-S/Tk-804.027/pod/DialogBox.pod
+	$dlg->protocol( WM_DELETE_WINDOW => sub { 
+		$dlg->{selected_button} = 'Abbrechen' } );
+	my $listbox = $dlg->add('Scrolled', 'Listbox', 
+		-scrollbars => 'osoe' )
+	  ->pack(-fill => 'both', -expand => 1);
+	my $name_catalogue = get_name_catalogue($project);
+	$listbox->insert(0, sort keys %$name_catalogue);
+	while (1) {
+		$listbox->activate(0);
+		my $sel = $dlg->Show;
+		if ($sel eq 'Übernehmen') {
+			my $item = $listbox->curselection() or next;
+			my $record = $name_catalogue->{$listbox->get($item->[0])};
+			return $record;
+		}
+		elsif ($sel eq 'Aus anderem Projekt...') {
+			my $types = [['OVJ-Projekt', '.ovj'],['Alle Dateien','*',]];
+			my $selfile = $mw->getOpenFile(
+				-initialdir => tk_dir(OVJ::get_path($OVJ::genfilename,$OVJ::configdir)),
+				-filetypes => $types, 
+				-title => "Namen aus anderem OVJ-Projekt einlesen" );
+			return if (!defined($selfile) || $selfile eq "");
+			my $other = OVJ::read_ovj_file($selfile) or next;
+			$name_catalogue = get_name_catalogue($other);
+			$listbox->delete(0, 'end');
+			$listbox->insert(0, sort keys %$name_catalogue);
+		}
+		elsif ($sel eq 'Hilfe') {
+			warn "Noch nicht implementiert";
+#			show_help('auswertungsmuster.htm');
+		}
+		elsif ($sel eq 'Abbrechen') {
+			last;
+		}
+		else {
+			warn "Fehler: Kommando '$sel' nicht bekannt";
+			last;
+		}
+	}
+	return;
 }
 
 sub do_pattern_dialog { 
@@ -429,8 +617,7 @@ sub do_pattern_dialog {
 }
 
 sub do_ovfj_dialog {
-	my $ovfjname = shift
-	 or carp "OV-Wettbewerb?";
+	my $ovfjname = shift;
 	my $dlg = $mw->DialogBox(
 	  -title          => sprintf("OVFJ %s", get_ovfj_string($ovfjname)),
 	  -buttons        => ['Übernehmen', 'Importieren...', 'Auswerten', 'Hilfe', 'Abbrechen'],
@@ -731,10 +918,11 @@ sub CheckForUnsavedPatterns {
 sub CheckForOverwriteOVFJ {
 	if (ovfj_modified()) {
 		my $ovfjname = get_selected_ovfj();
+		defined $ovfjname or carp "FOO";
 		my $response = $mw->messageBox(
 			-icon    => 'question', 
 			-title   => 'OVFJ Daten speichern?', 
-			-message => "Kopfdaten zum OV Wettbewerb '$ovfjname' wurden geändert\n".
+			-message => sprintf("Kopfdaten zum OV Wettbewerb '%s' wurden geändert\n",$ovfjname||'NEU').
 			            "und noch nicht gespeichert.\n\n".
 			            "Speichern?", 
 			-type    => 'YesNoCancel', 
@@ -863,8 +1051,8 @@ sub do_create_ovfj {
 
 #Auswahl einer Veranstaltung durch den Anwender
 sub do_edit_ovfj {
-	my $ovfjname = get_selected_ovfj()
-	 or return;
+	my $ovfjname = get_selected_ovfj();
+	defined $ovfjname or return;
 	CheckForGenfilename() #FIXME 
 	 or return;
 	do_ovfj_dialog($ovfjname);
@@ -873,8 +1061,8 @@ sub do_edit_ovfj {
 
 # Löschen einer Veranstaltung
 sub do_delete_ovfj {
-	my $ovfjname = get_selected_ovfj()
-	 or return;
+	my $ovfjname = get_selected_ovfj();
+	defined $ovfjname or return;
 	my $dialog = $mw->Dialog(
 		-title => 'OV-Wettbewerb entfernen',
 		-bitmap => 'question',
@@ -895,7 +1083,7 @@ sub do_delete_ovfj {
 sub do_select_fjfile {
 	my $parent = $_[0] 
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
-	my $fjdir = OVJ::get_path($OVJ::genfilename, $OVJ::inputdir);
+	my $fjdir = tk_dir(OVJ::get_path($OVJ::genfilename, $OVJ::inputdir));
 	(-e $fjdir && -d $fjdir)
 	 or return meldung(OVJ::FEHLER, "Verzeichnis '$fjdir' nicht vorhanden");
 	
@@ -905,7 +1093,7 @@ sub do_select_fjfile {
 	# wird aber von pp unter Windows nicht ordentlich in eine .exe-Datei gepackt
 	# http://www.perltk.org/index.php?option=com_content&task=view&id=21&Itemid=28
 	my %dialog_options = (
-		-initialdir => tk_dir($fjdir),
+		-initialdir => $fjdir,
 		-filetypes  => [['Text Files','.txt'],['All Files','*',]],
 		-title      => "FJ Datei auswählen");
 	my $selfile = ($^O =~ /MSWin32/) ?
@@ -923,7 +1111,7 @@ sub do_select_fjfile {
 sub do_import_ovfjfile {
 	my $parent = $_[0] 
 	  or carp "Parameter für übergeordnetes Fenster fehlt";
-	my $dir = OVJ::get_path($OVJ::genfilename, $OVJ::configdir);
+	my $dir = tk_dir(OVJ::get_path($OVJ::genfilename, $OVJ::configdir));
 	(-e $dir && -d $dir)
 	 or return meldung(OVJ::FEHLER, "Verzeichnis '$dir' nicht vorhanden");
 
@@ -933,7 +1121,7 @@ sub do_import_ovfjfile {
 	# wird aber von pp unter Windows nicht ordentlich in eine .exe-Datei gepackt
 	# http://www.perltk.org/index.php?option=com_content&task=view&id=21&Itemid=28
 	my %dialog_options = (
-		-initialdir => tk_dir($dir),
+		-initialdir => $dir,
 		-filetypes  => [['Text Files','*_ovj.txt'],['All Files','*',]],
 		-title      => "OVFJ Datei auswählen");
 	my $selfile = ($^O =~ /MSWin32/) ?
