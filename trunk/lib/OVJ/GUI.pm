@@ -133,7 +133,7 @@ sub init {
 	make_meldungen($mw)->grid(-sticky => 'nswe');
 
 	set_patterns(OVJ::read_patterns());
-	reset_general();
+	reset_project();
 
 	return $mw;
 }
@@ -147,7 +147,7 @@ sub make_menu {
 	my $menu_bar = $parent->Menu( -type=>'menubar' );
 	$menu_bar->add('cascade', -label => 'Datei', -underline => 0, -menu => 
 		$menu_bar->Menu( -tearoff => 0, -menuitems => [
-			[ Button => "Neu", -underline => 0, -command => \&reset_general],
+			[ Button => "Neu", -underline => 0, -command => \&reset_project],
 			[ Button => "Öffnen...", -underline => 1, -command => \&open_file_general],
 			[ Button => "Importieren...", -underline => 0, -command => \&import_file_general],
 			[ Button => "Speichern", -underline => 0, -command => \&save_file_general],
@@ -411,7 +411,7 @@ sub select_ov {
 	my $parent = shift || $mw;
 	my $dlg = $parent->DialogBox(
 	  -title          => 'OV-Katalog',
-	  -buttons        => ['Übernehmen', 'Aus anderem Projekt...', 'Hilfe', 'Abbrechen'],
+	  -buttons        => ['Übernehmen', 'Importieren...', 'Hilfe', 'Abbrechen'],
 	  -default_button => '', # Kein Default-Button,
 	                         # da sonst Return-Taste nicht verwendbar
 	);
@@ -435,7 +435,7 @@ sub select_ov {
 			modify_ovfj(%ovfj_tmp);
 			last;
 		}
-		elsif ($sel eq 'Aus anderem Projekt...') {
+		elsif ($sel eq 'Importieren...') {
 			my $types = [['OVJ-Projekt', '.ovj'],['Alle Dateien','*',]];
 			my $selfile = $mw->getOpenFile(
 				-initialdir => tk_dir(OVJ::get_path($OVJ::genfilename,$OVJ::configdir)),
@@ -522,7 +522,7 @@ sub do_name_dialog {
 	my $parent = shift || $mw;
 	my $dlg = $parent->DialogBox(
 	  -title          => 'Namenskatalog',
-	  -buttons        => ['Übernehmen', 'Aus anderem Projekt...', 'Hilfe', 'Abbrechen'],
+	  -buttons        => ['Übernehmen', 'Importieren...', 'Hilfe', 'Abbrechen'],
 	  -default_button => '', # Kein Default-Button,
 	                         # da sonst Return-Taste nicht verwendbar
 	);
@@ -542,7 +542,7 @@ sub do_name_dialog {
 			my $record = $name_catalogue->{$listbox->get($item->[0])};
 			return $record;
 		}
-		elsif ($sel eq 'Aus anderem Projekt...') {
+		elsif ($sel eq 'Importieren...') {
 			my $types = [['OVJ-Projekt', '.ovj'],['Alle Dateien','*',]];
 			my $selfile = $mw->getOpenFile(
 				-initialdir => tk_dir(OVJ::get_path($OVJ::genfilename,$OVJ::configdir)),
@@ -663,9 +663,9 @@ sub do_ovfj_dialog {
 	}
 }
 
-sub reset_general {
+sub reset_project {
 	if (CheckForSaveGenfile()) {
-		set_general();
+		set_project(UNNAMED, { General => {}, } );
 		clear_meldung();
 	}
 }
@@ -918,7 +918,7 @@ sub CheckForUnsavedPatterns {
 sub CheckForOverwriteOVFJ {
 	if (ovfj_modified()) {
 		my $ovfjname = get_selected_ovfj();
-		defined $ovfjname or carp "FOO";
+		defined $ovfjname or carp "FIXME";
 		my $response = $mw->messageBox(
 			-icon    => 'question', 
 			-title   => 'OVFJ Daten speichern?', 
@@ -1039,7 +1039,7 @@ sub get_selected {
 
 #Anlage einer neuen Veranstaltung
 sub do_create_ovfj {
-	my $ovfjname = scalar @curr_ovfj_link;
+	my $ovfjname = 1 + scalar @curr_ovfj_link;
 	while (grep /^$ovfjname$/, @curr_ovfj_link) { $ovfjname++ }
 	do_ovfj_dialog($ovfjname);
 	if (exists $project->{"OVFJ $ovfjname"}) {
@@ -1051,8 +1051,8 @@ sub do_create_ovfj {
 
 #Auswahl einer Veranstaltung durch den Anwender
 sub do_edit_ovfj {
-	my $ovfjname = get_selected_ovfj();
-	defined $ovfjname or return;
+	my $ovfjname = get_selected_ovfj()
+	 or return;
 	CheckForGenfilename() #FIXME 
 	 or return;
 	do_ovfj_dialog($ovfjname);
@@ -1061,8 +1061,8 @@ sub do_edit_ovfj {
 
 # Löschen einer Veranstaltung
 sub do_delete_ovfj {
-	my $ovfjname = get_selected_ovfj();
-	defined $ovfjname or return;
+	my $ovfjname = get_selected_ovfj()
+	 or return;
 	my $dialog = $mw->Dialog(
 		-title => 'OV-Wettbewerb entfernen',
 		-bitmap => 'question',
