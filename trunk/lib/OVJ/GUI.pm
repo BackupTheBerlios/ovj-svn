@@ -1101,6 +1101,7 @@ sub do_select_fjfile {
 		$parent->FBox(-type => 'open')->Show(%dialog_options);
 	return unless ($selfile && $selfile ne "");
 
+	$fjdir =~ tr/\\/\//;
 	$selfile =~ s/^$fjdir\/([^\/]+)$/$1/;
 	my %ovfj = OVJ::import_fjfile($selfile)
 	 or return;
