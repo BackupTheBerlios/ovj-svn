@@ -70,6 +70,7 @@ my $gui_meldung;
 
 my $edit_ovfj_button;
 my $eval_ovfj_button;
+my $del_ovfj_button;
 my $eval_all_button;
 
 my %gui_ovfj;
@@ -79,14 +80,17 @@ my $gui_patterns;
 
 my $curr_patterns;
 my $orig_patterns;
-my %orig_ovfj;
 my @curr_ovfj_link;
 my @curr_ovfj_link_modified;
-#my $orig_ovfj_link;
-my %orig_general;
 
 # Unsere neue Projektstruktur
 my $project;
+
+# Katalog bekannter OVs
+my %ov_catalogue;
+
+# Katalog bekannter Personen
+my %name_catalogue;
 
 =head2 sub run
 
@@ -285,7 +289,7 @@ sub make_ovfj_list {
 			},
 	        -state => 'disabled')
 	  ->grid(-row => $row++, -column => $col, -sticky => 'we');
-	$fr0->Button(
+	$del_ovfj_button = $fr0->Button(
 	        -text => 'OV-Wettbewerb entfernen',
 	        -command => \&do_delete_ovfj,
 	        -state => 'normal')
@@ -396,15 +400,14 @@ sub make_meldungen {
 
 sub get_ov_catalogue {
 	my $project = shift;
-	my %catalogue;
 
 	foreach (@{$project->{General}{ovfj_link}}) {
 		my $ov  = $project->{"OVFJ $_"}{AusrichtOV}  || '?';
 		my $dok = $project->{"OVFJ $_"}{AusrichtDOK} || '?';
 		my $key = "$dok - $ov";
-		$catalogue{$key} = [$dok, $ov] unless ($key eq '? - ?');
+		$ov_catalogue{$key} = [$dok, $ov] unless ($key eq '? - ?');
 	}
-	return wantarray ? %catalogue : \%catalogue;
+	return wantarray ? %ov_catalogue : \%ov_catalogue;
 }
 
 sub select_ov {
@@ -464,7 +467,6 @@ sub select_ov {
 
 sub get_name_catalogue {
 	my $project = shift;
-	my %catalogue;
 
 	my $catalogue_add = sub {
 		my $input = shift;
@@ -478,13 +480,13 @@ sub get_name_catalogue {
 		if ($key eq ', , ') {
 			return
 		}
-		elsif (exists $catalogue{$key}) {
+		elsif (exists $name_catalogue{$key}) {
 			map {
-				$catalogue{$key}->{$_} ||= $record{$_};
+				$name_catalogue{$key}->{$_} ||= $record{$_};
 			} qw/DOK GebJahr Telefon Home-BBS E-Mail/;
 		}
 		else {
-			$catalogue{$key} = \%record;
+			$name_catalogue{$key} = \%record;
 		}
 	};
 		
@@ -495,7 +497,7 @@ sub get_name_catalogue {
 		               qw/Verantw_Name Verantw_Vorname Verantw_CALL
 					      Verantw_DOK Verantw_GebJahr - - -/);
 	}
-	return wantarray ? %catalogue : \%catalogue;
+	return wantarray ? %name_catalogue : \%name_catalogue;
 }
 
 sub select_name_ovj {
@@ -636,7 +638,7 @@ sub do_ovfj_dialog {
 		set_ovfj($ovfjname, %{$project->{"OVFJ $ovfjname"}});
 	}
 	else {
-		meldung(OVJ::INFO, "Noch keine Daten für '$ovfjname' gespeichert");
+		meldung(OVJ::INFO, "OV-Wettbewerb hinzufügen...");
 		set_ovfj($ovfjname);
 	}
 	
@@ -652,13 +654,13 @@ sub do_ovfj_dialog {
 			do_import_ovfjfile($mw);
 		}
 		elsif ($sel eq 'Auswerten') {
-			do_eval_ovfj($ovfjname) if CheckForOverwriteOVFJ();
+			do_eval_ovfj($ovfjname) if CheckForOverwriteOVFJ($ovfjname);
 		}
 		elsif ($sel eq 'Hilfe') {
 			show_help('schritt3.htm');
 		}
 		else {
-			last if CheckForOverwriteOVFJ();
+			last if CheckForOverwriteOVFJ($ovfjname);
 		}
 	}
 }
@@ -673,8 +675,7 @@ sub reset_project {
 sub set_general {
 	set_genfilename(shift);
 	modify_general(@_);
-	%orig_general = get_general();
-#	$orig_ovfj_link = $gui_fjlist->Contents();
+	%{$project->{General}} = get_general();
 	return 1;
 }
 
@@ -695,9 +696,10 @@ sub modify_general {
 	@curr_ovfj_link = fjlist_sort(@{$new_general{ovfj_link}});
 	$gui_fjlist->delete(0, 'end');
 	$gui_fjlist->insert(0, map { get_ovfj_string($_) } @curr_ovfj_link );
-#	$gui_fjlist->Contents( join("\n", @{$new_general{ovfj_link}}) );
-#	$gui_fjlist->markSet('insert','0.0'); # Workaround für Bug bei ersten Cursorbewegungen
-#	$gui_fjlist->see('insert');
+	my $button_state = (scalar @curr_ovfj_link) ? 'normal' : 'disabled';
+	foreach ($edit_ovfj_button, $eval_ovfj_button, $del_ovfj_button, $eval_all_button) {
+		$_->configure(-state => $button_state);
+	}
 	map {
 		$gui_general{$_}->delete(0, "end");
 		$gui_general{$_}->insert(0, $new_general{$_} || '');
@@ -711,34 +713,30 @@ sub get_general {
 		$general{$key} = $value->get();
 	}
 	$general{Exclude_Checkmark} = $gui_ExcludeTln->{Value};
-#	@{$general{ovfj_link}} = split "\n", $gui_fjlist->Contents();
 	@{$general{ovfj_link}} = @curr_ovfj_link;
 	return %general;
 }
 
 # Test auf Änderungen
 sub general_modified {
-	defined $orig_general{ovfj_link} or return;
-	$orig_general{Exclude_Checkmark} ne $gui_ExcludeTln->{Value}
+	defined $project->{General}{ovfj_link} or return;
+	$project->{General}{Exclude_Checkmark} ne $gui_ExcludeTln->{Value}
 	or grep {
-		$gui_general{$_}->get() ne ($orig_general{$_} || "");
+		$gui_general{$_}->get() ne ($project->{General}{$_} || "");
 	} keys %gui_general 
-	or grep { my $foo = $_; ! grep {$foo eq $_} @{$orig_general{ovfj_link}} } @curr_ovfj_link;
-;#FIXME	or $orig_ovfj_link ne $gui_fjlist->Contents();
+	or grep { my $link = $_; ! grep {$link eq $_} @{$project->{General}{ovfj_link}} } @curr_ovfj_link;
 }
 
 
 sub get_selected_ovfj {
 	my $sel = $gui_fjlist->curselection() or return;
 	return $curr_ovfj_link[$sel->[0]];
-#	return get_selected($gui_fjlist);
 }
 
 
 sub set_ovfj {
 	my $ovfjname = shift; # FIXME: unbenutzt, aber evt. sinnvoll
 	modify_ovfj(@_);
-	%orig_ovfj = get_ovfj();
 	return 1;
 }
 
@@ -759,7 +757,7 @@ sub modify_ovfj {
 }
 
 sub get_ovfj_string {
-	my $ovfj = $project->{"OVFJ $_[0]"};
+	my $ovfj = (ref $_[0]) ? $_[0] : $project->{"OVFJ $_[0]"};
 	my @items;
 	push @items, $ovfj->{Datum} || 'Datum?';
 	push @items, $ovfj->{AusrichtOV} || 'OV?';
@@ -788,8 +786,9 @@ sub get_ovfj {
 sub ovfj_modified {
 	# GUI schon initialisiert ?
 	return unless defined $gui_ovfj{AusrichtDOK};
+	my $orig = ref $_[0] ? $_[0] : ();
 	grep {
-		$gui_ovfj{$_}->get ne ($orig_ovfj{$_} || "");
+		$gui_ovfj{$_}->get() ne ($orig->{$_} || "");
 	} keys %gui_ovfj;
 }
 
@@ -827,10 +826,6 @@ sub set_genfilename {
 	$OVJ::genfilename = shift || UNNAMED;
 	$gui_general_label->configure(
 		-text => "OV-Jahresauswertung: $OVJ::genfilename" );
-	my $button_state = ($OVJ::genfilename ne UNNAMED) ? 'normal' : 'disabled';
-	foreach ($edit_ovfj_button, $eval_ovfj_button, $eval_all_button) {
-		$_->configure(-state => $button_state);
-	}
 }
 
 #Über Box aus dem 'Hilfe' Menu
@@ -896,7 +891,7 @@ sub CheckForUnsavedPatterns {
 		my $response = $mw->messageBox(
 			-icon    => 'question', 
 			-title   => 'Auswertungsmuster speichern?', 
-			-message => "Liste der Auswertungsmuster wurden geändert\n".
+			-message => "Liste der Auswertungsmuster wurden geändert ".
 			            "und noch nicht gespeichert.\n\n".
 						"Speichern?", 
 			-type    => 'YesNoCancel', 
@@ -916,9 +911,10 @@ sub CheckForUnsavedPatterns {
 #Prüfen, ob OVFJ Veranstaltung verändert wurde, ohne gespeichert worden zu
 #sein
 sub CheckForOverwriteOVFJ {
-	if (ovfj_modified()) {
-		my $ovfjname = get_selected_ovfj();
-		defined $ovfjname or carp "FIXME";
+	my $ovfj_id = shift
+	 or carp "OVFJ-ID erforderlich";
+	if (ovfj_modified($project->{"OVFJ $ovfj_id"})) {
+		my $ovfjname = get_ovfj_string($ovfj_id);
 		my $response = $mw->messageBox(
 			-icon    => 'question', 
 			-title   => 'OVFJ Daten speichern?', 
@@ -930,8 +926,8 @@ sub CheckForOverwriteOVFJ {
 		if    ($response eq 'Cancel') { return 0 }
 		elsif ($response eq 'Yes')    { 
 			my %ovfj = get_ovfj();
-			%{$project->{"OVFJ $ovfjname"}} = %ovfj;
-			set_ovfj($ovfjname, %ovfj);
+			%{$project->{"OVFJ $ovfj_id"}} = %ovfj;
+			set_ovfj($ovfj_id, %ovfj);
 		}
 	}
 	
@@ -1052,8 +1048,6 @@ sub do_create_ovfj {
 #Auswahl einer Veranstaltung durch den Anwender
 sub do_edit_ovfj {
 	my $ovfjname = get_selected_ovfj()
-	 or return;
-	CheckForGenfilename() #FIXME 
 	 or return;
 	do_ovfj_dialog($ovfjname);
 	modify_general(get_general()); # OVFJ-Liste aktualisieren
@@ -1263,6 +1257,8 @@ sub update_project {
 	while (my ($key, $value) = each %update) {
 		$project->{General}{$key} = $value;
 	}
+#FIXME: Bug reproduzieren, dann aktiveren von
+#	@curr_ovfj_link = @{$update{ovfj_link}};
 	return $project;
 }
 
