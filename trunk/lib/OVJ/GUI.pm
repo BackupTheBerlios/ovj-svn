@@ -35,6 +35,7 @@ use strict;
 use Carp;
 
 use Tk;
+use Tk::BrowseEntry;
 use Tk::Dialog;
 use Tk::DialogBox;
 require Tk::FBox if ($^O !~ /MSwin32/);
@@ -59,11 +60,41 @@ BEGIN {
 
 use constant UNNAMED => 'Unbenannt';
 
+my %district = (
+	A => 'Baden',
+	B => 'Franken',
+	C => 'Oberbayern',
+	D => 'Berlin',
+	E => 'Hamburg',
+	F => 'Hessen',
+	G => 'Köln-Aachen',
+	H => 'Niedersachsen',
+	I => 'Nordsee',
+	K => 'Rheinland-Pfalz',
+	L => 'Ruhrgebiet',
+	M => 'Schleswig-Holstein',
+	N => 'Westfalen-Nord',
+	O => 'Westfalen-Süd',
+	P => 'Württemberg',
+	Q => 'Saar',
+	R => 'Nordrhein',
+	S => 'Sachsen',
+	T => 'Schwaben',
+	U => 'Bayern-Ost',
+	V => 'Mecklenburg-Vorpommern',
+	W => 'Sachsen-Anhalt',
+	X => 'Thüringen',
+	Y => 'Brandenburg',
+	Z => 'VFDB',
+);
+
 my $help_dir = "doku";
 
 my $mw;
 my $gui_general_label;
 my %gui_general;
+my $gui_district;
+my $gui_district_id;
 my $gui_ExcludeTln;
 my $gui_fjlist;
 my $gui_meldung;
@@ -194,16 +225,23 @@ sub make_general {
 	-sticky => 'we', -pady => 3);
 	
 	$fr0->Label(-text => 'Distrikt', -anchor => 'w')->grid(
-	$gui_general{Distrikt} = $fr0->Entry(),
+	$fr0->BrowseEntry(-choices  => [ sort values %district], 
+	                  -variable => \$gui_district,
+	                  -browsecmd => sub { my @district_id = grep { 
+	                                           $district{$_} eq $gui_district
+	                                      } keys %district or return;
+	                                      $gui_district_id = $district_id[0] }, ),
 	'x',
 	$fr0->Label(-text => 'Distriktskenner', -anchor => 'w'),
-	$gui_general{Distriktskenner} = $fr0->Entry(-width => 1),
+	$fr0->BrowseEntry(-choices  => [ sort keys %district ], 
+	                  -variable => \$gui_district_id,
+	                  -browsecmd => sub { return unless exists $district{$gui_district_id};
+	                                      $gui_district = $district{$gui_district_id} }, ),
 	'x',
 	$fr0->Label(-text => 'Jahr', -anchor => 'w'),
 	$gui_general{Jahr} = $fr0->Entry(-width => 4),
 	-sticky => 'we');
 		
-	#$fr0->Label(-text => 'Name', -anchor => 'w')->grid(
 	$fr0->Button(
 		-text    => 'Peilref. Name', 
 		-state   => 'normal',
@@ -690,6 +728,8 @@ sub fjlist_sort {
 sub modify_general {
 	my %new_general = @_;
 	$gui_ExcludeTln->{Value} = $new_general{Exclude_Checkmark} || 0; 
+	$gui_district    = $new_general{Distrikt};
+	$gui_district_id = $new_general{Distriktskenner};
 	$new_general{ovfj_link} ||= [];
 	@curr_ovfj_link = fjlist_sort(@{$new_general{ovfj_link}});
 	$gui_fjlist->delete(0, 'end');
@@ -711,6 +751,8 @@ sub get_general {
 		$general{$key} = $value->get();
 	}
 	$general{Exclude_Checkmark} = $gui_ExcludeTln->{Value};
+	$general{Distrikt} = $gui_district;
+	$general{Distriktskenner} = $gui_district_id;
 	@{$general{ovfj_link}} = @curr_ovfj_link;
 	return %general;
 }
@@ -718,11 +760,16 @@ sub get_general {
 # Test auf Änderungen
 sub general_modified {
 	defined $project->{General}{ovfj_link} or return;
-	$project->{General}{Exclude_Checkmark} ne $gui_ExcludeTln->{Value}
-	or grep {
-		$gui_general{$_}->get() ne ($project->{General}{$_} || "");
-	} keys %gui_general 
-	or grep { my $link = $_; ! grep {$link eq $_} @{$project->{General}{ovfj_link}} } @curr_ovfj_link;
+	$project->{General}{Exclude_Checkmark} ne $gui_ExcludeTln->{Value} or
+	$project->{General}{Distrikt} ne $gui_district or
+	$project->{General}{Distriktskenner} ne $gui_district_id or
+	grep {
+		$gui_general{$_}->get() ne ($project->{General}{$_} || "")
+	} keys %gui_general or
+	grep { 
+	    my $link = $_; 
+		! grep {$link eq $_} @{$project->{General}{ovfj_link}} 
+	} @curr_ovfj_link;
 }
 
 
