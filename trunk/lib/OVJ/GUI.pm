@@ -205,7 +205,7 @@ sub make_general {
 		
 	#$fr0->Label(-text => 'Name', -anchor => 'w')->grid(
 	$fr0->Button(
-		-text    => 'Name', 
+		-text    => 'Peilref. Name', 
 		-state   => 'normal',
 		-command => sub { select_name_ovj($parent) } ) ->grid(
 	$gui_general{Name} = $fr0->Entry(-width => 16),
@@ -263,8 +263,6 @@ sub make_ovfj_list {
 	$fr0->Label(-text => 'Liste der OV-Wettbewerbe')
 	  ->grid(-sticky => 'nw', -columnspan => 3);
 	
-#	$gui_fjlist = $fr0->Scrolled('Text',
-#		-scrollbars =>'oe',width => 30, height => 7)
 	$gui_fjlist = $fr0->Scrolled('Listbox',
 		-scrollbars =>'osoe')
 	  ->grid(-row => 1, -column => 1, -sticky => 'wens', -rowspan => 6);
@@ -349,7 +347,7 @@ sub make_ovfj_detail {
 
 	#$fr0->Label(-text => 'Name', -anchor => 'w') ->grid(
 	$fr0->Button(
-		-text    => 'Name', 
+		-text    => 'Verantw. Name', 
 		-state   => 'normal',
 		-command => sub { select_name_ovfj($parent) } ) ->grid(
 	$gui_ovfj{Verantw_Name} = $fr0->Entry(),
