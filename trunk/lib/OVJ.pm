@@ -1001,6 +1001,18 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 }
 
 
+#Pruefen, ob String=='0', um in HTML Ausgabe &nbsp; statt '0' auszugeben
+sub IsZeroHTML {
+	return "&nbsp;" if $_[0] eq "0";
+	return $_[0];
+}
+
+#Pruefen, ob String=='0', um in Text Ausgabe ' '; statt '0' auszugeben
+sub IsZeroTxt {
+	return " " if $_[0] eq "0";
+	return $_[0];
+}
+
 #Export der Auswertung(en) im Speicher in die verschiedenen Formate
 sub export {
 	my $general = shift;
@@ -1193,10 +1205,10 @@ sub export {
 		($tn->{$tnkey}->{pmvj} ? "JA" : "--")."    ".
 		$tn->{$tnkey}->{wwbw}." "x($maxlen{wwbw}-length($tn->{$tnkey}->{wwbw})+3).
 		substr($tn->{$tnkey}->{anzwwbw}."       ",0,8).
-		substr($tn->{$tnkey}->{anzpl1}."       ",0,8).
-		substr($tn->{$tnkey}->{anzpl2}."        ",0,9).
-		substr($tn->{$tnkey}->{anzausr}."         ",0,10).
-		substr($tn->{$tnkey}->{anzhelf}."       ",0,8).
+		substr(IsZeroTxt($tn->{$tnkey}->{anzpl1})."       ",0,8).
+		substr(IsZeroTxt($tn->{$tnkey}->{anzpl2})."        ",0,9).
+		substr(IsZeroTxt($tn->{$tnkey}->{anzausr})."         ",0,10).
+		substr(IsZeroTxt($tn->{$tnkey}->{anzhelf})."       ",0,8).
 		substr($punktstr."  ",0,2);
 		$str2 = $str;
 		$str .= ($tn->{$tnkey}->{aktjahr} != 2 ? "      Nein" : "");
@@ -1208,7 +1220,7 @@ sub export {
 		printf HOUTFILE "<td>".($tn->{$tnkey}->{call} eq "" ? "&nbsp;" : $tn->{$tnkey}->{call})."</td><td>".($tn->{$tnkey}->{dok} eq "" ? "&nbsp;" : $tn->{$tnkey}->{dok})."</td>\n";
 		printf HOUTFILE "<td>".($tn->{$tnkey}->{gebjahr} eq "" ? "&nbsp;" : $tn->{$tnkey}->{gebjahr})."</td><td>".($tn->{$tnkey}->{pmvj} ? "JA" : "--")."</td>";
 		printf HOUTFILE "<td>".$tn->{$tnkey}->{wwbw}."</td><td>".$tn->{$tnkey}->{anzwwbw}."</td>\n";
-		printf HOUTFILE "<td>".$tn->{$tnkey}->{anzpl1}."</td><td>".$tn->{$tnkey}->{anzpl2}."</td><td>".$tn->{$tnkey}->{anzausr}."</td><td>".$tn->{$tnkey}->{anzhelf}."</td>";
+		printf HOUTFILE "<td>".IsZeroHTML($tn->{$tnkey}->{anzpl1})."</td><td>".IsZeroHTML($tn->{$tnkey}->{anzpl2})."</td><td>".IsZeroHTML($tn->{$tnkey}->{anzausr})."</td><td>".IsZeroHTML($tn->{$tnkey}->{anzhelf})."</td>";
 		printf HOUTFILE "<td>".$punktstr."</td></tr>\n";
 	}
 	
