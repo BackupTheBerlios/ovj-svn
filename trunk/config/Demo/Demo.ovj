@@ -1,6 +1,6 @@
 [OVFJ OV_P12_Foxoring_August]
-Band=80
 AusrichtDOK=P12
+Band=80
 Datum=19.08.2006
 Verantw_DOK=P12
 Verantw_GebJahr=1970
@@ -8,13 +8,13 @@ Verantw_Vorname=Matthias
 Auswertungsmuster=Platz? Nachname, Vorname Call Dok Sender Zeit
 Verantw_Name=Kühlewein
 Verantw_CALL=DL3SDO
-TlnManuell=
 AusrichtOV=Tübingen
+TlnManuell=
 OVFJDatei=Foxoring_P12.txt
 
 [OVFJ OV_P31_Herbst]
-Band=80
 AusrichtDOK=P31
+Band=80
 Datum=10.09.2006
 Verantw_DOK=P31
 Verantw_GebJahr=1975
@@ -22,13 +22,13 @@ Verantw_Vorname=Marc
 Auswertungsmuster=Platz Vorname Nachname Call Zeit Sender Dok
 Verantw_Name=Landmann
 Verantw_CALL=DL5SEZ
-TlnManuell=
 AusrichtOV=Ermstal
+TlnManuell=
 OVFJDatei=P31_Herbst2006.txt
 
 [OVFJ Akafunk_Foxoring_Juli]
-Band=80
 AusrichtDOK=P11
+Band=80
 Datum=22.07.2006
 Verantw_DOK=P06
 Verantw_GebJahr=1973
@@ -36,8 +36,8 @@ Verantw_Vorname=Martin
 Auswertungsmuster=Platz Nachname, Vorname Call Dok Sender Zeit
 Verantw_Name=Kuhn
 Verantw_CALL=DL3SFB
-TlnManuell=
 AusrichtOV=Stuttgart
+TlnManuell=
 OVFJDatei=Ergebnisliste_22Jul_06.txt
 
 [General]
@@ -46,12 +46,12 @@ Telefon=0172 7283903
 Jahr=2006
 Home-BBS=
 ovfj_link= <<EOT
-OV_P31_Fruehjahr
-Akafunk_Juni
-Akafunk_Foxoring_Juli
-OV_P12_Foxoring_August
-OV_P31_Herbst
-Sylvester_Foxoring
+OVFJ OV_P31_Fruehjahr
+OVFJ Akafunk_Juni
+OVFJ Akafunk_Foxoring_Juli
+OVFJ OV_P12_Foxoring_August
+OVFJ OV_P31_Herbst
+OVFJ Sylvester_Foxoring
 EOT
 Vorname=Matthias
 PMVorjahr=PM2005.txt
@@ -63,10 +63,11 @@ PMaktJahr=PM2006.txt
 DOK=P12
 Spitznamen=Spitznamen.txt
 Name=Kühlewein
+Version=0.98
 
 [OVFJ Akafunk_Juni]
-Band=80
 AusrichtDOK=P11
+Band=80
 Datum=10.06.2006
 Verantw_DOK=P06
 Verantw_GebJahr=1973
@@ -74,13 +75,13 @@ Verantw_Vorname=Martin
 Auswertungsmuster=Platz Nachname, Vorname Call Dok Sender Zeit
 Verantw_Name=Kuhn
 Verantw_CALL=DL3SFB
-TlnManuell=
 AusrichtOV=Stuttgart
+TlnManuell=
 OVFJDatei=Ergebnisliste_10Jun_06.txt
 
 [OVFJ Sylvester_Foxoring]
-Band=2
 AusrichtDOK=P12
+Band=2
 Datum=31.12.2006
 Verantw_DOK=F13
 Verantw_GebJahr=1953
@@ -88,13 +89,13 @@ Verantw_Vorname=Nick
 Auswertungsmuster=Platz. Nachname, Vorname Call Sender Zeit
 Verantw_Name=Roethe
 Verantw_CALL=DF1FO
-TlnManuell=
 AusrichtOV=Tübingen
+TlnManuell=
 OVFJDatei=Sylvester_Foxoring.txt
 
 [OVFJ OV_P31_Fruehjahr]
-Band=80
 AusrichtDOK=P31
+Band=80
 Datum=30.04.2006
 Verantw_DOK=P31
 Verantw_GebJahr=1975
@@ -102,6 +103,6 @@ Verantw_Vorname=Marc
 Auswertungsmuster=Platz Vorname Nachname Call Zeit Sender Dok
 Verantw_Name=Landmann
 Verantw_CALL=DL5SEZ
-TlnManuell=
 AusrichtOV=Ermstal
+TlnManuell=
 OVFJDatei=ergebnisse_fruehjahr2006_diplom.txt

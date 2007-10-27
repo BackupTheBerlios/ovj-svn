@@ -40,7 +40,7 @@ use Tk::Dialog;
 use Tk::DialogBox;
 require Tk::FBox if ($^O !~ /MSwin32/);
 
-use OVJ 0.97;
+use OVJ 0.98;
 use OVJ::Browser 0.1;
 
 use vars qw(
@@ -438,8 +438,8 @@ sub get_ov_catalogue {
 	my $project = shift;
 
 	foreach (@{$project->{General}{ovfj_link}}) {
-		my $ov  = $project->{"OVFJ $_"}{AusrichtOV}  || '?';
-		my $dok = $project->{"OVFJ $_"}{AusrichtDOK} || '?';
+		my $ov  = $project->{$_}{AusrichtOV}  || '?';
+		my $dok = $project->{$_}{AusrichtDOK} || '?';
 		my $key = "$dok - $ov";
 		$ov_catalogue{$key} = [$dok, $ov] unless ($key eq '? - ?');
 	}
@@ -529,7 +529,7 @@ sub get_name_catalogue {
 	&$catalogue_add($project->{General}, 
 	               qw/Name Vorname Call DOK - Telefon Home-BBS E-Mail/ );
 	foreach (@{$project->{General}{ovfj_link}}) {
-		&$catalogue_add($project->{"OVFJ $_"},
+		&$catalogue_add($project->{$_},
 		               qw/Verantw_Name Verantw_Vorname Verantw_CALL
 					      Verantw_DOK Verantw_GebJahr - - -/);
 	}
@@ -670,8 +670,8 @@ sub do_ovfj_dialog {
 	  ->pack(-fill => 'both', -expand => 1);
 
 	update_project();
-	if (exists $project->{"OVFJ $ovfjname"}) {
-		set_ovfj($ovfjname, %{$project->{"OVFJ $ovfjname"}});
+	if (exists $project->{$ovfjname}) {
+		set_ovfj($ovfjname, %{$project->{$ovfjname}});
 	}
 	else {
 		meldung(OVJ::INFO, "OV-Wettbewerb hinzufügen...");
@@ -682,8 +682,8 @@ sub do_ovfj_dialog {
 		my $sel = $dlg->Show;
 		if ($sel eq 'Übernehmen') {
 			my %ovfj = get_ovfj();
-			# FIXME $project->{"OVFJ $ovfjname"} = { };
-			%{$project->{"OVFJ $ovfjname"}} = %ovfj;
+			# FIXME $project->{$ovfjname} = { };
+			%{$project->{$ovfjname}} = %ovfj;
 			last;
 		}
 		elsif ($sel eq 'Importieren...') {
@@ -717,9 +717,9 @@ sub set_general {
 
 sub fjlist_sort {
 	return sort {
-		$project->{"OVFJ $a"}{Datum} =~ /^(\d?\d)\.(\d?\d)\.((?:19|20)\d\d)$/ or return -1;
+		$project->{$a}{Datum} =~ /^(\d?\d)\.(\d?\d)\.((?:19|20)\d\d)$/ or return -1;
 		my $dat_a = sprintf("%2d.%2d.%4d", $3, $2, $1);
-		$project->{"OVFJ $b"}{Datum} =~ /^(\d?\d)\.(\d?\d)\.((?:19|20)\d\d)$/ or return 1;
+		$project->{$b}{Datum} =~ /^(\d?\d)\.(\d?\d)\.((?:19|20)\d\d)$/ or return 1;
 		my $dat_b = sprintf("%2d.%2d.%4d", $3, $2, $1);
 		return $dat_a cmp $dat_b;
 	} @_;
@@ -802,7 +802,7 @@ sub modify_ovfj {
 }
 
 sub get_ovfj_string {
-	my $ovfj = (ref $_[0]) ? $_[0] : $project->{"OVFJ $_[0]"};
+	my $ovfj = (ref $_[0]) ? $_[0] : $project->{$_[0]};
 	my @items;
 	push @items, $ovfj->{Datum} || 'Datum?';
 	push @items, $ovfj->{AusrichtOV} || 'OV?';
@@ -958,7 +958,7 @@ sub CheckForUnsavedPatterns {
 sub CheckForOverwriteOVFJ {
 	my $ovfj_id = shift
 	 or carp "OVFJ-ID erforderlich";
-	if (ovfj_modified($project->{"OVFJ $ovfj_id"})) {
+	if (ovfj_modified($project->{$ovfj_id})) {
 		my $ovfjname = get_ovfj_string($ovfj_id);
 		my $response = $mw->messageBox(
 			-icon    => 'question', 
@@ -971,7 +971,7 @@ sub CheckForOverwriteOVFJ {
 		if    ($response eq 'Cancel') { return 0 }
 		elsif ($response eq 'Yes')    { 
 			my %ovfj = get_ovfj();
-			%{$project->{"OVFJ $ovfj_id"}} = %ovfj;
+			%{$project->{$ovfj_id}} = %ovfj;
 			set_ovfj($ovfj_id, %ovfj);
 		}
 	}
@@ -1083,7 +1083,7 @@ sub do_create_ovfj {
 	my $ovfjname = 1 + scalar @curr_ovfj_link;
 	while (grep /^$ovfjname$/, @curr_ovfj_link) { $ovfjname++ }
 	do_ovfj_dialog($ovfjname);
-	if (exists $project->{"OVFJ $ovfjname"}) {
+	if (exists $project->{$ovfjname}) {
 		my %new_general = get_general();
 		push @{$new_general{ovfj_link}}, $ovfjname;
 		modify_general(%new_general);
@@ -1094,8 +1094,12 @@ sub do_create_ovfj {
 sub do_edit_ovfj {
 	my $ovfjname = get_selected_ovfj()
 	 or return;
+	warn 1 if general_modified();
+	update_project();
+	warn 2 if general_modified();
 	do_ovfj_dialog($ovfjname);
 	modify_general(get_general()); # OVFJ-Liste aktualisieren
+	warn 3 if general_modified();
 }
 
 # Löschen einer Veranstaltung
@@ -1111,7 +1115,7 @@ sub do_delete_ovfj {
 	if ($answer eq "Löschen") {
 		my %new_general = get_general();
 		@{$new_general{ovfj_link}} = grep !/^$ovfjname$/, @{$new_general{ovfj_link}};
-		delete $project->{"OVFJ $ovfjname"};
+		delete $project->{$ovfjname};
 		modify_general(%new_general);
 	}
 }
@@ -1275,6 +1279,7 @@ sub do_eval_ovfj {
 	foreach my $str (@_)
 	{
 		my $ovfjname = $str;
+		$str =~ s/^OVFJ //;
 		my $ovfjrepfilename = $str . "_report_ovj.txt";
 		next if ($ovfjname !~ /\S+/);
 #		my %ovfj = OVJ::read_ovfjfile($ovfjname)
@@ -1284,7 +1289,7 @@ sub do_eval_ovfj {
 		  \%tn,
 		  \@ovfjlist,
 		  \@ovfjanztlnlist,
-		  $project->{"OVFJ $ovfjname"},
+		  $project->{$ovfjname},
 		  $ovfjname,
 		  $ovfjrepfilename
 		);

@@ -43,7 +43,7 @@ use vars qw(
 );
 
 BEGIN {
-	$VERSION = "0.971";
+	$VERSION = "0.98";
 	'$Id$' =~ 
 	 /Id: [^ ]+ (\d+) (\d{4})-(\d{2})-(\d{2}) /
 	 or die "Revision format has changed";
@@ -1289,7 +1289,8 @@ sub convert_genfile {
 	local $genfilename = $filename;
 	foreach my $file (@{$project{General}{ovfj_link}}) {
 		my %ovfjfile = read_ovfjfile($file) or next;
-		%{$project{"OVFJ $file"}} = %ovfjfile;
+		if ($file eq 'General') { $file = 'GeneralOVFJ' }
+		%{$project{$file}} = %ovfjfile;
 	}
 	return \%project;
 }
@@ -1548,8 +1549,22 @@ sub read_ovj_file {
 	  or return meldung(FEHLER, "Konnte Datei '$filename' nicht lesen: $!");
 	my %ret = %ovj_file;
 	untie %ovj_file;
+
+	if (! $ret{General}{Version} || $ret{General}{Version} < 0.98) {
+		convert_pre_098(\%ret);
+	}
+	elsif ($ret{General}{Version} > $VERSION) {
+		meldung(WARNUNG, "Datei verwendet neueres Format. ".
+		                 "Einige Daten können nicht verarbeitet werden.");
+	}
 	return \%ret;
 }
+
+sub convert_pre_098 {
+	meldung(WARNUNG, "Dateiformat < 0.98; Unterstützung entfällt demnächst.");
+	foreach my $item (@{$_[0]->{General}{ovfj_link}}) { $item =~ s/^/OVFJ / }
+}
+
 
 # OVJ-Projektdatei schreiben
 sub write_ovj_file {
@@ -1562,6 +1577,7 @@ sub write_ovj_file {
 	tie %ovj_file, 'Config::IniFiles';
 	# Simples  %ovj_file = %{$_[0]}  genügt nicht
 	map { $ovj_file{$_} = {}; %{$ovj_file{$_}} = %{$_[0]->{$_}} } keys %{$_[0]};
+	$ovj_file{General}{Version} = $VERSION;
 	tied(%ovj_file)->SetFileName($filename);
 	tied(%ovj_file)->RewriteConfig()
 	  or return meldung(FEHLER, "Konnte Datei '$filename' nicht schreiben: $!");
