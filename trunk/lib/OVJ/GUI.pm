@@ -1279,8 +1279,8 @@ sub do_eval_ovfj {
 	foreach my $str (@_)
 	{
 		my $ovfjname = $str;
-		$str =~ s/^OVFJ //;
 		my $ovfjrepfilename = $str . "_report_ovj.txt";
+		$ovfjrepfilename =~ s/^OVFJ //;
 		next if ($ovfjname !~ /\S+/);
 #		my %ovfj = OVJ::read_ovfjfile($ovfjname)
 #		 or next;
