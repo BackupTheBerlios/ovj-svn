@@ -1408,13 +1408,43 @@ sub read_ovfj_infile {
 #	$path =~ s:^(.*/)$configdir(/[^/]*/)[^/]*$:$1$inputdir$2$filename:;
 #	my $path = get_path($genfilename, $inputdir) . "/$filename";
 	my $path = ($filename =~ m:/: ? '' : (get_path($genfilename, $inputdir).'/'));
-	$path.= $filename;
+	$path .= $filename;
 	open my $infile, '<', $path
 	 or return meldung(FEHLER, "Kann '$path' nicht lesen: $!");
 	my @data = <$infile>;
 	close $infile
 	 or die "close: $!";
 	return wantarray ? @data : join('', @data);
+}
+
+#Lesen einer Report-Datei
+sub read_ovfj_repfile {
+	my $filename = shift
+	  or carp "Dateiname fehlt";
+#	$path =~ s:^(.*/)$configdir(/[^/]*/)[^/]*$:$1$inputdir$2$filename:;
+#	my $path = get_path($genfilename, $inputdir) . "/$filename";
+	my $path = ($filename =~ m:/: ? '' : (get_path($genfilename, $reportdir).'/'));
+	$path .= $filename;
+	return '' unless -e $path;
+	open my $repfile, '<', $path
+	 or return meldung(FEHLER, "Kann '$path' nicht lesen: $!");
+	my @data = <$repfile>;
+	close $repfile
+	 or die "close: $!";
+	return join('', @data);
+}
+
+#Lesen der OVJXJAHR.txt Datei
+sub read_txtoutfile {
+	my $general = shift;
+	my $path = get_path($genfilename, $outputdir).'/'."OVJ".$general->{"Distriktskenner"}.$general->{Jahr}.".txt";
+	return '' unless -e $path;
+	open my $asciioutfile, '<', $path
+	 or return meldung(FEHLER, "Kann '$path' nicht lesen: $!");
+	my @data = <$asciioutfile>;
+	close $asciioutfile
+	 or die "close: $!";
+	return join('', @data);
 }
 
 #OVFJ Datei vorhanden ?
