@@ -38,6 +38,7 @@ use Tk;
 use Tk::BrowseEntry;
 use Tk::Dialog;
 use Tk::DialogBox;
+use Tk::NoteBook;
 require Tk::FBox if ($^O !~ /MSwin32/);
 
 use OVJ 0.98;
@@ -105,7 +106,14 @@ my $del_ovfj_button;
 my $eval_all_button;
 
 my %gui_ovfj;
-my $gui_ovfj_view;
+my $gui_ovfj_view_input;
+my $gui_ovfj_notebook;
+my $gui_ovfj_view_output;
+my $gui_ovfj_view_report;
+
+my $gui_ovfj_view_input_nb;
+my $gui_ovfj_view_output_nb;
+my $gui_ovfj_view_report_nb;
 
 my $gui_patterns;
 
@@ -412,8 +420,26 @@ sub make_ovfj_detail {
 	'-','-','-','-','-','-','-','-','-',
 	-sticky => 'we');
 
+#	$fr0->Label(-text => "Datei-Inhalt", -anchor => 'nw') ->grid(
+#	$gui_ovfj_view_input = $fr0->Scrolled('Text',-scrollbars =>'ose',-width => 70, -height => 10, -state => 'disabled'),
+#	'-','-','-','-','-','-','-','-','-',
+#	-sticky => "nswe");
 	$fr0->Label(-text => "Datei-Inhalt", -anchor => 'nw') ->grid(
-	$gui_ovfj_view = $fr0->Scrolled('Text',-scrollbars =>'ose',-width => 70, -height => 10, -state => 'disabled'),
+	$gui_ovfj_notebook = $fr0->NoteBook(),
+	'-','-','-','-','-','-','-','-','-',
+	-sticky => "nswe");
+	
+	$gui_ovfj_view_input_nb = $gui_ovfj_notebook->add( "Input", -label=>"Ergebnisliste");
+	$gui_ovfj_view_output_nb = $gui_ovfj_notebook->add( "Output", -label=>"Auswertung");
+	$gui_ovfj_view_report_nb = $gui_ovfj_notebook->add( "Report", -label=>"Report");
+	
+	$gui_ovfj_view_input = $gui_ovfj_view_input_nb->Scrolled('Text',-scrollbars =>'ose',-width => 70, -height => 15, -state => 'disabled')->grid(
+	'-','-','-','-','-','-','-','-','-',
+	-sticky => "nswe");
+	$gui_ovfj_view_output = $gui_ovfj_view_output_nb->Scrolled('Text',-scrollbars =>'se',-width => 70, -height => 15, -state => 'disabled', -wrap =>'none')->grid(
+	'-','-','-','-','-','-','-','-','-',
+	-sticky => "nswe");
+	$gui_ovfj_view_report = $gui_ovfj_view_report_nb->Scrolled('Text',-scrollbars =>'ose',-width => 70, -height => 15, -state => 'disabled')->grid(
 	'-','-','-','-','-','-','-','-','-',
 	-sticky => "nswe");
 
@@ -690,7 +716,10 @@ sub do_ovfj_dialog {
 			do_import_ovfjfile($mw);
 		}
 		elsif ($sel eq 'Auswerten') {
-			do_eval_ovfj($ovfjname) if CheckForOverwriteOVFJ($ovfjname);
+			if (CheckForOverwriteOVFJ($ovfjname)) {
+				do_eval_ovfj($ovfjname);
+				fill_ovfj_tabs($ovfjname,$project->{General});
+			}
 		}
 		elsif ($sel eq 'Hilfe') {
 			show_help('schritt3.htm');
@@ -780,8 +809,9 @@ sub get_selected_ovfj {
 
 
 sub set_ovfj {
-	my $ovfjname = shift; # FIXME: unbenutzt, aber evt. sinnvoll
+	my $ovfjname = shift;
 	modify_ovfj(@_);
+	fill_ovfj_tabs($ovfjname,$project->{General});
 	return 1;
 }
 
@@ -793,10 +823,30 @@ sub modify_ovfj {
 			$gui_ovfj{$_}->delete(0, "end");
 			$gui_ovfj{$_}->insert(0, $new_ovfj{$_} || '');
 		} keys %gui_ovfj;
-		$gui_ovfj_view->configure(-state => 'normal');
-		$gui_ovfj_view->Contents(
+		$gui_ovfj_view_input->configure(-state => 'normal');
+		$gui_ovfj_view_input->Contents(
 			$new_ovfj{OVFJDatei} ? OVJ::read_ovfj_infile($new_ovfj{OVFJDatei}) : '' );
-		$gui_ovfj_view->configure(-state => 'disabled');
+		$gui_ovfj_view_input->configure(-state => 'disabled');
+	}
+	return 1;
+}
+
+sub fill_ovfj_tabs {
+	my $ovfjrepfilename = $_[0];
+	my $general = $_[1];
+	# GUI schon initialisiert ?
+	if (defined $gui_ovfj{AusrichtDOK}) { 
+		$ovfjrepfilename .= "_report_ovj.txt";
+		$ovfjrepfilename =~ s/^OVFJ //;
+		#print $ovfjrepfilename."\n"; # FIXME: entfernen
+		$gui_ovfj_view_report->configure(-state => 'normal');
+		$gui_ovfj_view_report->Contents(
+			$ovfjrepfilename ? OVJ::read_ovfj_repfile($ovfjrepfilename) : '' ); # FIXME: sinnlose Abfrage, ersetzen oder loeschen
+		$gui_ovfj_view_report->configure(-state => 'disabled');
+		
+		$gui_ovfj_view_output->configure(-state => 'normal');
+		$gui_ovfj_view_output->Contents(OVJ::read_txtoutfile($general));
+		$gui_ovfj_view_output->configure(-state => 'disabled');
 	}
 	return 1;
 }
