@@ -710,6 +710,7 @@ sub do_ovfj_dialog {
 			my %ovfj = get_ovfj();
 			# FIXME $project->{$ovfjname} = { };
 			%{$project->{$ovfjname}} = %ovfj;
+			save_file_general(); # mkw, 27.12.07
 			last;
 		}
 		elsif ($sel eq 'Importieren...') {
@@ -795,10 +796,11 @@ sub general_modified {
 	grep {
 		$gui_general{$_}->get() ne ($project->{General}{$_} || "")
 	} keys %gui_general or
-	grep { 
-	    my $link = $_; 
-		! grep {$link eq $_} @{$project->{General}{ovfj_link}} 
-	} @curr_ovfj_link;
+	#grep { 
+	#    my $link = $_; 
+	#	! grep {$link eq $_} @{$project->{General}{ovfj_link}} 
+	#} @curr_ovfj_link or # FIXME: mkw: versagt, wenn aus der Liste ein Eintrag geloescht wird!
+	join ('',@curr_ovfj_link) ne join ('',@{$project->{General}{ovfj_link}}); # mkw, 27.12.07: besser?
 }
 
 
@@ -1023,6 +1025,7 @@ sub CheckForOverwriteOVFJ {
 			my %ovfj = get_ovfj();
 			%{$project->{$ovfj_id}} = %ovfj;
 			set_ovfj($ovfj_id, %ovfj);
+			save_file_general();	# mkw, 27.12.07
 		}
 	}
 	
@@ -1037,7 +1040,7 @@ sub CheckForSaveGenfile {
 		my $response = $mw->messageBox(
 			-icon    => 'question', 
 			-title   => "Datei '$OVJ::genfilename' speichern?", 
-			-message => "Datei '$OVJ::genfilename' wurden geändert\n".
+			-message => "Datei '$OVJ::genfilename' wurde geändert\n".
 			            "und noch nicht gespeichert.\n\n".
 						"Speichern?", 
 			-type    => 'YesNoCancel', 
@@ -1130,7 +1133,7 @@ sub get_selected {
 
 #Anlage einer neuen Veranstaltung
 sub do_create_ovfj {
-	my $ovfjname = 1 + scalar @curr_ovfj_link;
+	my $ovfjname = 1 + scalar @curr_ovfj_link; # mkw, FIXME: temp. Name, wie wird 'sinnvoller' Name angelegt?
 	while (grep /^$ovfjname$/, @curr_ovfj_link) { $ovfjname++ }
 	do_ovfj_dialog($ovfjname);
 	if (exists $project->{$ovfjname}) {
@@ -1167,6 +1170,7 @@ sub do_delete_ovfj {
 		@{$new_general{ovfj_link}} = grep !/^$ovfjname$/, @{$new_general{ovfj_link}};
 		delete $project->{$ovfjname};
 		modify_general(%new_general);
+		# mkw, FIXME: auch report Datei loeschen?
 	}
 }
 
