@@ -1,0 +1,45 @@
+Liebe Peilfreunde,
+
+hier die Ergebnisse der diesjährigen (traditionellen) Silvester-Fuchsjagd:
+
+Termin 30.12.2007, Start 11.20 bis 12.25
+Start/Ziel: Böblingen, Schönaicher First, IBM Labor
+Technik: 5 Hauptfüchse, 100 mW, zeitgesteuert 5 * 1 Minute
+         5 Nebenfüchse, 50 µW, Dauerläufer, je ca 200 m vom Hauptfuchs
+         1 Rückholfuchs (wird nicht gewertet)
+         Insgesamt also 11 Füchse auf 3 Frequenzen
+Wetter: heiter bis wolkig, 5° C, trocken, Wege teilweise vereist
+Optimale Laufstrecke: ca 7,5 km bei 150 HM
+Gelände: stark contouriert, Wegenetz wirr, Wald meist gut belaufbar
+Peilbedingungen: Vorpeilen vom Startplatz kaum möglich. Und auch gleich
+   nach dem Start (obwohl auf dem Berg) waren die Peilungen eher verwirrend
+   als erhellend, so daß die optimale Routenwahl schwierig war.
+
+Insgesamt war es eine wirklich anspruchsvolle Übungs-Fuchsjagd - wer sich
+weniger quälen wollte, konnte natürlich Füchse weglassen.
+
+Platz Jägerin/Jäger                 Füchse Zeit
+----------------------------------------------------
+1     Wolfgang Böhringer            10     1h 10'06"
+2     Wolf-Dieter (Didi) Barth      10     1h 14'08"
+3     Bernhard Gartner              10     1h 16'02"
+4     Jens Pichler                  10     1h 18'21"
+5     Jens Eipper                   10     2h 01'14"
+6     Ernst Eipper                  10     2h 02'43"
+7     Carmen Eipper                 10     2h 03'06"
+8     Klaus-Dieter Jurtz            10     2h 19'38"
+9     Brigitte Roethe               10     2h 48'22"
+10    Anke Ebert                    10     3h 00'55"
+11    Matthias Kühlewein            6      1h 27'24"
+12    Martin Kuhn                   6      2h 33'28"
+13    Jan Steden                    4      2h 46'25"
+13    Michaela Steden               4      2h 46'25"
+13    Andre Steden                  4      2h 46'25"
+16    Michael Berger                3      1h 41'34" (mit kaputter HB9CV)
+
+Ausrichter/Bahnlegung: Nick Roethe
+
+Ich wünsche allen Peilfreunden alles Gute und viele schöne Fuchsjagden
+im neuen Jahr!
+
+Nick DF1FO
