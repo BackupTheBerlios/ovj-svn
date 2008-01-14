@@ -60,7 +60,7 @@ exit 0;
 
 sub init {
 	if ($config{LastGenFile} && $config{LastGenFile} ne OVJ::GUI::UNNAMED) {
-		OVJ::GUI::open_file_general($config{LastGenFile});
+		OVJ::GUI::open_project($config{LastGenFile});
 	}
 	return 1;
 }

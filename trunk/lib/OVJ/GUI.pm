@@ -92,7 +92,7 @@ my %district = (
 my $help_dir = "doku";
 
 my $mw;
-my $gui_general_label;
+my $gui_projectname;
 my %gui_general;
 my $gui_district;
 my $gui_district_id;
@@ -191,11 +191,11 @@ sub make_menu {
 	$menu_bar->add('cascade', -label => 'Datei', -underline => 0, -menu => 
 		$menu_bar->Menu( -tearoff => 0, -menuitems => [
 			[ Button => "Neu", -underline => 0, -command => \&reset_project],
-			[ Button => "Öffnen...", -underline => 1, -command => \&open_file_general],
-			[ Button => "Importieren...", -underline => 0, -command => \&import_file_general],
-			[ Button => "Speichern", -underline => 0, -command => \&save_file_general],
+			[ Button => "Öffnen...", -underline => 1, -command => \&open_project],
+			[ Button => "Importieren...", -underline => 0, -command => \&import_project],
+			[ Button => "Speichern", -underline => 0, -command => \&save_project],
 			# FIXME: "Speichern unter" müsste Input-/Config-Verzeichnisse kopieren
-			[ Button => "Speichern unter...", -underline => 0, -command => \&save_as_file_general],
+			[ Button => "Speichern unter...", -underline => 0, -command => \&save_project_as],
 			[ Separator => "--" ],
 			[ Button => "Beenden", -underline => 0, -command => \&Leave] 
 		] )
@@ -224,7 +224,7 @@ sub make_general {
 	$fr0->gridColumnconfigure([2,5,8], -minsize => 15);
 	my $all_columns = 11;
 
-	$gui_general_label = $fr0->Label(-text => 'OV-Jahresauswertung', -anchor => 'w')->grid(
+	$gui_projectname = $fr0->Label(-text => 'OV-Jahresauswertung', -anchor => 'w')->grid(
 	'-','-','-','-','-','-','-','-',
 	$fr0->Button(
 	        -text => 'Hilfe',
@@ -342,7 +342,7 @@ sub make_ovfj_list {
 	$eval_all_button = $fr0->Button(
 	        -text => 'Jahresauswertung erstellen',
 	        -command => sub{ 
-				my %general = get_general();
+				my %general = get_gui_general();
 				do_eval_ovfj( @{$general{ovfj_link}} )
 			},
 	        -state => 'disabled')
@@ -565,11 +565,11 @@ sub get_name_catalogue {
 sub select_name_ovj {
 	my $parent = shift || $mw;
 	my $record = do_name_dialog($parent) or return;
-	my %general_tmp = get_general();
+	my %general_tmp = get_gui_general();
 	map {
 		$general_tmp{$_} = $record->{$_}
 	} qw/Name Vorname Call DOK Telefon Home-BBS E-Mail/;
-	modify_general(%general_tmp);
+	modify_gui_general(%general_tmp);
 }
 
 sub select_name_ovfj {
@@ -707,10 +707,12 @@ sub do_ovfj_dialog {
 	while (1) {
 		my $sel = $dlg->Show;
 		if ($sel eq 'Übernehmen') {
-			my %ovfj = get_ovfj();
-			# FIXME $project->{$ovfjname} = { };
-			%{$project->{$ovfjname}} = %ovfj;
-			save_file_general(); # mkw, 27.12.07
+			if (ovfj_modified($project->{$ovfjname})) {
+				my %ovfj = get_ovfj();
+				# FIXME $project->{$ovfjname} = { };
+				%{$project->{$ovfjname}} = %ovfj;
+				set_dirty(1);
+			}
 			last;
 		}
 		elsif ($sel eq 'Importieren...') {
@@ -732,17 +734,10 @@ sub do_ovfj_dialog {
 }
 
 sub reset_project {
-	if (CheckForSaveGenfile()) {
+	if (check_for_save_project()) {
 		set_project(UNNAMED, { General => {}, } );
 		clear_meldung();
 	}
-}
-
-sub set_general {
-	set_genfilename(shift);
-	modify_general(@_);
-	%{$project->{General}} = get_general();
-	return 1;
 }
 
 sub fjlist_sort {
@@ -755,7 +750,7 @@ sub fjlist_sort {
 	} @_;
 }
 
-sub modify_general {
+sub modify_gui_general {
 	my %new_general = @_;
 	$gui_ExcludeTln->{Value} = $new_general{Exclude_Checkmark} || 0; 
 	$gui_district    = $new_general{Distrikt};
@@ -775,7 +770,7 @@ sub modify_general {
 }
 
 #Aktualisieren der aktuellen Generellen Daten im Hash
-sub get_general {
+sub get_gui_general {
 	my %general;
 	while (my ($key,$value) = each(%gui_general)) {
 		$general{$key} = $value->get();
@@ -788,19 +783,18 @@ sub get_general {
 }
 
 # Test auf Änderungen
-sub general_modified {
-	defined $project->{General}{ovfj_link} or return;
-	$project->{General}{Exclude_Checkmark} ne $gui_ExcludeTln->{Value} or
-	$project->{General}{Distrikt} ne $gui_district or
-	$project->{General}{Distriktskenner} ne $gui_district_id or
-	grep {
+sub project_modified {
+	defined $project->{General}{ovfj_link} or return; # Vor Laden des 1. Proj.
+#	return 1 if $project->{dirty};
+	  $project->{dirty} ||=
+	  $project->{General}{Exclude_Checkmark} ne $gui_ExcludeTln->{Value} or
+	  $project->{General}{Distrikt} ne $gui_district or
+	  $project->{General}{Distriktskenner} ne $gui_district_id or
+	  grep {
 		$gui_general{$_}->get() ne ($project->{General}{$_} || "")
-	} keys %gui_general or
-	#grep { 
-	#    my $link = $_; 
-	#	! grep {$link eq $_} @{$project->{General}{ovfj_link}} 
-	#} @curr_ovfj_link or # FIXME: mkw: versagt, wenn aus der Liste ein Eintrag geloescht wird!
-	join ('',@curr_ovfj_link) ne join ('',@{$project->{General}{ovfj_link}}); # mkw, 27.12.07: besser?
+	  } keys %gui_general or
+	  join (', ', @curr_ovfj_link) ne 
+		join (', ',@{$project->{General}{ovfj_link}});
 }
 
 
@@ -919,10 +913,18 @@ sub do_select_pmfile {
 	}
 }
 
-sub set_genfilename {
+sub set_projectname {
 	$OVJ::genfilename = shift || UNNAMED;
-	$gui_general_label->configure(
+	$gui_projectname->configure(
 		-text => "OV-Jahresauswertung: $OVJ::genfilename" );
+}
+
+sub set_dirty {
+	$project->{dirty} = shift;
+	my $dirty = $project->{dirty} ? " (geändert)" : "";
+	$gui_projectname->configure(
+		-text => "OV-Jahresauswertung: $OVJ::genfilename $dirty");
+	return $project->{dirty};
 }
 
 #Über Box aus dem 'Hilfe' Menu
@@ -990,7 +992,7 @@ sub CheckForUnsavedPatterns {
 			-title   => 'Auswertungsmuster speichern?', 
 			-message => "Liste der Auswertungsmuster wurden geändert ".
 			            "und noch nicht gespeichert.\n\n".
-						"Speichern?", 
+						"Jetzt speichern?", 
 			-type    => 'YesNoCancel', 
 			-default => 'Yes');
 		if    ($response eq 'Cancel') { return 0 }
@@ -1014,18 +1016,17 @@ sub CheckForOverwriteOVFJ {
 		my $ovfjname = get_ovfj_string($ovfj_id);
 		my $response = $mw->messageBox(
 			-icon    => 'question', 
-			-title   => 'OVFJ Daten speichern?', 
+			-title   => 'OVFJ Daten übernehmen?', 
 			-message => sprintf("Kopfdaten zum OV Wettbewerb '%s' wurden geändert\n",$ovfjname||'NEU').
-			            "und noch nicht gespeichert.\n\n".
-			            "Speichern?", 
+			            "und noch nicht übernommen.\n\n".
+			            "Jetzt übernehmen?", 
 			-type    => 'YesNoCancel', 
 			-default => 'Yes');
 		if    ($response eq 'Cancel') { return 0 }
 		elsif ($response eq 'Yes')    { 
 			my %ovfj = get_ovfj();
 			%{$project->{$ovfj_id}} = %ovfj;
-			set_ovfj($ovfj_id, %ovfj);
-			save_file_general();	# mkw, 27.12.07
+			set_dirty(1);
 		}
 	}
 	
@@ -1035,37 +1036,21 @@ sub CheckForOverwriteOVFJ {
 
 #Prüfen, ob Generelle Daten verändert wurde, ohne gespeichert worden zu
 #sein
-sub CheckForSaveGenfile {
-	if (general_modified()) {
+sub check_for_save_project {
+	if (project_modified()) {
+		set_dirty(1);
+		my $msg = ($OVJ::genfilename eq UNNAMED)
+		          ? "Das Projekt wurde noch nicht gespeichert."
+		          : "Datei '$OVJ::genfilename' wurde geändert ".
+		            "und noch nicht gespeichert.";
 		my $response = $mw->messageBox(
 			-icon    => 'question', 
 			-title   => "Datei '$OVJ::genfilename' speichern?", 
-			-message => "Datei '$OVJ::genfilename' wurde geändert\n".
-			            "und noch nicht gespeichert.\n\n".
-						"Speichern?", 
+			-message => "$msg\n\nJetzt speichern?", 
 			-type    => 'YesNoCancel', 
 			-default => 'Yes');
 		if    ($response eq 'Cancel') { return 0 }
-		elsif ($response eq 'Yes')    { return save_file_general() }
-	}
-	
-	return 1;
-}
-
-
-#Prüfen, ob Generelle Daten verändert wurde, ohne gespeichert worden zu
-#sein
-sub CheckForGenfilename {
-	if ($OVJ::genfilename eq UNNAMED) {
-		my $response = $mw->messageBox(
-			-icon    => 'question', 
-			-title   => "Generelle Daten speichern?", 
-			-message => "Die generellen Daten wurden noch nicht gespeichert.\n\n".
-						"Speichern?", 
-			-type    => 'OkCancel', 
-			-default => 'Ok');
-		if    ($response eq 'Cancel') { return 0 }
-		elsif ($response eq 'Ok')    { return save_as_file_general() }
+		elsif ($response eq 'Yes')    { return save_project() }
 	}
 	
 	return 1;
@@ -1074,7 +1059,7 @@ sub CheckForGenfilename {
 
 #Datei/Beenden oder Fenster schließen
 sub Leave {
-	return unless (CheckForSaveGenfile());		# Abbruch durch Benutzer
+	return unless (check_for_save_project());		# Abbruch durch Benutzer
 	$mw->destroy();
 }
 
@@ -1133,13 +1118,15 @@ sub get_selected {
 
 #Anlage einer neuen Veranstaltung
 sub do_create_ovfj {
-	my $ovfjname = 1 + scalar @curr_ovfj_link; # mkw, FIXME: temp. Name, wie wird 'sinnvoller' Name angelegt?
+	# "Name" ist nur noch eindeutige Ziffer, 
+	# da außerhalb von OVJ kaum noch von Bedeutung
+	my $ovfjname = 1 + scalar @curr_ovfj_link;
 	while (grep /^$ovfjname$/, @curr_ovfj_link) { $ovfjname++ }
 	do_ovfj_dialog($ovfjname);
 	if (exists $project->{$ovfjname}) {
-		my %new_general = get_general();
+		my %new_general = get_gui_general();
 		push @{$new_general{ovfj_link}}, $ovfjname;
-		modify_general(%new_general);
+		modify_gui_general(%new_general);
 	}
 }
 
@@ -1147,12 +1134,9 @@ sub do_create_ovfj {
 sub do_edit_ovfj {
 	my $ovfjname = get_selected_ovfj()
 	 or return;
-	warn 1 if general_modified();
 	update_project();
-	warn 2 if general_modified();
 	do_ovfj_dialog($ovfjname);
-	modify_general(get_general()); # OVFJ-Liste aktualisieren
-	warn 3 if general_modified();
+	modify_gui_general(get_gui_general()); # OVFJ-Liste aktualisieren
 }
 
 # Löschen einer Veranstaltung
@@ -1166,10 +1150,11 @@ sub do_delete_ovfj {
 		-buttons => ['Löschen', 'Abbrechen'] );
 	my $answer = $dialog->Show();
 	if ($answer eq "Löschen") {
-		my %new_general = get_general();
+		my %new_general = get_gui_general();
 		@{$new_general{ovfj_link}} = grep !/^$ovfjname$/, @{$new_general{ovfj_link}};
 		delete $project->{$ovfjname};
-		modify_general(%new_general);
+		set_dirty(1);
+		modify_gui_general(%new_general);
 		# mkw, FIXME: auch report Datei loeschen?
 	}
 }
@@ -1239,8 +1224,8 @@ sub do_import_ovfjfile {
 
 
 
-sub open_file_general { #FIXME: umbenennen
-	CheckForSaveGenfile()
+sub open_project {
+	check_for_save_project()
 	 or return;		# Abbruch durch Benutzer
 
 	my $filename = shift;
@@ -1266,7 +1251,7 @@ sub open_file_general { #FIXME: umbenennen
 	set_project($filename, $ovj_file);
 }
 
-sub import_file_general {
+sub import_project {
 	my $types = [['OVJ-Projekt', '.ovj'],['Textdatei','.txt'],['Alle Dateien','*',]];
 	my $filename = $mw->getOpenFile(
 		-initialdir => tk_dir(OVJ::get_path($OVJ::genfilename,$OVJ::configdir)),
@@ -1274,7 +1259,7 @@ sub import_file_general {
 		-title      => "OVJ-Projekt laden");
 	return unless $filename;
 	my %general;
-	my %general_alt = OVJ::GUI::get_general();
+	my %general_alt = OVJ::GUI::get_gui_general();
 	meldung(OVJ::HINWEIS,"Importiere '$filename'");
 	my $ovj_file;
 	if ($filename =~ /\.txt$/i) {
@@ -1288,16 +1273,17 @@ sub import_file_general {
 	$general{Jahr} = $general_alt{Jahr};
 	$general{PMVorjahr} = $general_alt{PMVorjahr};
 	$general{PMaktJahr} = $general_alt{PMaktJahr};
-	modify_general(%general);
+	modify_gui_general(%general);
+	set_dirty(project_modified());
 	return 1;
 }
 
 
-sub save_file_general {
-	return save_as_file_general($OVJ::genfilename);
+sub save_project {
+	return save_project_as($OVJ::genfilename);
 }
 
-sub save_as_file_general {
+sub save_project_as {
 	my $filename = shift;
 	if (! $filename || $filename eq UNNAMED) {
 		my $types = [['OVJ-Projekt', '.ovj'],['Alle Dateien','*',]];
@@ -1309,21 +1295,23 @@ sub save_as_file_general {
 	}
 	$filename =~ s/(\.txt|\.ovj)?$/.ovj/i;
 	meldung(OVJ::HINWEIS, "Speichere '$filename'");
-	set_genfilename($filename);
+	set_projectname($filename);
 	update_project();
+	delete $project->{dirty};
 	OVJ::write_ovj_file($filename, $project);
+	set_dirty(0);
 }
 
 # Auswertung und Export von OVFJ
 # Parameter: Liste der OVFJ
 sub do_eval_ovfj {
-	CheckForGenfilename() or return;
+	check_for_save_project() or return;
 	my $i = 1;
 	my $success = 0;
 	my $retval;
 	
 	$mw->Busy();
-#	my %general = get_general();
+#	my %general = get_gui_general();
 	update_project();
 	my %tn;					# Hash für die Teilnehmer, Elemente sind wiederum Hashes
 	my @ovfjlist;			# Liste aller ausgewerteten OV FJ mit Details der Kopfdaten
@@ -1357,20 +1345,21 @@ sub do_eval_ovfj {
 
 # Aktuellen Stand des Projekts ermitteln
 sub update_project {
-	my %update = get_general();
+	my %update = get_gui_general();
 	while (my ($key, $value) = each %update) {
 		$project->{General}{$key} = $value;
 	}
-#FIXME: Bug reproduzieren, dann aktiveren von
-#	@curr_ovfj_link = @{$update{ovfj_link}};
 	return $project;
 }
 
-# Projekt auf neuen Stand bringen 
+# Neues/geändertes Projekt anzeigen 
 sub set_project {
 	my ($name, $data) = (shift, shift);
 	$project = $data;
-	set_general($name, %{$project->{General}});
+	set_projectname($name);
+	modify_gui_general(%{$project->{General}});
+	%{$project->{General}} = get_gui_general(); # Auffüllen evt. fehlender Felder
+	$project->{dirty} = 0;
 	return $project;
 }
 
