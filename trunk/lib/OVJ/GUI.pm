@@ -429,19 +429,26 @@ sub make_ovfj_detail {
 	'-','-','-','-','-','-','-','-','-',
 	-sticky => "nswe");
 	
-	$gui_ovfj_view_input_nb = $gui_ovfj_notebook->add( "Input", -label=>"Ergebnisliste");
-	$gui_ovfj_view_output_nb = $gui_ovfj_notebook->add( "Output", -label=>"Auswertung");
-	$gui_ovfj_view_report_nb = $gui_ovfj_notebook->add( "Report", -label=>"Report");
+	$gui_ovfj_view_input_nb = $gui_ovfj_notebook->add( 
+	  "Input", -label=>"Ergebnisliste");
+	$gui_ovfj_view_output_nb = $gui_ovfj_notebook->add(
+	  "Output", -label=>"Auswertung");
+	$gui_ovfj_view_report_nb = $gui_ovfj_notebook->add(
+	  "Report", -label=>"Report");
 	
-	$gui_ovfj_view_input = $gui_ovfj_view_input_nb->Scrolled('Text',-scrollbars =>'ose',-width => 70, -height => 15, -state => 'disabled')->grid(
-	'-','-','-','-','-','-','-','-','-',
-	-sticky => "nswe");
-	$gui_ovfj_view_output = $gui_ovfj_view_output_nb->Scrolled('Text',-scrollbars =>'se',-width => 70, -height => 15, -state => 'disabled', -wrap =>'none')->grid(
-	'-','-','-','-','-','-','-','-','-',
-	-sticky => "nswe");
-	$gui_ovfj_view_report = $gui_ovfj_view_report_nb->Scrolled('Text',-scrollbars =>'ose',-width => 70, -height => 15, -state => 'disabled')->grid(
-	'-','-','-','-','-','-','-','-','-',
-	-sticky => "nswe");
+	$gui_ovfj_view_input = $gui_ovfj_view_input_nb->Scrolled(
+	  'Text', -scrollbars =>'ose', -width => 70, -height => 15, -wrap=>'none',
+              -state => 'disabled')
+	->pack(-anchor=>'nw', -fill=>'both', -expand=>1);
+	$gui_ovfj_view_output = $gui_ovfj_view_output_nb->Scrolled(
+	  'Text', -scrollbars =>'ose', -width => 70, -height => 15, -wrap=>'none',
+              -state => 'disabled')
+	->pack(-anchor=>'nw', -fill=>'both', -expand=>1);
+	$gui_ovfj_view_report = $gui_ovfj_view_report_nb->Scrolled(
+	  'Text', -scrollbars =>'ose', -width => 70, -height => 15, 
+	          -wrap=>'word', # Report hat oft überlange Zeilen...
+              -state => 'disabled')
+	->pack(-anchor=>'nw', -fill=>'both', -expand=>1);
 
 	return $fr0;
 }
