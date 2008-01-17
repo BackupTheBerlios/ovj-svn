@@ -1534,8 +1534,8 @@ sub import_fjfile {
 			$ovfj{Datum} = $tp;
 			next;
 		}
-		if (/^Verantwortlich:\s*(.+)$/)	{
-			$tp = $1;
+		if (/^(Verantwortlich|Ausrichter):\s*(.+)$/)	{
+			$tp = $2;
 			$tp =~ s/\s+$//;
 			$tp =~ tr/,/ /;
 			my @fi = split(/\s+/, $tp);
