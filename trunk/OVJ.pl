@@ -45,8 +45,6 @@ if ($inifile->val('LastSession','ProjectFile')) {
 	$config{LastGenFile} = $inifile->val('LastSession','ProjectFile');
 }
 OVJ::GUI::init(%config);
-init() or exit 1;
-
 OVJ::GUI::run();
 
 $inifile->setval('LastSession','ProjectFile', $OVJ::genfilename)
@@ -55,13 +53,4 @@ $inifile->RewriteConfig()		# Speichern der Inidaten
  or warn "Kann INI-Datei '$inifilename' nicht schreiben: $!";
 
 exit 0;
-
-
-
-sub init {
-	if ($config{LastGenFile} && $config{LastGenFile} ne OVJ::GUI::UNNAMED) {
-		OVJ::GUI::open_project($config{LastGenFile});
-	}
-	return 1;
-}
 

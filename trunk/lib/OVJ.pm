@@ -1572,11 +1572,13 @@ sub import_fjfile {
 sub read_ovj_file {
 	my $filename = shift
 	  or carp "Dateiname fehlt";
+	-f $filename
+	  or return meldung(FEHLER, "Konnte Datei '$filename' nicht finden.");
 	my %ovj_file;
 	tie %ovj_file, 'Config::IniFiles';
 	tied(%ovj_file)->SetFileName($filename);
 	tied(%ovj_file)->ReadConfig()
-	  or return meldung(FEHLER, "Konnte Datei '$filename' nicht lesen: $!");
+	  or return;
 	my %ret = %ovj_file;
 	untie %ovj_file;
 

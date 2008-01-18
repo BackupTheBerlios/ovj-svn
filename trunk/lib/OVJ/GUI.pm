@@ -137,15 +137,6 @@ Kontrollfluss an GUI übergeben.
 
 =cut
 sub run {
-	# Warnungen abfangen
-	$SIG{'__WARN__'} = sub {
-		my $error = shift;
-		chomp $error;
-		meldung(OVJ::WARNUNG, $error);
-	};
-	# OVJ-Meldungen abfangen
-	OVJ::meldung_callback_add(\&meldung);
-	
 	MainLoop();
 	
 	# GUI beendet, Meldungen und Warnungen nicht mehr abfangen
@@ -175,8 +166,25 @@ sub init {
 	make_ovfj_list($mw)->grid(-sticky => 'nswe');
 	make_meldungen($mw)->grid(-sticky => 'nswe');
 
+	# Warnungen abfangen
+	$SIG{'__WARN__'} = sub {
+		my $error = shift;
+		chomp $error;
+		meldung(OVJ::WARNUNG, $error);
+	};
+	# OVJ-Meldungen abfangen
+	OVJ::meldung_callback_add(\&meldung);
+	
 	set_patterns(OVJ::read_patterns());
 	reset_project();
+	if ($config{LastGenFile} && $config{LastGenFile} ne UNNAMED) {
+		if (-f $config{LastGenFile}) {
+			open_project($config{LastGenFile});
+		}
+		else {
+			OVJ::meldung(OVJ::HINWEIS, "Die zuletzt bearbeitete Datei '$config{LastGenFile}' wurde nicht gefunden.");
+		}
+	}
 
 	return $mw;
 }
