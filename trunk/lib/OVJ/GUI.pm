@@ -1024,6 +1024,8 @@ sub CheckForUnsavedPatterns {
 
 #Prüfen, ob OVFJ Veranstaltung verändert wurde, ohne gespeichert worden zu
 #sein
+# Returns: wahr, wenn aktueller Vorgang fortgefahren werden soll 
+#          falsch, wenn aktueller Vorgang abgebrochen werden soll
 sub CheckForOverwriteOVFJ {
 	my $ovfj_id = shift
 	 or carp "OVFJ-ID erforderlich";
@@ -1051,6 +1053,8 @@ sub CheckForOverwriteOVFJ {
 
 #Prüfen, ob Generelle Daten verändert wurde, ohne gespeichert worden zu
 #sein
+# return: wahr, wenn aktueller Vorgang fortgefahren werden soll 
+#         falsch, wenn aktueller Vorgang abgebrochen werden soll
 sub check_for_save_project {
 	if (project_modified()) {
 		set_dirty(1);
@@ -1293,6 +1297,8 @@ sub import_project {
 	return 1;
 }
 
+# return: wahr bei Erfolg
+#         falsch bei Fehler
 
 sub save_project {
 	return save_project_as($OVJ::genfilename);
@@ -1313,8 +1319,10 @@ sub save_project_as {
 	set_projectname($filename);
 	update_project();
 	delete $project->{dirty};
-	OVJ::write_ovj_file($filename, $project);
+	OVJ::write_ovj_file($filename, $project) 
+	  or return; # Fehler
 	set_dirty(0);
+	return 1; # Erfolg
 }
 
 # Auswertung und Export von OVFJ
