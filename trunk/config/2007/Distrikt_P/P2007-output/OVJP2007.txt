@@ -1,0 +1,31 @@
+             OV Jahresauswertung 2007 des Distrikts Württemberg
+
+OV-Wettbewerbe des Distriktes   Württemberg
+für das Jahr                    2007
+Distriktspeilreferent
+Name, Vorname                   Kühlewein, Matthias
+Call                            DL3SDO
+DOK                             P12
+Telefon                         0172 7283903
+Home-BBS                        
+E-Mail                          dl3sdo@darc.de
+Auswertung mit                  OVJ 0.98.421 by DL3SDO, DG0YT, 18.01.2008
+am                              18.2.2008
+Hinweis                         Teilnehmer ohne Teilnahme an offiziellen Wettbewerb in 2007
+                                wurden von OVJ entfernt
+
+********************************
+* Durchgeführte OV-Wettbewerbe *
+********************************
+Nr. Ausrichtender OV           DOK  Verantwortlicher          Call    DOK  Datum       Band  Teilnehmer
+-------------------------------------------------------------------------------------------------------
+ 1  Tübingen                   P12  Kühlewein, Matthias       DL3SDO  P12  17.03.2007   80       27
+
+*********************************
+* Teilnehmer der OV-Wettbewerbe *
+*********************************
+Name, Vorname        Call    DOK  GebJahr  PMVJ?  Wettbewerbe AnzFJ  Platz1  Platz2  Ausrichter  Helfer  Punkte
+---------------------------------------------------------------------------------------------------------------
+Czerwinski, Michael                         --    1             1                                          1 
+Jurtz, Klaus-Dieter  DO1ZI                  --    1             1                                          1 
+Kühlewein, Matthias  DL3SDO  P12  1970      JA    1             1                        1                 2 

@@ -1,0 +1,144 @@
+
+Ausrichter: Kühlewein, Matthias, 1970, DL3SDO, P12
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Kühlewein,Matthias ist neu in Auswertung, Status: Ausrichter
+
+Teilnehmer: Barth, Didi, , , 
+INFO: Erster Match mit:  1     Didi Barth                  40:43   11
+INFO: Barth, Didi in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
+INFO: mögliche Teilnehmer: 
+Barth,Wolf-Dietrich,DK7TD,P60,1967,,20061015
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+Barth,Didi ist neu in Auswertung, Status: 2 Extrapunkte für Platz 1 als Nicht-PM
+
+Teilnehmer: Eipper, Ernst, , , 
+INFO: Eipper, Ernst in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
+INFO: mögliche Teilnehmer: 
+Eipper,Ernst,DH1EE,P18,1961,FM,20060827
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+Eipper,Ernst ist neu in Auswertung, Status: 1 Extrapunkt für Platz 2 als Nicht-PM
+
+Teilnehmer: Eipper, Jens, , , 
+INFO: Eipper, Jens in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
+INFO: mögliche Teilnehmer: 
+Eipper,Jens,SWL,P18,1992,FM,20060827
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+Eipper,Jens ist neu in Auswertung, Status: 
+
+Teilnehmer: Eipper, Carmen, , , 
+INFO: Eipper, Carmen in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
+INFO: mögliche Teilnehmer: 
+Eipper,Carmen,DH3SC,P18,1963,FM,20060827
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+Eipper,Carmen ist neu in Auswertung, Status: 
+
+Teilnehmer: Jurtz, Klaus-Dieter, , , 
+INFO: Overridedatensatz für Jurtz, Klaus-Dieter gefunden
+In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
+Jurtz,Klaus-Dieter ist neu in Auswertung, Status: 
+
+Teilnehmer: Ebert, Anke, , , 
+INFO: Ebert, Anke in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
+INFO: mögliche Teilnehmer: 
+Ebert,Anke,DL9OCA,P60,1963,,20061015
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+Ebert,Anke ist neu in Auswertung, Status: 
+
+Teilnehmer: Gödan, Ulrich, , , 
+INFO: Gödan, Ulrich in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
+INFO: mögliche Teilnehmer: 
+Gödan,Ulrich,DB2TX,P12,1951,,20060525
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+Gödan,Ulrich ist neu in Auswertung, Status: 
+
+Teilnehmer: Meier, Tobias, , , 
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname
+Meier,Tobias ist neu in Auswertung, Status: 
+
+Teilnehmer: Czerwinski, Michael, , , 
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,DOK
+Czerwinski,Michael ist neu in Auswertung, Status: 
+
+Teilnehmer: Wessels, Tilda, , , 
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,DOK
+Wessels,Tilda ist neu in Auswertung, Status: 
+
+Teilnehmer: Wessels, Anja, , , 
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,DOK
+Wessels,Anja ist neu in Auswertung, Status: 
+
+Teilnehmer: Schoor, Uli, , , 
+INFO: Schoor, Uli in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
+INFO: mögliche Teilnehmer: 
+Schoor,Uli,DF6TZ,P06,1947,FM,20060827
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+Schoor,Uli ist neu in Auswertung, Status: 
+
+Teilnehmer: Dettling, Brunhilde, , , 
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname
+Dettling,Brunhilde ist neu in Auswertung, Status: 
+
+Teilnehmer: Tüner, Axel, , , 
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,DOK
+Tüner,Axel ist neu in Auswertung, Status: 
+
+Teilnehmer: Tüner, Karola, , , 
+INFO: Tüner, Karola in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
+INFO: mögliche Teilnehmer: 
+Tüner,Karola,DF2SDX,P60,1963,,20060924
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+Tüner,Karola ist neu in Auswertung, Status: 
+
+Teilnehmer: Schneider, Sinclair, , , 
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname
+Schneider,Sinclair ist neu in Auswertung, Status: 
+
+Teilnehmer: Kittel, Eric, , , 
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Kittel,Eric ist neu in Auswertung, Status: 
+
+Teilnehmer: Striebel, Nikolai, , , 
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Striebel,Nikolai ist neu in Auswertung, Status: 
+
+Teilnehmer: Striebel, Julian, , , 
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Striebel,Julian ist neu in Auswertung, Status: 
+
+Teilnehmer: Striebel, Odilia, , , 
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Striebel,Odilia ist neu in Auswertung, Status: 
+
+Teilnehmer: Hasler, Lisbeth, , , 
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Hasler,Lisbeth ist neu in Auswertung, Status: 
+
+Teilnehmer: Striebel, Katrin, , , 
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Striebel,Katrin ist neu in Auswertung, Status: 
+
+Teilnehmer: Hirning, Michael, , , 
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Hirning,Michael ist neu in Auswertung, Status: 
+
+INFO: kein Match (Ursache: Platz) bei:
+Überschreitung der maximalen Wettbewerbszeit:
+
+Teilnehmer: Riethmüller, Nina, , , 
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Riethmüller,Nina ist neu in Auswertung, Status: 
+
+Teilnehmer: Kern, Alexander, , , 
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname
+Kern,Alexander ist neu in Auswertung, Status: 
+
+Teilnehmer: Walz, Susanne, , , 
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: 
+Walz,Susanne ist neu in Auswertung, Status: 
+
+Teilnehmer: Dettling, Harald, , , 
+INFO: Dettling, Harald in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
+INFO: mögliche Teilnehmer: 
+Dettling,Harald,DC1GB,P12,1970,,19990912
+Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+Dettling,Harald ist neu in Auswertung, Status: 

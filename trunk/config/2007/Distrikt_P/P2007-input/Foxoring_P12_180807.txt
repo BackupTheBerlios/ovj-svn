@@ -1,0 +1,31 @@
+Ergebnisliste des 3. OV-P12-Foxoring
+
+Datum: 18.08.2007
+Band: 80m
+Sender: 14
+Ort: Schönbuch bei Tübingen-Hagelloch, Parkplatz Bogentor
+Ausrichter: Matthias Kühlewein, DL3SDO, DOK P12
+Teilnehmerzahl: 13
+Laufstrecke: ca. 6,7km
+
+Gelände: langgedehnte wie auch steile Steigungen, 
+         Höhenprofil von 400m - 520m, Start bei 470m
+         insgesamt ca. 270 Höhenmeter
+Wetter:  warm, sonnig und trocken
+Technik: Tinyfox 80m Transmitter
+
+Platz Name, Vorname            Rufzeichen DOK   Baken  Laufzeit
+----------------------------------------------------------------
+    1 Pichler, Jens            DH2SP      P51      14     42:01
+    2 Barth, Wolf-Dietrich     DK7TD      P60      14     44:24
+    3 Gartner, Bernhard        DF7SF      P11      14     49:35
+    4 Weißfuß, Wolfgang       DL1GWW      P29      14     57:25
+    5 Tüner, Axel              DF9VI      P60      14     58:13
+    6 Eipper, Ernst            DH1EE      P18      14     61:53
+    7 Eipper, Jens               -        P18      14     62:50
+    8 Eipper, Carmen           DH3SC      P18      14     63:29
+    9 Ebert, Anke              DL9OCA     P60      14     72:25
+   10 Stadler, Ewald           DJ2UE      P18      14     80:20
+   11 Stadler, Helga           DK7SC      P18       8     80:19
+   12 Dettling, Brunhilde      DD9GC      P12       8     81:29
+   13 Zimmermann, Uwe            -         -        1       -

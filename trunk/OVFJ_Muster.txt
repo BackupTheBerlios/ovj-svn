@@ -3,3 +3,4 @@ Platz Nachname, Vorname Call Dok Sender Zeit // z.B. Akafunk
 Platz Egal Nachname, Vorname Call Dok Zeit Sender // z.B. Oberbayern mit Wertungsklasse
 Platz Nachname, Vorname Call Dok Zeit Sender // z.B. Oberbayern
 Platz. Nachname, Vorname Call Sender Zeit
+Platz Vorname Nachname Zeit Sender

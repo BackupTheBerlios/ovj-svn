@@ -1,0 +1,33 @@
+[1]
+AusrichtDOK=P12
+Band=80
+Datum=17.03.2007
+Verantw_DOK=P12
+Verantw_GebJahr=1970
+Verantw_Vorname=Matthias
+Auswertungsmuster=Platz Vorname Nachname Zeit Sender
+Verantw_CALL=DL3SDO
+Verantw_Name=Kühlewein
+AusrichtOV=Tübingen
+TlnManuell=27
+OVFJDatei=Hagelloch_170307.txt
+
+[General]
+Call=DL3SDO
+Telefon=0172 7283903
+Jahr=2007
+Home-BBS=
+ovfj_link= <<EOT
+1
+EOT
+Vorname=Matthias
+PMVorjahr=PM2006.txt
+Exclude_Checkmark=1
+Distriktskenner=P
+E-Mail=dl3sdo@darc.de
+Distrikt=Württemberg
+PMaktJahr=PM2007.txt
+DOK=P12
+Spitznamen=Spitznamen.txt
+Name=Kühlewein
+Version=0.98

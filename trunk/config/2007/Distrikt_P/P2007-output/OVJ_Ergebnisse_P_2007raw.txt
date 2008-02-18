@@ -1,0 +1,32 @@
+Name, Vorname        Call    DOK  GebJahr  PMVJ?  Wettbewerbe AnzFJ  Platz1  Platz2  Ausrichter  Helfer  Punkte
+---------------------------------------------------------------------------------------------------------------
+Czerwinski, Michael                         --    1             1                                          1 
+Jurtz, Klaus-Dieter  DO1ZI                  --    1             1                                          1 
+Kühlewein, Matthias  DL3SDO  P12  1970      JA    1             1                        1                 2 
+
+Schliesse Barth, Didi aus, da Name nicht in aktueller PM Datei
+Schliesse Dettling, Brunhilde aus, da Name nicht in aktueller PM Datei
+Schliesse Dettling, Harald aus, da Name nicht in aktueller PM Datei
+Schliesse Ebert, Anke aus, da Name nicht in aktueller PM Datei
+Schliesse Eipper, Carmen aus, da Name nicht in aktueller PM Datei
+Schliesse Eipper, Ernst aus, da Name nicht in aktueller PM Datei
+Schliesse Eipper, Jens aus, da Name nicht in aktueller PM Datei
+Schliesse Gödan, Ulrich aus, da Name nicht in aktueller PM Datei
+Schliesse Hasler, Lisbeth aus, da Name nicht in aktueller PM Datei
+Schliesse Hirning, Michael aus, da Name nicht in aktueller PM Datei
+Schliesse Kern, Alexander aus, da Name nicht in aktueller PM Datei
+Schliesse Kittel, Eric aus, da Name nicht in aktueller PM Datei
+Schliesse Meier, Tobias aus, da Name nicht in aktueller PM Datei
+Schliesse Riethmüller, Nina aus, da Name nicht in aktueller PM Datei
+Schliesse Schneider, Sinclair aus, da Name nicht in aktueller PM Datei
+Schliesse Schoor, Uli aus, da Name nicht in aktueller PM Datei
+Schliesse Striebel, Julian aus, da Name nicht in aktueller PM Datei
+Schliesse Striebel, Katrin aus, da Name nicht in aktueller PM Datei
+Schliesse Striebel, Nikolai aus, da Name nicht in aktueller PM Datei
+Schliesse Striebel, Odilia aus, da Name nicht in aktueller PM Datei
+Schliesse Tüner, Axel aus, da Name nicht in aktueller PM Datei
+Schliesse Tüner, Karola aus, da Name nicht in aktueller PM Datei
+Schliesse Walz, Susanne aus, da Name nicht in aktueller PM Datei
+Schliesse Wessels, Anja aus, da kein offizieller Wettbewerb in 2007
+Schliesse Wessels, Tilda aus, da kein offizieller Wettbewerb in 2007
+
