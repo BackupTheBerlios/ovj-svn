@@ -714,15 +714,18 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 			{
 				$str2 = $1;
 				$str2 =~ s/\s+$//;
-				$str2 =~ tr/,/ /;
-				($ev_vorname,$ev_nachname,$ev_call,$ev_dok,$ev_gebjahr) = split(/\s+/,$str2);
-				$ev_call = uc($ev_call);
-				$ev_call = "---" if ($ev_call eq "" || uc($ev_call) eq "SWL");
-				$ev_dok = uc($ev_dok);
-				$ev_dok = "---" if ($ev_dok eq "");
-				($patmatched,$platz) = (1,0);
-				$HelferInKopf = 1;
-				#print "Vorname: <".$ev_vorname."> Nachname: <".$ev_nachname."> Call: <".$ev_call."> DOK: <".$ev_dok."> Gebjahr: <".$ev_gebjahr.">\n";
+				if ($str2 ne "")
+				{
+					$str2 =~ tr/,/ /;
+					($ev_vorname,$ev_nachname,$ev_call,$ev_dok,$ev_gebjahr) = split(/\s+/,$str2);
+					$ev_call = uc($ev_call);
+					$ev_call = "---" if ($ev_call eq "" || uc($ev_call) eq "SWL");
+					$ev_dok = uc($ev_dok);
+					$ev_dok = "---" if ($ev_dok eq "");
+					($patmatched,$platz) = (1,0);
+					$HelferInKopf = 1;
+					#print "Vorname: <".$ev_vorname."> Nachname: <".$ev_nachname."> Call: <".$ev_call."> DOK: <".$ev_dok."> Gebjahr: <".$ev_gebjahr.">\n";
+				}
 			}
 		}
 
