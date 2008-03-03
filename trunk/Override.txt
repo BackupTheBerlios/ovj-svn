@@ -16,3 +16,4 @@ Föderl,Annemarie,,C26,,IstInPMVJ
 Roethe,Brigitte,,---,,IstInPMVJ
 Timm,Ulrich,,---,,IstInPMVJ
 Jurtz,Klaus-Dieter,DO1ZI,,,
+Feiler,Cornelia,,---,,IstInPMVJ
