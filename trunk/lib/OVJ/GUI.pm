@@ -35,6 +35,7 @@ use strict;
 use Carp;
 
 use Tk;
+use Tk::Text;
 use Tk::BrowseEntry;
 use Tk::Dialog;
 use Tk::DialogBox;
@@ -318,7 +319,7 @@ sub make_ovfj_list {
 	  ->grid(-sticky => 'nw', -columnspan => 3);
 	
 	$gui_fjlist = $fr0->Scrolled('Listbox',
-		-scrollbars =>'osoe')
+		-scrollbars =>'ose') #osoe funktioniert zumindest unter Win32 nicht korrekt!
 	  ->grid(-row => 1, -column => 1, -sticky => 'wens', -rowspan => 6);
 	
 	my ($col, $row) = (3, 1);
