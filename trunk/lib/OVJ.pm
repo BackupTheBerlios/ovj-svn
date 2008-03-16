@@ -83,6 +83,9 @@ $reportdir = "report";		# Pfad für die Reportdaten
 
 my @meldung_callback;
 
+my @questions;
+my $questionsfilename = "Fragen.txt";
+
 #Vergleiche Zeile aus Auswertungsdatei mit Pattern
 # FIXME: Rewrite 
 sub MatchPat {
@@ -141,8 +144,8 @@ sub MatchPat {
 			}
 			if ($kw eq "Zeit") {
 				$validkeyword = 1;
-				if ($line =~ /^[.:0-9]+\b/) {
-					$line =~ s/^[.:0-9]+\b//;
+				if ($line =~ /^[aAlL.:0-9]+\b/) {
+					$line =~ s/^[aAlL.:0-9]+\b//;
 				}
 				elsif ($quest == 0) {
 					return (0,$kw); # Fehlschlag
@@ -209,16 +212,16 @@ sub MatchPat {
 			}
 
 			return (0, $kw." ist kein Schlüsselwort") if ($validkeyword != 1);	 # illegales Wort
-			$pattern =~ s/^([A-Z][a-z]+)//;	 # entferne Schluesselwort
+			$pattern =~ s/^[A-Z][a-z]+//;	 # entferne Schluesselwort
 
 			if ($quest == 1) {
 				$pattern =~ s/^\?//;
 				$line = " ".$line;	# füge Leerzeichen am Anfang hinzu, weil Leerzeichen im Muster sonst
 				                     # nicht gefunden werden.
 			}
-
+		next;
 		} # Ende Wortoperation
-		elsif ($pattern =~ /^(\w+)/) {
+		elsif ($pattern =~ /^\w+/) {
 			return (0,$1." ist kein Schlüsselwort");	 # illegales Wort
 		}
 
@@ -232,15 +235,16 @@ sub MatchPat {
 			$pattern =~ s/^\s+//;
 			next;
 		}
-		if ($pattern =~ /^(\S+)/) {
-			if ($line =~ /^($1)/) {
-				$line =~ s/^$1//;
-			}
-			else {
-				return (0,"Sonstige Zeichen"); # Fehlschlag
-			}
-			$pattern =~ s/^\S+//;
+
+		if (substr($pattern,0,1) eq substr($line,0,1))
+		{
+			substr($pattern,0,1) = "";
+			substr($line,0,1) = "";
 		}
+		else {
+			return (0,"Sonstige Zeichen"); # Fehlschlag
+		}
+
 	}
 	
 	return (1,$platz,$nachname,$vorname,$gebjahr,$call,$dok);
@@ -259,6 +263,7 @@ sub SucheTlnInPM {
 	my $PMJahr = $CheckInAktPM == 0 ? "PMVorjahr" : "akt. PM Daten";
 	my $foundbydokgeb;
 	my $foundnachname = 0;
+	my $meld1;
 	
 	if ($override_IsInPmvj == 2)
 	{
@@ -437,7 +442,21 @@ sub SucheTlnInPM {
 		}
 		else
 		{
-			RepMeld(*FH,"INFO: ".$$nachname.", ".$$vorname." in PMVorjahr gefunden, aber DOK: ".$dok." stimmt nicht, verwende Daten nicht") if ($CheckInAktPM == 0);
+			$meld1 = $$nachname.", ".$$vorname." in $PMJahr gefunden, aber DOK: ".$dok." stimmt nicht";
+			if (@mlist2 == 1)
+			{
+				$rest = $mlist2[0];
+				my $QuesRes = QuestionIfInPMVorjahr("EinfachAbgleich",$PMJahr,$meld1,$rest);
+				if ($QuesRes > 0)
+				{
+					RepMeld(*FH,"INFO: ".$meld1.", verwende Daten aufgrund ".($QuesRes == 1? "": "gespeicherter ")."Rückfrage") if ($CheckInAktPM == 0);
+					return (1,"Nachname,Vorname,! nach Rückfrage !",$rest);		# Gefunden ueber Nachname, Vorname und positiver Rückfrage
+				}
+			}
+			else
+			{
+				RepMeld(*FH,"INFO: ".$meld1.", verwende Daten nicht") if ($CheckInAktPM == 0);
+			}
 		}
 		RepMeld(*FH,"INFO: mögliche Teilnehmer: ") if ($CheckInAktPM == 0);
 		foreach $listelem (@mlist2) {
@@ -1466,7 +1485,7 @@ sub read_ovfjfile {
 	my $ovfjfilename = ($filename =~ /\//) ? 
 		$filename :
 		$path."_ovj.txt";
-	open my $infile, $ovfjfilename
+	open my $infile, '<', $ovfjfilename
 	 or return meldung(FEHLER, "Kann '$ovfjfilename' nicht lesen: $!");
 
 	my %ovfj;
@@ -1623,6 +1642,86 @@ sub write_ovj_file {
 		  or meldung(WARNUNG, "Konnte Verzeichnis '$inputpath' nicht anlegen: $!");
 	}
 	return \%ovj_file;
+}
+
+# Abfrage, wenn Unstimmigkeiten der Daten mit den PMVorjahr Daten auftreten
+# Evtl. Todo: komplexere Fragen, z.B. Auswahl unter mehreren Moeglichkeiten
+sub QuestionIfInPMVorjahr {
+# Rueckgabewerte: 0 = negativ
+#                 1 = positiv aufgrund aktueller Rueckfrage
+#                 2 = positiv augfrund gespeicherter Rueckfrage
+	my $style = shift;
+	my $PMJahr = shift;
+	my $meldung = shift;
+	my $extract = shift if ($style eq "EinfachAbgleich");
+	
+	my ($frage,$fragemode);
+	
+	undef @questions unless -e $questionsfilename; # falls Benutzer waehrend der
+	                                               # Programmbenutzung die Datei loescht
+	
+	if (@questions == 0 && -r $questionsfilename)
+	{
+		open my $infile, '<', $questionsfilename
+		or return meldung(FEHLER, "Kann '$questionsfilename' nicht lesen: $!");
+		$fragemode = 0;
+		while (<$infile>) {
+			chomp;
+			if (/^Frage:/)
+			{
+				$fragemode = 1;
+			}
+			elsif (/^Antwort:\s*(.*)/)
+			{
+				my $frageantwort = {"Frage" => $frage, "Antwort" => $1};
+				push(@questions,$frageantwort);
+				$frage = "";
+				$fragemode = 0;
+			}
+			else
+			{
+				$frage .= "\n" if ($fragemode == 1 && $frage ne "");
+				$frage .= $_ if ($fragemode == 1);
+			}
+		}
+		close $infile
+		or die "close: $!";
+	}
+
+	if ($style eq "EinfachAbgleich")
+	{
+		$frage = $meldung."\nMöglicher Teilnehmer in $PMJahr Datei:\n".join(',',@{$extract})."\n\nIst das der Teilnehmer?";
+		# nachschauen, ob Frage schon existiert
+		foreach (@questions)
+		{
+			if ($_->{Frage} eq $frage)
+			{
+				return ($_->{Antwort} eq 'Ja'? 2 : 0);
+			}
+		}
+	}
+	
+	# Frage stellen
+	if ($style eq "EinfachAbgleich")
+	{
+		my $response = $OVJ::GUI::mw->messageBox(
+		-icon    => 'question', 
+		-title   => "Ist Teilnehmer in $PMJahr Datei?", 
+		-message => $frage, 
+		-type    => 'YesNo');
+		
+		$response = ($response eq 'Yes'? 'Ja' : 'Nein');
+		my $frageantwort = {"Frage" => $frage, "Antwort" => $response};
+		push(@questions,$frageantwort);
+		
+		open my $outfile, '>>', $questionsfilename
+		or return meldung(FEHLER, "Kann '$questionsfilename' nicht beschreiben: $!");
+		print $outfile "Frage:\n".$frage."\nAntwort: ".$response."\n\n";
+		close $outfile
+		or die "close: $!";
+		
+		return ($response eq 'Ja'? 1 : 0);
+	}
 }
 
 1;

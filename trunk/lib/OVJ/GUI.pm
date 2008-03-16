@@ -92,7 +92,7 @@ my %district = (
 
 my $help_dir = "doku";
 
-my $mw;
+our $mw;
 my $gui_projectname;
 my %gui_general;
 my $gui_district;
