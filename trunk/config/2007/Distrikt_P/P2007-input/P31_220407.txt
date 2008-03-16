@@ -25,7 +25,7 @@ Platz   Name                    Call    Zeit    Sender  DOK
 13      Anke Ebert              DL9OCA  1.24.20 5       P60
 14      Susanne Walz            DG4SFF  1.36.50 5       P12
 15      Harald Dettling         DC1GB   1.36.52 5       P12
-16      Axel Tüner              DL9VI   1.56.17 5       P60
+16      Axel Tüner              DF9VI   1.56.17 5       P60
 17      Winfried Walz           DO4WI   AL      3       P12
 17      Petra Walz              DO1PHG  AL      3       P12
 

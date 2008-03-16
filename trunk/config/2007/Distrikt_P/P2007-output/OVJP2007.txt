@@ -9,23 +9,46 @@ DOK                             P12
 Telefon                         0172 7283903
 Home-BBS                        
 E-Mail                          dl3sdo@darc.de
-Auswertung mit                  OVJ 0.98.421 by DL3SDO, DG0YT, 18.01.2008
-am                              18.2.2008
-Hinweis                         Teilnehmer ohne Teilnahme an offiziellen Wettbewerb in 2007
-                                wurden von OVJ entfernt
+Auswertung mit                  OVJ 0.98.425 by DL3SDO, DG0YT, 03.03.2008
+am                              16.3.2008
 
 ********************************
 * Durchgeführte OV-Wettbewerbe *
 ********************************
 Nr. Ausrichtender OV           DOK  Verantwortlicher          Call    DOK  Datum       Band  Teilnehmer
 -------------------------------------------------------------------------------------------------------
- 1  Tübingen                   P12  Kühlewein, Matthias       DL3SDO  P12  17.03.2007   80       27
+ 1  Hohenzollern               P52  Riethmueller, Nina        DL2GRC  P52  21.07.2007   80       27
 
 *********************************
 * Teilnehmer der OV-Wettbewerbe *
 *********************************
-Name, Vorname        Call    DOK  GebJahr  PMVJ?  Wettbewerbe AnzFJ  Platz1  Platz2  Ausrichter  Helfer  Punkte
----------------------------------------------------------------------------------------------------------------
-Czerwinski, Michael                         --    1             1                                          1 
-Jurtz, Klaus-Dieter  DO1ZI                  --    1             1                                          1 
-Kühlewein, Matthias  DL3SDO  P12  1970      JA    1             1                        1                 2 
+Name, Vorname         Call    DOK  GebJahr  PMVJ?  Wettbewerbe AnzFJ  Platz1  Platz2  Ausrichter  Helfer  Punkte
+----------------------------------------------------------------------------------------------------------------
+Andrea, Haschek       ---     ---            --    1             1                                          1 
+Andreas, Haschek      DH2SBJ  P60            --    1             1                                          1 
+Barth, Wolf-Dietrich  DK7TD   P60            --    1             1       1                                  3 
+Deponte, Heike        ---     ---            --    1             1                                          1 
+Deponte, Rene         ---     ---            --    1             1                                          1 
+Dettling, Harald      DC1GB   P12            --    1             1                                          1 
+Dieter, Christian     DL1GDC  P52            --    1             1                                          1 
+Dieter, Veronika      ---     ---            --    1             1                                          1 
+Ebert, Anke           DL9OCA  P60            --    1             1                                          1 
+Eipper, Carmen        DH3SC   P18            JA    1             1                                          1 
+Eipper, Ernst         DH1EE   P18            JA    1             1                                          1 
+Eipper, Jens          ---     ---            JA    1             1                                          1 
+Kern, Alexander       DL2SFK  P52            --    1             1                                          1 
+Kittel, Eric          DO2EKI  P12            --    1             1                                          1 
+Lauhoff, Jürgen       ---     ---            --    1             1                                          1 
+Ludwig, Lukas         ---     ---            --    1             1                                          1 
+Maier, Elke           ---     ---            --    1             1                                          1 
+Maisl, Thomas         DL3SBB  P17            --    1             1                                          1 
+Maurer, Constantin    ---     ---            --    1             1                                          1 
+Rapp, Dirk            DL2GRD  A14            --    1             1                                          1 
+Riethmueller, Nina    DL2GRC  P52            --    1             1                        1                 2 
+Sailer, Thomas        HB9JNX  ---            --    1             1                                          1 
+Sawatzki, Anette      DL7GAS  P03            --    1             1                                          1 
+Sawatzki, Erwin       DB4PS   P03            --    1             1                                          1 
+Schäfer, Celina       ---     ---            --    1             1                                          1 
+Schäfer, Uwe          ---     ---            --    1             1                                          1 
+Tüner, Axel           DF9VI   P60            --    1             1               1                          2 
+Walz, Susanne         DG4SFF  P12            --    1             1                                          1 

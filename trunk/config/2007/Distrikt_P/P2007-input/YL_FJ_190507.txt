@@ -6,17 +6,11 @@ Datum:              19.05.2007
 Treffpunkt:         Breitenberg
 Verantwortlich:     Uli Schoor, DF6TZ
 Helfer:             Michael Berger, DF7SA
-                    Matthias Kühlewein, DL3SDO
+Helfer:             Matthias Kühlewein, DL3SDO
 Teilnehmerzahl:     10
 Anzahl Sender:      5 zeitgesteuerte Sender
 Band:               80m
 
-
-Rolliwertung (inkl. Helfer):
-Platz  Name                         Call    Dok   Laufzeit  TX
---------------------------------------------------------------
- 1     Ulrike Klein                 DL6GBX  P03              5
- 1     Anette Sawatski              DL7GAS  Z18              5
 
 Fusswertung:
 Platz  Name                         Call    Dok   Laufzeit  TX
@@ -29,3 +23,11 @@ Platz  Name                         Call    Dok   Laufzeit  TX
  6     Carina Truschel               SWL     -     84:39     5
  7     Felix Truschel                SWL     -     84:40     5
  8     Brunhilde Dettling           DD9GC   P12    85:48     5
+<Ignoriere>
+Rolliwertung (inkl. Helfer):
+Platz  Name                         Call    Dok   Laufzeit  TX
+--------------------------------------------------------------
+</Ignoriere>
+ 1     Ulrike Klein                 DL6GBX  P03              5
+ 1     Anette Sawatski              DL7GAS  Z18              5
+ 

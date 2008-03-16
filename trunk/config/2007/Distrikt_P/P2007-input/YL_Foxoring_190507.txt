@@ -6,7 +6,7 @@ Datum:              19.05.2007
 Treffpunkt:         Breitenberg
 Verantwortlich:     Matthias Kühlewein, DL3SDO
 Helfer:             Uli Schoor, DF6TZ
-                    Michael Berger, DF7SA
+Helfer:             Michael Berger, DF7SA
 Teilnehmerzahl:     8
 Anzahl Sender:      9 Tinyfox Foxoring Sender
 Band:               80m

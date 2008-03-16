@@ -1,32 +1,30 @@
-Name, Vorname        Call    DOK  GebJahr  PMVJ?  Wettbewerbe AnzFJ  Platz1  Platz2  Ausrichter  Helfer  Punkte
----------------------------------------------------------------------------------------------------------------
-Czerwinski, Michael                         --    1             1                                          1 
-Jurtz, Klaus-Dieter  DO1ZI                  --    1             1                                          1 
-Kühlewein, Matthias  DL3SDO  P12  1970      JA    1             1                        1                 2 
-
-Schliesse Barth, Didi aus, da Name nicht in aktueller PM Datei
-Schliesse Dettling, Brunhilde aus, da Name nicht in aktueller PM Datei
-Schliesse Dettling, Harald aus, da Name nicht in aktueller PM Datei
-Schliesse Ebert, Anke aus, da Name nicht in aktueller PM Datei
-Schliesse Eipper, Carmen aus, da Name nicht in aktueller PM Datei
-Schliesse Eipper, Ernst aus, da Name nicht in aktueller PM Datei
-Schliesse Eipper, Jens aus, da Name nicht in aktueller PM Datei
-Schliesse Gödan, Ulrich aus, da Name nicht in aktueller PM Datei
-Schliesse Hasler, Lisbeth aus, da Name nicht in aktueller PM Datei
-Schliesse Hirning, Michael aus, da Name nicht in aktueller PM Datei
-Schliesse Kern, Alexander aus, da Name nicht in aktueller PM Datei
-Schliesse Kittel, Eric aus, da Name nicht in aktueller PM Datei
-Schliesse Meier, Tobias aus, da Name nicht in aktueller PM Datei
-Schliesse Riethmüller, Nina aus, da Name nicht in aktueller PM Datei
-Schliesse Schneider, Sinclair aus, da Name nicht in aktueller PM Datei
-Schliesse Schoor, Uli aus, da Name nicht in aktueller PM Datei
-Schliesse Striebel, Julian aus, da Name nicht in aktueller PM Datei
-Schliesse Striebel, Katrin aus, da Name nicht in aktueller PM Datei
-Schliesse Striebel, Nikolai aus, da Name nicht in aktueller PM Datei
-Schliesse Striebel, Odilia aus, da Name nicht in aktueller PM Datei
-Schliesse Tüner, Axel aus, da Name nicht in aktueller PM Datei
-Schliesse Tüner, Karola aus, da Name nicht in aktueller PM Datei
-Schliesse Walz, Susanne aus, da Name nicht in aktueller PM Datei
-Schliesse Wessels, Anja aus, da kein offizieller Wettbewerb in 2007
-Schliesse Wessels, Tilda aus, da kein offizieller Wettbewerb in 2007
-
+Name, Vorname         Call    DOK  GebJahr  PMVJ?  Wettbewerbe AnzFJ  Platz1  Platz2  Ausrichter  Helfer  Punkte  akt.Jahr
+--------------------------------------------------------------------------------------------------------------------------
+Andrea, Haschek       ---     ---            --    1             1                                          1       Nein
+Andreas, Haschek      DH2SBJ  P60            --    1             1                                          1       Nein
+Barth, Wolf-Dietrich  DK7TD   P60            --    1             1       1                                  3 
+Deponte, Heike        ---     ---            --    1             1                                          1       Nein
+Deponte, Rene         ---     ---            --    1             1                                          1       Nein
+Dettling, Harald      DC1GB   P12            --    1             1                                          1 
+Dieter, Christian     DL1GDC  P52            --    1             1                                          1       Nein
+Dieter, Veronika      ---     ---            --    1             1                                          1       Nein
+Ebert, Anke           DL9OCA  P60            --    1             1                                          1 
+Eipper, Carmen        DH3SC   P18            JA    1             1                                          1 
+Eipper, Ernst         DH1EE   P18            JA    1             1                                          1 
+Eipper, Jens          ---     ---            JA    1             1                                          1 
+Kern, Alexander       DL2SFK  P52            --    1             1                                          1       Nein
+Kittel, Eric          DO2EKI  P12            --    1             1                                          1 
+Lauhoff, Jürgen       ---     ---            --    1             1                                          1       Nein
+Ludwig, Lukas         ---     ---            --    1             1                                          1       Nein
+Maier, Elke           ---     ---            --    1             1                                          1       Nein
+Maisl, Thomas         DL3SBB  P17            --    1             1                                          1       Nein
+Maurer, Constantin    ---     ---            --    1             1                                          1       Nein
+Rapp, Dirk            DL2GRD  A14            --    1             1                                          1       Nein
+Riethmueller, Nina    DL2GRC  P52            --    1             1                        1                 2       Nein
+Sailer, Thomas        HB9JNX  ---            --    1             1                                          1       Nein
+Sawatzki, Anette      DL7GAS  P03            --    1             1                                          1 
+Sawatzki, Erwin       DB4PS   P03            --    1             1                                          1 
+Schäfer, Celina       ---     ---            --    1             1                                          1       Nein
+Schäfer, Uwe          ---     ---            --    1             1                                          1       Nein
+Tüner, Axel           DF9VI   P60            --    1             1               1                          2 
+Walz, Susanne         DG4SFF  P12            --    1             1                                          1 

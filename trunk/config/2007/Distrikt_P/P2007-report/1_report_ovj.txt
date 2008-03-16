@@ -3,52 +3,40 @@ Ausrichter: Kühlewein, Matthias, 1970, DL3SDO, P12
 In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
 Kühlewein,Matthias ist neu in Auswertung, Status: Ausrichter
 
-Teilnehmer: Barth, Didi, , , 
-INFO: Erster Match mit:  1     Didi Barth                  40:43   11
-INFO: Barth, Didi in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
-INFO: mögliche Teilnehmer: 
-Barth,Wolf-Dietrich,DK7TD,P60,1967,,20061015
-Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
-Barth,Didi ist neu in Auswertung, Status: 2 Extrapunkte für Platz 1 als Nicht-PM
+Teilnehmer: Barth, Wolf-Dietrich, , , 
+INFO: Erster Match mit:  1     Wolf-Dietrich Barth         40:43   11
+INFO: Barth, Wolf-Dietrich in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund Rückfrage
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
+Barth,Wolf-Dietrich ist neu in Auswertung, Status: 2 Extrapunkte für Platz 1 als Nicht-PM
 
 Teilnehmer: Eipper, Ernst, , , 
-INFO: Eipper, Ernst in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
-INFO: mögliche Teilnehmer: 
-Eipper,Ernst,DH1EE,P18,1961,FM,20060827
-Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
-Eipper,Ernst ist neu in Auswertung, Status: 1 Extrapunkt für Platz 2 als Nicht-PM
+INFO: Eipper, Ernst in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
+Eipper,Ernst ist neu in Auswertung, Status: PM im Vorjahr
 
 Teilnehmer: Eipper, Jens, , , 
-INFO: Eipper, Jens in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
-INFO: mögliche Teilnehmer: 
-Eipper,Jens,SWL,P18,1992,FM,20060827
-Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
-Eipper,Jens ist neu in Auswertung, Status: 
+INFO: Eipper, Jens in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
+Eipper,Jens ist neu in Auswertung, Status: PM im Vorjahr
 
 Teilnehmer: Eipper, Carmen, , , 
-INFO: Eipper, Carmen in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
-INFO: mögliche Teilnehmer: 
-Eipper,Carmen,DH3SC,P18,1963,FM,20060827
-Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
-Eipper,Carmen ist neu in Auswertung, Status: 
+INFO: Eipper, Carmen in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
+Eipper,Carmen ist neu in Auswertung, Status: PM im Vorjahr
 
 Teilnehmer: Jurtz, Klaus-Dieter, , , 
 INFO: Overridedatensatz für Jurtz, Klaus-Dieter gefunden
 In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
-Jurtz,Klaus-Dieter ist neu in Auswertung, Status: 
+Jurtz,Klaus-Dieter ist neu in Auswertung, Status: 1 Extrapunkt für Platz 2 als Nicht-PM
 
 Teilnehmer: Ebert, Anke, , , 
-INFO: Ebert, Anke in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
-INFO: mögliche Teilnehmer: 
-Ebert,Anke,DL9OCA,P60,1963,,20061015
-Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+INFO: Ebert, Anke in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
 Ebert,Anke ist neu in Auswertung, Status: 
 
 Teilnehmer: Gödan, Ulrich, , , 
-INFO: Gödan, Ulrich in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
-INFO: mögliche Teilnehmer: 
-Gödan,Ulrich,DB2TX,P12,1951,,20060525
-Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+INFO: Gödan, Ulrich in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
 Gödan,Ulrich ist neu in Auswertung, Status: 
 
 Teilnehmer: Meier, Tobias, , , 
@@ -68,11 +56,9 @@ In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,DOK
 Wessels,Anja ist neu in Auswertung, Status: 
 
 Teilnehmer: Schoor, Uli, , , 
-INFO: Schoor, Uli in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
-INFO: mögliche Teilnehmer: 
-Schoor,Uli,DF6TZ,P06,1947,FM,20060827
-Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
-Schoor,Uli ist neu in Auswertung, Status: 
+INFO: Schoor, Uli in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
+Schoor,Uli ist neu in Auswertung, Status: PM im Vorjahr
 
 Teilnehmer: Dettling, Brunhilde, , , 
 Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname
@@ -83,10 +69,8 @@ In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,DOK
 Tüner,Axel ist neu in Auswertung, Status: 
 
 Teilnehmer: Tüner, Karola, , , 
-INFO: Tüner, Karola in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
-INFO: mögliche Teilnehmer: 
-Tüner,Karola,DF2SDX,P60,1963,,20060924
-Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+INFO: Tüner, Karola in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
 Tüner,Karola ist neu in Auswertung, Status: 
 
 Teilnehmer: Schneider, Sinclair, , , 
@@ -137,8 +121,6 @@ Nicht in PMVorjahr gefunden da nur Übereinstimmung von:
 Walz,Susanne ist neu in Auswertung, Status: 
 
 Teilnehmer: Dettling, Harald, , , 
-INFO: Dettling, Harald in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten nicht
-INFO: mögliche Teilnehmer: 
-Dettling,Harald,DC1GB,P12,1970,,19990912
-Nicht in PMVorjahr gefunden da nur Übereinstimmung von: Nachname,Vorname
+INFO: Dettling, Harald in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage
+In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
 Dettling,Harald ist neu in Auswertung, Status: 

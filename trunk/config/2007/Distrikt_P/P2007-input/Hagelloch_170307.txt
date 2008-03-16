@@ -16,7 +16,7 @@ Wertung:            Gesamtwertung
 
 Platz  Name                      Laufzeit  TX
 ----------------------------------------------
- 1     Didi Barth                  40:43   11
+ 1     Wolf-Dietrich Barth         40:43   11
  2     Ernst Eipper                50:13   11
  3     Jens  Eipper                51:09   11
  4     Carmen Eipper               51:10   11
