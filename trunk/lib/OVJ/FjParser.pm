@@ -1,4 +1,4 @@
-# $Id: OVJ.pm 421 2008-01-18 22:57:10Z kpa $
+# $Id$
 #
 # Copyright (C) 2007-2008 
 #   Kai Pastor, DG0YT <dg0yt AT darc DOT de>,
