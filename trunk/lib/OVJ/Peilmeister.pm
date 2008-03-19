@@ -32,6 +32,12 @@ use vars qw(
 	$VERSION
 );
 
+use constant (
+	ANY_MATCH   => 0,
+	GOOD_MATCH  => 4,
+	EXACT_MATCH => 6,
+);
+
 BEGIN {
 	$VERSION = 0.1;
 	'$Id$' =~ 
@@ -45,43 +51,44 @@ BEGIN {
 # PM-Objekt erzeugen
 # Fehler stehen in $!
 sub new {
-	my ($proto, $pmfile) = @_;
-	$pmfile or croak "Dateiname fehlt";
+	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = {
-		pmfile  => $pmfile,
+		files   => [ ],
 		records => [ ],
 	};
 	bless $self, $class;
-	$self->read_pm_file() or return;
+	$self->read_pmfile(@_);
 	return $self;
 }
 
 
-#Lesen der Spitznamen Datei
-sub read_pm_file {
+#Lesen von Peilmeisterdateien
+sub read_pmfile {
 	my $self = shift;
-	my ($pmname,$pmvorname,$pmcall,$pmdok,$pmgebjahr,$pmpm,$pmdatum);
 
+	my ($name,$vorname,$call,$dok,$gebjahr,$pm,$datum);
 	my $infile;
-	open $infile, '<', $self->{pmfile} or return;
-	while (<$infile>) {
-		next unless (/^\"/);	# Zeile muss mit Anfuehrungszeichen beginnen
-		s/\r//;
-		tr/\"//d;				# entferne alle Anf�hrungszeichen
-		($pmname,$pmvorname,$pmcall,$pmdok,undef,undef,$pmgebjahr,undef,$pmpm,undef,$pmdatum,undef) = split(/,/);
-		push @{$self->{records}},
-		     [$pmname,$pmvorname,$pmcall,$pmdok,$pmgebjahr,$pmpm,$pmdatum];
+
+	while (my $filename = shift) {
+		push @{$self->{files}}, $filename;
+		open $infile, '<', $filename or return;
+		while (<$infile>) {
+			next unless (/^"/);	# Zeile muss mit Anfuehrungszeichen beginnen
+			s/\r|"//g;
+			($name,$vorname,$call,$dok,undef,undef,$gebjahr,undef,$pm,undef,$datum,undef) = split(/,/);
+			push @{$self->{records}}, [$name,$vorname,$call,$dok,$gebjahr,$pm,$datum,$filename,0];
+		}
+		close $infile or return;
 	}
-	close $infile;
 }
 
-sub finde {
+sub suche {
 	my ($self, $person, $best) = @_;
-	$best = 5 unless defined $best;
+	$best = GOOD_MATCH unless defined $best;
 	my @treffer;
 	foreach (@{$self->{records}}) {
-		my $score = 1;
+		my $score = 0;
 		$score += $person->[0] eq $_->[0] ? 2 : -1; # Nachname
 		$score += $person->[1] eq $_->[1] ? 2 : -1; # Vorname
 		$score += 1 if ($person->[3] ne '' && $person->[3] eq $_->[3]); # DOK
@@ -96,7 +103,7 @@ sub finde {
 		elsif ($_->[2] ne 'SWL') {
 			$score -= 1;
 		}
-		$_->[7] = $score;
+		$_->[-1] = $score;
 		if ($score == $best) {
 			push @treffer, $_;
 		}
@@ -107,16 +114,6 @@ sub finde {
 	};
 	return @treffer;
 
-}
-
-sub ist_pm {
-	my $self = shift;
-	if (@_ > 1) {
-		return $_[5] eq 'PM';
-	}
-	else {
-		return $$_[0][5] eq 'PM';
-	}
 }
 
 1;

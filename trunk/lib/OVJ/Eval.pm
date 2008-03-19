@@ -25,8 +25,9 @@ use strict;
 use Carp;
 
 use OVJ::FjParser;
+use OVJ::Peilmeister;
 
-use OVJ; warn "FIXME: Entferne Abh�ngigkeit von package OVJ";
+use OVJ; warn "FIXME: Pruefe Abh�ngigkeit von package OVJ";
 
 use vars qw(%idx_call %idx_name);
 
@@ -53,10 +54,10 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 my $general = shift;
-my @pm_vorjahr = OVJ::read_pm_file(shift);
+	my $pm_vorjahr = new OVJ::Peilmeister(shift) or return;
 	my $self = {
 	  general    => $general,
-	  pm_vorjahr => \@pm_vorjahr,
+	  pm_vorjahr => $pm_vorjahr,
 	  pm_aktuell => @_ ? \(OVJ::read_pm_file(shift) || ()) : [],
 	  nicknames  => @_ ? OVJ::get_nicknames(shift) : '',
 	  overrides  => @_ ? OVJ::get_overrides(shift) : '',
@@ -190,7 +191,7 @@ sub find_person {
 	             [ $nachname, $vorname, $call, $dok, '', '', 'Neu', ];
 	if (! defined $idx_call{$call} && ! defined $idx_name{$name}) {
 		# Neuer Datensatz
-		my @treffer = suche_in_pmfile($self->{pm_vorjahr}, $person);
+		my @treffer = $self->{pm_vorjahr}->suche($person, 5);
 		if (@treffer == 1) {
 			$person->[6] = '';
 			if ($person->[0] ne $treffer[0]->[0]) {
@@ -244,57 +245,9 @@ sub find_person {
 	return $person;
 }
 
-sub suche_in_pmfile {
-	my ($data, $person) = @_;
-	my ($best, @treffer) = (4, ());
-	foreach (@$data) {
-		my $score = 0;
-		$score += $person->[0] eq $_->[0] ? 2 : -1; # Nachname
-		$score += $person->[1] eq $_->[1] ? 2 : -1; # Vorname
-		$score += 1 if ($person->[3] ne '' && $person->[3] eq $_->[3]); # DOK
-		$score += 1 if ($person->[4] && $person->[4] eq $_->[4]); # Geb.-jahr
-		# Call
-		if ($person->[2] eq 'SWL') {
-			$score += 1 if ($person->[2] eq $_->[2]);
-		}
-		elsif ($person->[2] eq $_->[2]) {
-			$score += 4;
-		}
-		elsif ($_->[2] ne 'SWL') {
-			$score -= 1;
-		}
-		$_->[6] = $score;
-		if ($score == $best) {
-			push @treffer, $_;
-		}
-		elsif ($score > $best) {
-			$best = $score;
-			@treffer = ( $_, );
-		}
-	};
-	return @treffer;
-
-}
-
 sub peilmeister {
 	my ($self, $person) = @_;
 	return $person->[5] eq 'FM';
-}
-
-sub find_call {
-	my ($self, $person) = @_;
-	if ($person->[2] eq 'SWL') {
-		my @treffer = suche_in_pmfile($self->{pm_vorjahr}, $person);
-		$person->[2] = $treffer[0]->[2] if @treffer==1;
-	}
-}
-
-sub find_dok {
-	my ($self, $person) = @_;
-	if ($person->[3] eq 'DOK') {
-		my @treffer = suche_in_pmfile($self->{pm_vorjahr}, $person);
-		$person->[3] = $treffer[0]->[3] if @treffer==1;
-	}
 }
 
 sub record {
@@ -361,9 +314,10 @@ sub text {
 	my $i = 1;
 	my $ovfj = join("\n", map { $i++ . " " . $_->{Name} } @{$self->{ovfj}});
 	my $format = 
-	  "%-21s %-7s %-4s %-8s %-6s %-11s %-6s %-7s %-7s %-11s %-7s %-6s %-9s\n";
+#	  "%-21s %-7s %-4s %-8s %-6s %-11s %-6s %-7s %-7s %-11s %-7s %-6s %-9s\n";
+	  "%-21s %-8s %-4s %-5s %-3s %-15s %-3s %-3s %-3s %-3s %-3s %-3s %-9s\n";
 	my $people = 
-	  sprintf($format, 'Name, Vorname', qw(Call DOK GebJahr PMVJ? Wettbewerbe AnzFJ Platz1 Platz2 Ausrichter Helfer Punkte Kommentar));
+	  sprintf($format, 'Name, Vorname', qw(Call DOK GebJ PM Wettbewerbe Anz Pl1 Pl2 Aus Hlf Pkt Kommentar));
 	$people .= "-"x(length($people)-1)."\n".
 	  join('', map {
 		sprintf $format, $self->eval_person($_)
