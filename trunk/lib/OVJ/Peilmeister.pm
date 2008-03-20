@@ -26,17 +26,19 @@ use strict;
 use warnings;
 use Carp;
 
+my $debug = defined $ENV{DEBUG_OVJ_PEILMEISTER};
+
 use vars qw(
 	$REVISION
 	$REVDATE
 	$VERSION
 );
 
-use constant (
+use constant {
 	ANY_MATCH   => 0,
 	GOOD_MATCH  => 4,
 	EXACT_MATCH => 6,
-);
+};
 
 BEGIN {
 	$VERSION = 0.1;
@@ -111,6 +113,7 @@ sub suche {
 			$best = $score;
 			@treffer = ( $_, );
 		}
+warn join(", ", @$_)."\n" if $debug;
 	};
 	return @treffer;
 

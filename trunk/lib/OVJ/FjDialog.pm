@@ -21,7 +21,10 @@
 package OVJ::FjDialog;
 
 use strict;
+use warnings;
 use Carp;
+
+my $debug = defined $ENV{DEBUG_OVJ_FJDIALOG};
 
 #use Tk;
 #use Tk::Text;
@@ -34,6 +37,7 @@ use Carp;
 use OVJ 0.98;
 use OVJ::Browser 0.1;
 use OVJ::TkTools;
+use OVJ::Eval;
 
 use vars qw(
 	$REVISION
@@ -215,11 +219,36 @@ sub do_select_fjfile {
 
 	$fjdir =~ tr/\\/\//;
 	$selfile =~ s/^$fjdir\/([^\/]+)$/$1/;
-	my %ovfj = OVJ::import_fjfile($selfile)
-	 or return;
-	$self->modify_ovfj(%ovfj);
+	$self->import_fjfile($selfile);
+	$self->fill_ovfj_tabs();
 }
 
+sub import_fjfile {
+	my ($self, $filename) = @_;
+	my %ovfj = (OVFJDatei => $filename);
+
+#	my $filename = $self->{ovfj}->{OVFJDatei};
+	my $path = ($filename =~ m:/: ? '' : (OVJ::get_path($OVJ::genfilename, $OVJ::inputdir).'/')); # FIXME
+	$path.= $filename;
+	open my $infile, '<', $path
+	  or return OVJ::meldung(OVJ::FEHLER, "Kann OVFJ Datei '$path' nicht lesen: $!");
+	my $parser = new OVJ::FjParser();
+	while (<$infile>) {
+		my ($type, @data) = $parser->parseline($_);
+		if ($type =~ /^(AusrichtOV|AusrichtDOK|Datum|TlnManuell|Band)$/) {
+			$ovfj{$type} = $data[0];
+		}
+		elsif ($type =~ /^Ausrichter$/) {
+			$ovfj{Verantw_Name}   = $data[0];
+			$ovfj{Verantw_Vorame} = $data[1];
+			$ovfj{Verantw_CALL} =   $data[2];
+			$ovfj{Verantw_DOK} =    $data[3];
+			$ovfj{Verantw_GebJahr} =$data[4];
+		}
+	}
+	close $infile;
+	$self->modify_ovfj(%ovfj);
+}
 
 sub set_ovfj {
 	my $self = shift;
@@ -249,21 +278,24 @@ sub modify_ovfj {
 
 sub fill_ovfj_tabs {
 	my $self = shift;
-	my $ovfjrepfilename = $_[0];
+#	my $ovfjrepfilename = $_[0];
 	my $general = $self->{project}->{General};
 	# GUI schon initialisiert ?
 	if (defined $self->{parts}->{AusrichtDOK}) { 
-		$ovfjrepfilename .= "_report_ovj.txt";
-		$ovfjrepfilename =~ s/^OVFJ //;
+#		$ovfjrepfilename .= "_report_ovj.txt";
+#		$ovfjrepfilename =~ s/^OVFJ //;
 		#print $ovfjrepfilename."\n"; # FIXME: entfernen
+		my %ovfj = $self->get_ovfj();
+		my $eval = new OVJ::Eval($self->{general}, $self->{project}->{General}->{PMVorjahr}); # FIXME Redundante Parameter?
+		$eval->add(\%ovfj) if $ovfj{OVFJDatei} ne '';
+		$eval->start();
+		$self->{views}->{output}->configure(-state => 'normal');
+		$self->{views}->{output}->Contents($eval->text());
+		$self->{views}->{output}->configure(-state => 'disabled');
 		$self->{views}->{report}->configure(-state => 'normal');
-		$self->{views}->{report}->Contents(
-			$ovfjrepfilename ? OVJ::read_ovfj_repfile($ovfjrepfilename) : '' ); # FIXME: sinnlose Abfrage, ersetzen oder loeschen
+		$self->{views}->{report}->Contents($eval->report()); # FIXME: sinnlose Abfrage, ersetzen oder loeschen
 		$self->{views}->{report}->configure(-state => 'disabled');
 		
-		$self->{views}->{output}->configure(-state => 'normal');
-		$self->{views}->{output}->Contents(OVJ::read_txtoutfile($general));
-		$self->{views}->{output}->configure(-state => 'disabled');
 	}
 	return 1;
 }
@@ -281,6 +313,7 @@ sub get_ovfj {
 			$ovfj{$key} = uc $ovfj{$key};
 		}
 	}
+	$ovfj{Name} = $self->title();
 	return %ovfj;
 }
 
@@ -328,6 +361,7 @@ sub do_pattern_dialog {
 		$ovfj_tmp{Auswertungsmuster} = $pattern;
 		$self->modify_ovfj(%ovfj_tmp);
 	}
+	$self->fill_ovfj_tabs();
 }
 
 
@@ -350,7 +384,7 @@ sub Show {
 		}
 		elsif ($sel eq 'Auswerten') {
 			if ($self->check_overwrite()) {
-				OVJ::MainWindow::do_eval_ovfj($self->{name}); # FIXME: OO-Rewrite
+#				OVJ::MainWindow::do_eval_ovfj($self->{name}); # FIXME: OO-Rewrite
 				$self->fill_ovfj_tabs($self->{name});
 			}
 		}

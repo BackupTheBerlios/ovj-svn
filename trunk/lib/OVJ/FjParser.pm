@@ -37,11 +37,11 @@ use constant {
   BAND       => 'Band',
   DATUM      => 'Datum',
   ORT        => 'Ort',
-  OV         => 'OV',
-  DOK        => 'DOK',
+  OV         => 'AusrichtOV',
+  DOK        => 'AusrichtDOK',
   IGNORIERT  => 'Ignoriert',
   UNBEKANNT  => 'Unbekannt',
-  ANZAHL_TLN => 'Anzahl Teilnehmer',
+  ANZAHL_TLN => 'TlnManuell',
 };
 
 sub new {
@@ -87,7 +87,7 @@ sub parseline {
 #	}
 
 
-	if (/^(\w.*?):\s*(.*)/) {
+	if (/^(\w.*?):\s+(.*)/) {
 		$self->{m_helfer} = 0;
 
 		if ($1 eq "Band") {
@@ -152,9 +152,9 @@ sub parseline {
 
 
 sub person {
+print "person: $_[0]\n" if $debug;
 	my @person = split /\s+/, $_[0];
 	my ($vorname, $nachname, $call, $dok) =	('', '', 'SWL', '');
-print "person: $_[0]\n" if $debug;
 	while (my $field = shift @person) {
 print "  '$field'\n" if $debug;
 		if ($field =~ /^(?:Rufzeichen|OV|DOK):?$/) {
@@ -163,7 +163,7 @@ print "  '$field'\n" if $debug;
 		elsif ($field =~ /^([A-Za-z])[-]?(\d\d),?$/) {
 			$dok = uc($1).$2;
 		}
-		elsif ($field =~ /\d|SWL/ && $field =~ /^(\w{3,6}),?$/) {
+		elsif ($field =~ /\d|^SWL$/ && $field =~ /^(\w{3,7}),?$/) {
 			$call = uc($1);
 		}
 #		elsif ($field eq 'SWL') {
@@ -199,7 +199,8 @@ sub muster {
 		my $length = length($_);
 		my $less = $length - 1;
 		push @lengths, $length;
-		push @patterns, qr/(.{0,$length}?(?<=\S) +|.{$length,}?| {0,$length}\S+) /;
+#		push @patterns, qr/(.{0,$length}?(?<=\S) +|.{$length,}?| {0,$length}\S+) /;
+		push @patterns, qr/(.{0,$length}(?<=\S) +|.{$length,}?| {0,$length}\S+) /;
 
 		if (/Pl.{0,3}/) {
 			push @keys, 'Platz';

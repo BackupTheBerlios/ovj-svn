@@ -90,6 +90,7 @@ sub state {
 	$self->{state} = shift;
 	($self->{action_message}, $self->{action_options}, $self->{action_ovfj}) =
 	  ($self->{state} == READY) ? ( "Wettkampf hinzuf�gen", NONE, '' ) : @_;
+	$self->report("$self->{state}: $self->{action_message}");
 	return $self->{state};
 }
 
@@ -122,7 +123,8 @@ sub start {
 			return $self->state(ERROR, "Keine OVFJ Datei angegeben.");
 		}	
 		
-		open (my $infile, '<', $race->{OVFJDatei})
+		my @data = OVJ::read_ovfj_infile($race->{OVFJDatei}) # FIXME 
+#		open (my $infile, '<', $race->{OVFJDatei})
 		  or return $self->state(ERROR, "Kann OVFJ Datei '$race->{OVFJDatei}' nicht lesen: $!");
 
 #		my ($Ignoriermode, $Helfermode, $KeineSonderpunkte) = (0, 0, 0);
@@ -143,7 +145,8 @@ sub start {
 		$self->{facts}->{$race} = {};
 		my $nicht_pm_rang = 0;
 		my $platz_zuvor = 0;
-		while (<$infile>) {
+		foreach (@data) { # FIXME
+#		while (<$infile>) {
 			my ($type, @data) = $p->parseline($_);
 
 			if ($type eq OVJ::FjParser::MUSTER && ! $muster) {
@@ -170,8 +173,8 @@ sub start {
 			}
 		}
 	
-		close $infile
-		  or return $self->state(ERROR, "Konnte Datei '$race->{OVFJDatei}' nicht schlie�en: $!");
+		# close $infile # FIXME
+		#  or return $self->state(ERROR, "Konnte Datei '$race->{OVFJDatei}' nicht schlie�en: $!");
 		push @{$self->{ovfj}}, shift @{$self->{ovfj_todo}};
 	}
 

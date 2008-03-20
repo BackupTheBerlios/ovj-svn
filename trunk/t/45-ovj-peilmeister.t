@@ -19,10 +19,10 @@ BEGIN {
 
 ok( my $pm = new OVJ::Peilmeister(TESTFILE), "new" );
 
-is( scalar $pm->suche(["Albrecht","Alf","SWL","","",""],GOOD_MATCH), 1, "Albrecht, Alf, SWL" );
-is( scalar $pm->suche(["Albrecht","","SWL","","",""],   GOOD_MATCH), 2, "Albrecht, SWL" );
-is( scalar $pm->suche(["Albrecht","","SWL","A01","",""],GOOD_MATCH), 2, "Albrecht, SWL, A01" );
-is( scalar $pm->suche(["","","DA1ANN","","",""],        GOOD_MATCH), 1, "DA1ANN" );
-is( scalar $pm->suche(["","Alf","SWL","A02","",""],     GOOD_MATCH), 3, "Alf, SWL, A02" );
+is( scalar $pm->suche(["Albrecht","Alf","SWL","","",""],OVJ::Peilmeister::ANY_MATCH), 1, "Albrecht, Alf, SWL" );
+is( scalar $pm->suche(["Albrecht","","SWL","","",""],   OVJ::Peilmeister::ANY_MATCH), 2, "Albrecht, SWL" );
+is( scalar $pm->suche(["Albrecht","","SWL","A01","",""],OVJ::Peilmeister::ANY_MATCH), 2, "Albrecht, SWL, A01" );
+is( scalar $pm->suche(["","","DA1ANN","","",""],        OVJ::Peilmeister::ANY_MATCH), 1, "DA1ANN" );
+is( scalar $pm->suche(["","Alf","SWL","A02","",""],     OVJ::Peilmeister::ANY_MATCH), 3, "Alf, SWL, A02" );
 
 0;
