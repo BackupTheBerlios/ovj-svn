@@ -15,7 +15,7 @@ Band:               80m
 Wertung:            Gesamtwertung
 
 Platz  Name                      Laufzeit  TX
-----------------------------------------------
+---------------------------------------------
  1     Wolf-Dietrich Barth         40:43   11
  2     Ernst Eipper                50:13   11
  3     Jens  Eipper                51:09   11

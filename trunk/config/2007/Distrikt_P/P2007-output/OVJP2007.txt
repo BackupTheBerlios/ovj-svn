@@ -9,46 +9,133 @@ DOK                             P12
 Telefon                         0172 7283903
 Home-BBS                        
 E-Mail                          dl3sdo@darc.de
-Auswertung mit                  OVJ 0.98.425 by DL3SDO, DG0YT, 03.03.2008
-am                              16.3.2008
+Auswertung mit                  OVJ 0.98.431 by DL3SDO, DG0YT, 16.03.2008
+am                              31.3.2008
 
 ********************************
 * Durchgeführte OV-Wettbewerbe *
 ********************************
 Nr. Ausrichtender OV           DOK  Verantwortlicher          Call    DOK  Datum       Band  Teilnehmer
 -------------------------------------------------------------------------------------------------------
- 1  Hohenzollern               P52  Riethmueller, Nina        DL2GRC  P52  21.07.2007   80       27
+ 1  Tübingen                   P12  Roethe, Nick              DF1FO   F13  14.01.2007   2        9
+ 2  Tübingen                   P12  Roethe, Nick              DF1FO   F13  18.02.2007   2        13
+ 3  Tübingen                   P12  Kühlewein, Matthias       DL3SDO  P12  17.03.2007   80       27
+ 4  Tübingen                   P12  Roethe, Nick              DF1FO   F13  07.04.2007   2        9
+ 5  Metzingen                  P31  Landmann, Marc            DL5SEZ  P31  22.04.2007   80       18
+ 6  Sigmaringen                P29  Ging, Jürgen              DL1YP   A48  29.04.2007   2        9
+ 7  YL Referat Württemberg          Schoor, Uli               DF6TZ   P06  19.05.2007   80       10
+ 8  YL Referat Württemberg          Kühlewein, Matthias       DL3SDO  P12  19.05.2007   80       8
+ 9  Stuttgart                  P11  Kuhn, Martin              DL3SFB  P06  01.07.2007   80       23
+ 10 Hohenzollern               P52  Kühlewein, Matthias       DL3SDO  P12  21.07.2007   80       27
+ 11 Stromberg                  P51  Pichler, Jens             DH2SP   P51  04.08.2007   80       21
+ 12 Tübingen                   P12  Kühlewein, Matthias       DL3SDO  P12  18.08.2007   80       13
+ 13 Metzingen                  P31  Landmann, Marc            DL5SEZ  P31  09.09.2007   80       13
+ 14 Tübingen                   P12  Roethe, Nick              DF1FO   F13  30.12.2007   2        16
 
 *********************************
 * Teilnehmer der OV-Wettbewerbe *
 *********************************
-Name, Vorname         Call    DOK  GebJahr  PMVJ?  Wettbewerbe AnzFJ  Platz1  Platz2  Ausrichter  Helfer  Punkte
-----------------------------------------------------------------------------------------------------------------
-Andrea, Haschek       ---     ---            --    1             1                                          1 
-Andreas, Haschek      DH2SBJ  P60            --    1             1                                          1 
-Barth, Wolf-Dietrich  DK7TD   P60            --    1             1       1                                  3 
-Deponte, Heike        ---     ---            --    1             1                                          1 
-Deponte, Rene         ---     ---            --    1             1                                          1 
-Dettling, Harald      DC1GB   P12            --    1             1                                          1 
-Dieter, Christian     DL1GDC  P52            --    1             1                                          1 
-Dieter, Veronika      ---     ---            --    1             1                                          1 
-Ebert, Anke           DL9OCA  P60            --    1             1                                          1 
-Eipper, Carmen        DH3SC   P18            JA    1             1                                          1 
-Eipper, Ernst         DH1EE   P18            JA    1             1                                          1 
-Eipper, Jens          ---     ---            JA    1             1                                          1 
-Kern, Alexander       DL2SFK  P52            --    1             1                                          1 
-Kittel, Eric          DO2EKI  P12            --    1             1                                          1 
-Lauhoff, Jürgen       ---     ---            --    1             1                                          1 
-Ludwig, Lukas         ---     ---            --    1             1                                          1 
-Maier, Elke           ---     ---            --    1             1                                          1 
-Maisl, Thomas         DL3SBB  P17            --    1             1                                          1 
-Maurer, Constantin    ---     ---            --    1             1                                          1 
-Rapp, Dirk            DL2GRD  A14            --    1             1                                          1 
-Riethmueller, Nina    DL2GRC  P52            --    1             1                        1                 2 
-Sailer, Thomas        HB9JNX  ---            --    1             1                                          1 
-Sawatzki, Anette      DL7GAS  P03            --    1             1                                          1 
-Sawatzki, Erwin       DB4PS   P03            --    1             1                                          1 
-Schäfer, Celina       ---     ---            --    1             1                                          1 
-Schäfer, Uwe          ---     ---            --    1             1                                          1 
-Tüner, Axel           DF9VI   P60            --    1             1               1                          2 
-Walz, Susanne         DG4SFF  P12            --    1             1                                          1 
+Name, Vorname                Call    DOK  GebJahr  PMVJ?  Wettbewerbe                      AnzFJ  Platz1  Platz2  Ausrichter  Helfer  Punkte
+--------------------------------------------------------------------------------------------------------------------------------------------
+Armstroff, Lars-Erich        ---     ---            --    9                                  1                                          1 
+Barth, Wolf-Dietrich         DK7TD   P60            --    1,2,3,5,9,10,11,12,13,14           10      8       2                          28
+Berger, Michael              DF7SA   P02            JA    5,6,7,8,9,13,14                    7                                  2       7 
+Blank, Elisabeth             ---     ---            --    5                                  1                                          1 
+Bäuerle, Eberhard            DK3SP   P15            --    11                                 1                                          1 
+Böhringer, Wolfgang          DL9TE   A48            JA    1,6,14                             3                                          3 
+Csipak, Peter                DL2SFI  P05            --    9                                  1                                          1 
+Csipak, Xenia                ---     ---            --    9                                  1                                          1 
+Czerwinski, Michael                  ---            --    3,9                                2                                          2 
+Denk, Hans                   ---     P30            --    6                                  1               1                          2 
+Denk, Thomas                 DO1STD  P30            --    6                                  1       1                                  3 
+Deponte, Heike               ---     ---            --    10                                 1                                          1 
+Deponte, Rene                ---     ---            --    10                                 1                                          1 
+Dettling, Brunhilde          DD9GC   P12            --    3,7,8,12                           4                                          4 
+Dettling, Harald             DC1GB   P12            --    3,5,9,10                           4                                          4 
+Dieter, Christian            DL1GDC  P52            --    10                                 1                                          1 
+Dieter, Veronika             ---     ---            --    10                                 1                                          1 
+Ebert, Anke                  DL9OCA  P60            --    1,2,3,5,9,10,11,12,13,14           10              3                          13
+Eipper, Bernd                                       --    2                                  1                                          1 
+Eipper, Carmen               DH3SC   P18            JA    2,3,4,9,10,11,12,14                8                                          8 
+Eipper, Ernst                DH1EE   P18            JA    2,3,4,5,6,9,10,11,12,14            10                                         10
+Eipper, Jens                         P18            JA    2,3,4,5,9,10,11,12,14              9                                          9 
+Fürst-Neugebauer, Konstanze  DL7GIK  P49            --    7,8                                2       1                                  4 
+Gaida, Ernst                 DL2GGE  A48            JA    6                                  1                                          1 
+Gartner, Bernhard            DF7SF   P11            JA    1,4,5,6,9,11,12,14                 8                                          8 
+Ging, Jürgen                 DL1YP   A48            JA    6                                  1                        1                 2 
+Grözinger, Alissa            ---     ---            --    11                                 1                                          1 
+Grözinger, Gerhard           DL4SBL  P51            --    11                                 1                                          1 
+Gödan, Ulrich                                       --    3                                  1                                          1 
+Haschek, Andrea              ---     ---            --    10                                 1                                          1 
+Haschek, Andreas             DH2SBJ  P60            --    10                                 1                                          1 
+Hasler, Lisbeth                                     --    3                                  1                                          1 
+Hauser, Patrick              ---     ---            --    11                                 1                                          1 
+Henke, Dietmar               DJ3NJ   B19            JA    11                                 1                                          1 
+Hirning, Michael                                    --    3                                  1                                          1 
+Jurtz, Klaus-Dieter          DO1ZI   P18            --    1,3,5,14                           4               3                          7 
+Kern, Alexander              DL2SFK  P52            --    3,10                               2                                          2 
+Kienle, Matthias             DL1CG   P51            --    11                                 1                                          1 
+Kittel, Eric                 DO2EKI  P12            --    3,10                               2                                          2 
+Klein, Ulrike                DL6GBX  P03            --    7                                  1                                          1 
+Klüppel, Werner              DF1IAR  A07            JA    5,9,13                             3                                          3 
+Kuhn, Martin                 DL3SFB  P06  1973      JA    5,9,13,14                          4                        1                 5 
+Kurz, Andreas                                       --    2,4                                2       2                                  6 
+Kurz, Maren                                         --    2                                  1                                          1 
+Kühlewein, Matthias          DL3SDO  P12  1970      JA    1,2,3,4,5,6,7,8,9,10,11,12,13,14   14                       4         1       18
+Landmann, Marc               DL5SEZ  P31  1975      --    5,13                               2                        2                 4 
+Lauhoff, Jürgen              ---     ---            --    10                                 1                                          1 
+Lebherz, Dominic             DL1CD   P51            --    11                                 1                                          1 
+Lessig, Odette               DO1GLO  P21            --    7,8                                2       1                                  4 
+Letsch, David                                       --    2                                  1                                          1 
+Ludwig, Lukas                ---     ---            --    10                                 1                                          1 
+Maier, Elke                  ---     ---            --    10                                 1                                          1 
+Maisl, Thomas                DL3SBB  P17            --    10                                 1                                          1 
+Makkens, Lothar              DL1SBF  P51            --    11                                 1                                          1 
+Maurer, Constantin           ---     ---            --    10                                 1                                          1 
+Meier, Tobias                                       --    3                                  1                                          1 
+Neumann, Michael             DO9MN   P11            --    11                                 1                                          1 
+Oltermann, Daniel            ---     ---            --    11                                 1                                          1 
+Ott, Michael                 DB3OM   P11            --    9                                  1                                          1 
+Pfeiffer, Christoph          DL5DAN  A12            --    11                                 1                                          1 
+Pichler, Jens                DH2SP   P51  1982      JA    4,9,11,12,13,14                    6                        1                 7 
+Prantner, Claus              DK6TE   Z55            --    13                                 1                                          1 
+Rapp, Dirk                   DL2GRD  A14            --    10                                 1                                          1 
+Riethmüller, Nina            DL2GRC  P52            --    3,10                               2                                  1       2 
+Roethe, Brigitte                     ---            JA    1,2,4,13,14                        5                                  1       5 
+Roethe, Nicholas             DF1FO   F13  1953      JA    1,2,4,13,14                        5                        4                 9 
+Sailer, Thomas               HB9JNX  ---            --    10                                 1                                          1 
+Sawatzki, Anette             DL7GAS  Z18            --    7,10                               2                                          2 
+Sawatzki, Erwin              DB4PS   P03            --    10                                 1                                          1 
+Schneider, Sinclair                                 --    3                                  1                                          1 
+Schoor, Uli                  DF6TZ   P06  1947      JA    3,4,5,7,8,9,11                     7                        1         1       8 
+Schrade, Erich               DF1SI   P31            --    5,13                               2       1                                  4 
+Schweikert, Thomas           DH2TS   P06            --    9                                  1                                          1 
+Schäfer, Celina              ---     ---            --    10                                 1                                          1 
+Schäfer, Uwe                 ---     ---            --    10                                 1                                          1 
+Schäuble, Jochen             DG1PSI  P02            --    9                                  1                                          1 
+Stadler, Ewald               DJ2UE   P18            JA    1,2,12                             3                                          3 
+Stadler, Helga               DK7SC   P18            JA    1,2,12                             3                                          3 
+Steden, Andre                                       JA    14                                 1                                          1 
+Steden, Jan                                         --    14                                 1                                          1 
+Steden, Michaela                                    --    14                                 1                                          1 
+Strebel, Stefan              ---     ---            --    13                                 1                                          1 
+Striebel, Julian                                    --    3                                  1                                          1 
+Striebel, Katrin                                    --    3                                  1                                          1 
+Striebel, Nikolai                                   --    3                                  1                                          1 
+Striebel, Odilia                                    --    3                                  1                                          1 
+Timm, Ulrich                 DK2MF   ---            JA    11,13                              2                                          2 
+Truschel, Carina             ---     ---            --    7,8                                2               1                          3 
+Truschel, Felix              ---     ---            --    7,8                                2               1                          3 
+Truschel, Yvonne             DL2GGG  Z18            --    7,8                                2               1                          3 
+Tüner, Axel                  DF9VI   P60            --    3,5,9,10,12                        5               2                          7 
+Tüner, Karola                                       --    3                                  1                                          1 
+Walter, Christian            ---     ---            --    11                                 1                                          1 
+Walz, Petra                  DO1PHG  P12            --    5,9                                2                                          2 
+Walz, Susanne                DG4SFF  P12            --    3,5,9,10                           4                                          4 
+Walz, Winfried               DO4WI   P12            --    5                                  1                                          1 
+Weißfuß, Wolfgang            DL1GWW  P29            JA    6,12                               2                                          2 
+Wessels, Anja                                       --    3                                  1                                          1 
+Wessels, Tilda                       ---            --    3,9                                2                                          2 
+Witt, Lisa                   DJ9GG   P03            --    7,8                                2                                          2 
+Wolf, Rosemarie              DL7AR   P61            --    7,8                                2               1                          3 
+Zimmermann, Uwe              ---     ---            --    12                                 1                                          1 

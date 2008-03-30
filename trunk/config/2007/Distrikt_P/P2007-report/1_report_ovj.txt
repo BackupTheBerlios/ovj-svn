@@ -1,38 +1,38 @@
 
 Ausrichter: Kühlewein, Matthias, 1970, DL3SDO, P12
 In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
-Kühlewein,Matthias ist neu in Auswertung, Status: Ausrichter
+Kühlewein,Matthias ist bereits in Auswertung, Status: Ausrichter
 
 Teilnehmer: Barth, Wolf-Dietrich, , , 
 INFO: Erster Match mit:  1     Wolf-Dietrich Barth         40:43   11
-INFO: Barth, Wolf-Dietrich in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund Rückfrage
+INFO: Barth, Wolf-Dietrich in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage
 In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
-Barth,Wolf-Dietrich ist neu in Auswertung, Status: 2 Extrapunkte für Platz 1 als Nicht-PM
+Barth,Wolf-Dietrich ist bereits in Auswertung, Status: 2 Extrapunkte für Platz 1 als Nicht-PM
 
 Teilnehmer: Eipper, Ernst, , , 
 INFO: Eipper, Ernst in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage
 In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
-Eipper,Ernst ist neu in Auswertung, Status: PM im Vorjahr
+Eipper,Ernst ist bereits in Auswertung, Status: PM im Vorjahr
 
 Teilnehmer: Eipper, Jens, , , 
 INFO: Eipper, Jens in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage
 In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
-Eipper,Jens ist neu in Auswertung, Status: PM im Vorjahr
+Eipper,Jens ist bereits in Auswertung, Status: PM im Vorjahr
 
 Teilnehmer: Eipper, Carmen, , , 
 INFO: Eipper, Carmen in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage
 In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
-Eipper,Carmen ist neu in Auswertung, Status: PM im Vorjahr
+Eipper,Carmen ist bereits in Auswertung, Status: PM im Vorjahr
 
 Teilnehmer: Jurtz, Klaus-Dieter, , , 
 INFO: Overridedatensatz für Jurtz, Klaus-Dieter gefunden
 In PMVorjahr gefunden da Übereinstimmung von: Call,Nachname,Vorname
-Jurtz,Klaus-Dieter ist neu in Auswertung, Status: 1 Extrapunkt für Platz 2 als Nicht-PM
+Jurtz,Klaus-Dieter ist bereits in Auswertung, Status: 1 Extrapunkt für Platz 2 als Nicht-PM
 
 Teilnehmer: Ebert, Anke, , , 
 INFO: Ebert, Anke in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage
 In PMVorjahr gefunden da Übereinstimmung von: Nachname,Vorname,! nach Rückfrage !
-Ebert,Anke ist neu in Auswertung, Status: 
+Ebert,Anke ist bereits in Auswertung, Status: 
 
 Teilnehmer: Gödan, Ulrich, , , 
 INFO: Gödan, Ulrich in PMVorjahr gefunden, aber DOK: --- stimmt nicht, verwende Daten aufgrund gespeicherter Rückfrage

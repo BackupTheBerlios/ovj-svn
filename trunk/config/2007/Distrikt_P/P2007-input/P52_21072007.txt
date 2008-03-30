@@ -4,7 +4,7 @@ Band: 80 m      Max. Laufzeit: 2 Stunden
 Ankündigung: ARDF-P eMail-Verteiler, WRS
 Treffpunkt: Grillplatz Hechingen-Bechtoldsweiler
 Ausrichter OV: P52- OV Hohenzollern
-Verantwortlich: Nina Riethmueller  Rufzeichen: DL2GRC
+Verantwortlich: Nina Riethmüller  Rufzeichen: DL2GRC
                 Matthias Kühlewein             DL3SDO
 
 Insgesamt haben 27 Läufer am Wettbewerb teilgenommen:
@@ -36,9 +36,11 @@ Platz   Name                    Call    Zeit    Sender  DOK
 21      Susanne Walz            DG4SFF  1.01:39 9       P12
 22      Heike Deponte           ---     1.01:41 9       ---
 23      Eric Kittel             DO2EKI  1.04:04 9       P12
-24      Haschek Andreas         DH2SBJ  1.29:58 2       P60
-24      Haschek Andrea          ---     1.29:58 2       ---
-
+24      Andreas Haschek         DH2SBJ  1.29:58 2       P60
+24      Andrea Haschek          ---     1.29:58 2       ---
+<Helfer>
+25      Nina Riethmüller        DL2GRC  0.00:00 0       P52
+</Helfer>
 
 Nach dem OV-Foxo haben die meisten Teilnehmer in gemütlicher Runde, 
 jedoch bei etwas nass-kaltem Wetter gegrillt. 

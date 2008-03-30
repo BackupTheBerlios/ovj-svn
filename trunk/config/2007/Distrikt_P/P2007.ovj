@@ -1,34 +1,20 @@
-[6]
-Band=80
-AusrichtDOK=
-Datum=19.05.2007
-Verantw_DOK=P06
-Verantw_GebJahr=1947
-Verantw_Vorname=Uli
-Auswertungsmuster=Platz Vorname Nachname Call Dok Zeit Sender?
-Verantw_CALL=DF6TZ
-Verantw_Name=Schoor
-TlnManuell=10
-AusrichtOV=YL Referat Württemberg
-OVFJDatei=YL_FJ_190507.txt
-
-[3]
-Band=80
+[11]
 AusrichtDOK=P31
-Datum=22.04.2007
+Band=80
+Datum=09.09.2007
 Verantw_DOK=P31
-Verantw_GebJahr=
+Verantw_GebJahr=1975
 Verantw_Vorname=Marc
 Auswertungsmuster=Platz Vorname Nachname Call Zeit Sender Dok
 Verantw_CALL=DL5SEZ
 Verantw_Name=Landmann
-TlnManuell=18
 AusrichtOV=Metzingen
-OVFJDatei=P31_220407.txt
+TlnManuell=13
+OVFJDatei=P31_090907.txt
 
 [7]
-Band=80
 AusrichtDOK=
+Band=80
 Datum=19.05.2007
 Verantw_DOK=P12
 Verantw_GebJahr=1970
@@ -36,13 +22,85 @@ Verantw_Vorname=Matthias
 Auswertungsmuster=Platz Vorname Nachname Call Dok Zeit Sender
 Verantw_Name=Kühlewein
 Verantw_CALL=DL3SDO
-TlnManuell=8
 AusrichtOV=YL Referat Württemberg
+TlnManuell=8
 OVFJDatei=YL_Foxoring_190507.txt
+
+[2]
+AusrichtDOK=P12
+Band=2
+Datum=07.04.2007
+Verantw_DOK=F13
+Verantw_GebJahr=
+Verantw_Vorname=Nick
+Auswertungsmuster=Platz. Nachname, Vorname Call Sender Zeit
+Verantw_CALL=DF1FO
+Verantw_Name=Roethe
+AusrichtOV=Tübingen
+TlnManuell=9
+OVFJDatei=Nick_2m_070407.txt
+
+[1]
+AusrichtDOK=P12
+Band=80
+Datum=17.03.2007
+Verantw_DOK=P12
+Verantw_GebJahr=1970
+Verantw_Vorname=Matthias
+Auswertungsmuster=Platz Vorname Nachname Zeit Sender
+Verantw_CALL=DL3SDO
+Verantw_Name=Kühlewein
+AusrichtOV=Tübingen
+TlnManuell=27
+OVFJDatei=Hagelloch_170307.txt
+
+[13]
+Band=2
+AusrichtDOK=P12
+Datum=18.02.2007
+Verantw_DOK=F13
+Verantw_GebJahr=1953
+Verantw_Vorname=Nick
+Auswertungsmuster=Platz Vorname Nachname Zeit Sender
+Verantw_CALL=DF1FO
+Verantw_Name=Roethe
+TlnManuell=13
+AusrichtOV=Tübingen
+OVFJDatei=Nick_2m_180207.txt
+
+[6]
+AusrichtDOK=
+Band=80
+Datum=19.05.2007
+Verantw_DOK=P06
+Verantw_GebJahr=1947
+Verantw_Vorname=Uli
+Auswertungsmuster=Platz Vorname Nachname Call Dok Zeit Sender?
+Verantw_CALL=DF6TZ
+Verantw_Name=Schoor
+AusrichtOV=YL Referat Württemberg
+TlnManuell=10
+OVFJDatei=YL_FJ_190507.txt
+
+[3]
+AusrichtDOK=P31
+Band=80
+Datum=22.04.2007
+Verantw_DOK=P31
+Verantw_GebJahr=1975
+Verantw_Vorname=Marc
+Auswertungsmuster=Platz Vorname Nachname Call Zeit Sender Dok
+Verantw_CALL=DL5SEZ
+Verantw_Name=Landmann
+AusrichtOV=Metzingen
+TlnManuell=18
+OVFJDatei=P31_220407.txt
 
 [General]
 Jahr=2007
 ovfj_link= <<EOT
+14
+13
 1
 2
 3
@@ -51,7 +109,10 @@ ovfj_link= <<EOT
 7
 8
 9
+10
 4
+11
+12
 EOT
 Vorname=Matthias
 Exclude_Checkmark=0
@@ -69,36 +130,50 @@ Name=Kühlewein
 Version=0.98
 
 [9]
-AusrichtDOK=P52
 Band=80
+AusrichtDOK=P52
 Datum=21.07.2007
-Verantw_DOK=P52
-Verantw_GebJahr=
-Verantw_Vorname=Nina
+Verantw_DOK=P12
+Verantw_GebJahr=1970
+Verantw_Vorname=Matthias
 Auswertungsmuster=Platz Vorname Nachname Call Zeit Sender Dok
-Verantw_Name=Riethmueller
-Verantw_CALL=DL2GRC
+Verantw_Name=Kühlewein
+Verantw_CALL=DL3SDO
+TlnManuell=27
 AusrichtOV=Hohenzollern
-TlnManuell=
 OVFJDatei=P52_21072007.txt
 
-[2]
+[12]
+AusrichtDOK=P12
+Band=2
+Datum=30.12.2007
+Verantw_DOK=F13
+Verantw_GebJahr=1953
+Verantw_Vorname=Nick
+Auswertungsmuster=Platz Vorname Nachname Egal Egal Egal
+Verantw_CALL=DF1FO
+Verantw_Name=Roethe
+AusrichtOV=Tübingen
+TlnManuell=16
+OVFJDatei=Nick_2m_301207.txt
+
+[14]
 Band=2
 AusrichtDOK=P12
-Datum=07.04.2007
+Datum=14.01.2007
 Verantw_DOK=F13
-Verantw_GebJahr=
+Verantw_GebJahr=1953
 Verantw_Vorname=Nick
-Auswertungsmuster=Platz. Nachname, Vorname Call Sender Zeit
+Auswertungsmuster=Platz Vorname Nachname Zeit Sender
 Verantw_CALL=DF1FO
 Verantw_Name=Roethe
 TlnManuell=9
 AusrichtOV=Tübingen
-OVFJDatei=Nick_2m_070407.txt
+OVFJDatei=Nick_2m_140107.txt
 
 [8]
-AusrichtDOK=P11
 Band=80
+AusrichtDOK=P11
 Datum=01.07.2007
 Verantw_DOK=P06
 Verantw_GebJahr=1973
@@ -106,27 +181,13 @@ Verantw_Vorname=Martin
 Auswertungsmuster=Platz Nachname, Vorname Call Dok Sender Zeit
 Verantw_CALL=DL3SFB
 Verantw_Name=Kuhn
-AusrichtOV=Stuttgart
 TlnManuell=23
+AusrichtOV=Stuttgart
 OVFJDatei=Akafunk_010707.txt
 
-[1]
-Band=80
-AusrichtDOK=P12
-Datum=17.03.2007
-Verantw_DOK=P12
-Verantw_GebJahr=1970
-Verantw_Vorname=Matthias
-Auswertungsmuster=Platz Vorname Nachname Zeit Sender
-Verantw_CALL=DL3SDO
-Verantw_Name=Kühlewein
-TlnManuell=27
-AusrichtOV=Tübingen
-OVFJDatei=Hagelloch_170307.txt
-
 [4]
-Band=80
 AusrichtDOK=P12
+Band=80
 Datum=18.08.2007
 Verantw_DOK=P12
 Verantw_GebJahr=1970
@@ -134,13 +195,27 @@ Verantw_Vorname=Matthias
 Auswertungsmuster=Platz Nachname, Vorname Call Dok Sender Egal
 Verantw_CALL=DL3SDO
 Verantw_Name=Kühlewein
-TlnManuell=13
 AusrichtOV=Tübingen
+TlnManuell=13
 OVFJDatei=Foxoring_P12_180807.txt
 
+[10]
+AusrichtDOK=P51
+Band=80
+Datum=04.08.2007
+Verantw_DOK=P51
+Verantw_GebJahr=1982
+Verantw_Vorname=Jens
+Auswertungsmuster=Platz Nachname, Vorname Call Dok Sender Zeit
+Verantw_CALL=DH2SP
+Verantw_Name=Pichler
+AusrichtOV=Stromberg
+TlnManuell=21
+OVFJDatei=P51_040807.txt
+
 [5]
-AusrichtDOK=P29
 Band=2
+AusrichtDOK=P29
 Datum=29.04.2007
 Verantw_DOK=A48
 Verantw_GebJahr=
@@ -148,6 +223,6 @@ Verantw_Vorname=Jürgen
 Auswertungsmuster=Platz.Egal Nachname, Vorname Dok Call Egal Egal
 Verantw_CALL=DL1YP
 Verantw_Name=Ging
-AusrichtOV=Sigmaringen
 TlnManuell=9
+AusrichtOV=Sigmaringen
 OVFJDatei=P29_290407.txt
