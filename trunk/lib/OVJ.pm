@@ -1035,6 +1035,12 @@ sub IsZeroTxt {
 	return $_[0];
 }
 
+#Pruefen, ob String leer ist, um in HTML Ausgabe &nbsp; statt '' auszugeben
+sub NoEmptyHTML {
+	return "&nbsp;" if $_[0] eq "";
+	return $_[0];
+}
+
 #Export der Auswertung(en) im Speicher in die verschiedenen Formate
 sub export {
 	my $general = shift;
@@ -1124,15 +1130,15 @@ sub export {
 	printf HOUTFILE "<tr><td>Name, Vorname</td>\n";
 	printf HOUTFILE "<td><b>".$general->{"Name"}.", ".$general->{"Vorname"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Call</td>\n";
-	printf HOUTFILE "<td><b>".$general->{"Call"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".NoEmptyHTML($general->{"Call"})."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>DOK</td>\n";
 	printf HOUTFILE "<td><b>".$general->{"DOK"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Telefon</td>\n";
-	printf HOUTFILE "<td><b>".$general->{"Telefon"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".NoEmptyHTML($general->{"Telefon"})."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Home-BBS</td>\n";
-	printf HOUTFILE "<td><b>".$general->{"Home-BBS"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".NoEmptyHTML($general->{"Home-BBS"})."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>E-Mail</td>\n";
-	printf HOUTFILE "<td><b>".$general->{"E-Mail"}."</b></td></tr>\n";
+	printf HOUTFILE "<td><b>".NoEmptyHTML($general->{"E-Mail"})."</b></td></tr>\n";
 	printf HOUTFILE "</tbody></table><br><br>\n";
 
 	printf HOUTFILE "<table border=\"1\">\n";
@@ -1149,10 +1155,10 @@ sub export {
 		printf AOUTFILE substr($ovfjlistelement->{"Verantw_CALL"}." "x8,0,8).substr($ovfjlistelement->{"Verantw_DOK"}." "x5,0,5);
 		printf AOUTFILE substr($ovfjlistelement->{"Datum"}." "x13,0,13).substr($ovfjlistelement->{"Band"}." "x9,0,9).@$ovfjanztlnlist[$i-1]."\n";
 
-		printf HOUTFILE "<tr><td>".$i."</td><td>".$ovfjlistelement->{"AusrichtOV"}."</td><td>".$ovfjlistelement->{"AusrichtDOK"}."</td>";
+		printf HOUTFILE "<tr><td>".$i."</td><td>".NoEmptyHTML($ovfjlistelement->{"AusrichtOV"})."</td><td>".NoEmptyHTML($ovfjlistelement->{"AusrichtDOK"})."</td>";
 		printf HOUTFILE "<td>".$ovfjlistelement->{"Verantw_Name"}.", ".$ovfjlistelement->{"Verantw_Vorname"}."</td>\n";
-		printf HOUTFILE "<td>".($ovfjlistelement->{"Verantw_CALL"} eq "" ? "&nbsp;" : $ovfjlistelement->{"Verantw_CALL"})."</td>";
-		printf HOUTFILE "<td>".($ovfjlistelement->{"Verantw_DOK"} eq "" ? "&nbsp;" : $ovfjlistelement->{"Verantw_DOK"})."</td>";
+		printf HOUTFILE "<td>".NoEmptyHTML($ovfjlistelement->{"Verantw_CALL"})."</td>";
+		printf HOUTFILE "<td>".NoEmptyHTML($ovfjlistelement->{"Verantw_DOK"})."</td>";
 		printf HOUTFILE "<td>".$ovfjlistelement->{"Datum"}."</td><td>".$ovfjlistelement->{"Band"}."</td>";
 		printf HOUTFILE "<td>".@$ovfjanztlnlist[$i-1]."</td></tr>\n";
 		$i++;
@@ -1239,8 +1245,8 @@ sub export {
 		printf AOUTFILE $str2."\n";
 		
 		printf HOUTFILE "<tr><td>".$tn->{$tnkey}->{nachname}.", ".$tn->{$tnkey}->{vorname}."</td>";
-		printf HOUTFILE "<td>".($tn->{$tnkey}->{call} eq "" ? "&nbsp;" : $tn->{$tnkey}->{call})."</td><td>".($tn->{$tnkey}->{dok} eq "" ? "&nbsp;" : $tn->{$tnkey}->{dok})."</td>\n";
-		printf HOUTFILE "<td>".($tn->{$tnkey}->{gebjahr} eq "" ? "&nbsp;" : $tn->{$tnkey}->{gebjahr})."</td><td>".($tn->{$tnkey}->{pmvj} ? "JA" : "--")."</td>";
+		printf HOUTFILE "<td>".NoEmptyHTML($tn->{$tnkey}->{call})."</td><td>".NoEmptyHTML($tn->{$tnkey}->{dok})."</td>\n";
+		printf HOUTFILE "<td>".NoEmptyHTML($tn->{$tnkey}->{gebjahr})."</td><td>".($tn->{$tnkey}->{pmvj} ? "JA" : "--")."</td>";
 		printf HOUTFILE "<td>".$tn->{$tnkey}->{wwbw}."</td><td>".$tn->{$tnkey}->{anzwwbw}."</td>\n";
 		printf HOUTFILE "<td>".IsZeroHTML($tn->{$tnkey}->{anzpl1})."</td><td>".IsZeroHTML($tn->{$tnkey}->{anzpl2})."</td><td>".IsZeroHTML($tn->{$tnkey}->{anzausr})."</td><td>".IsZeroHTML($tn->{$tnkey}->{anzhelf})."</td>";
 		printf HOUTFILE "<td>".$punktstr."</td></tr>\n";
