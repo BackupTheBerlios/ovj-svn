@@ -188,9 +188,9 @@ sub MatchPat {
 					$nachname = $1;
 					$line =~ s/^\"[^"]+\"//;
 				}
-				elsif ($line =~ /^([-a-zA-Z漩周遌+)/) {
+				elsif ($line =~ /^([-a-zA-Z\xc0-\xfc]+)/) {
 					$nachname = $1;
-					$line =~ s/^[-a-zA-Z漩周遌+//;
+					$line =~ s/^[-a-zA-Z\xc0-\xfc]+//;
 				}
 				elsif ($quest == 0) {
 					return (0,$kw); # Fehlschlag
@@ -202,9 +202,9 @@ sub MatchPat {
 					$vorname = $1;
 					$line =~ s/^\"[^"]+\"//;
 				}
-				elsif ($line =~ /^([-a-zA-Z漩周遌+)/) {
+				elsif ($line =~ /^([-a-zA-Z\xc0-\xfc]+)/) {
 					$vorname = $1;
-					$line =~ s/^[-a-zA-Z漩周遌+//;
+					$line =~ s/^[-a-zA-Z\xc0-\xfc]+//;
 				}
 				elsif ($quest == 0) {
 					return (0,$kw); # Fehlschlag
@@ -528,7 +528,7 @@ sub get_overrides {
 		next if (/^\W+/);		# Zeilen, die nicht mit einem Buchstaben beginnen ueberspringen
 		next if ($_ eq "");	# Leerzeilen ueberspringen
 		s/\r//;
-		if (/^[-a-zA-Z漩周遌+,[-a-zA-Z漩周遌+,(|---|\w+),(|---|\w+),(|\d{4}),(NichtInPMVJ|IstInPMVJ|)\s*$/) {
+		if (/^[-a-zA-Z\xc0-\xfc]+,[-a-zA-Z\xc0-\xfc]+,(|---|\w+),(|---|\w+),(|\d{4}),(NichtInPMVJ|IstInPMVJ|)\s*$/) {
 			$overrides .= $_."\n";
 		}
 		else {
