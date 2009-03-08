@@ -153,7 +153,7 @@ sub MatchPat {
 			}
 			if ($kw eq "Dok") {
 				$validkeyword = 1;
-				if ($line =~ /^(\S+)/) {
+				if ($line =~ /^(-+)/ || $line =~ /^([a-zA-Z]\d\d)/) {
 					$dok = uc($1);
 					$dok = "---" if ($dok !~ /^[A-Z]\d\d$/);
 					$line =~ s/^\S+//;
@@ -164,9 +164,23 @@ sub MatchPat {
 			}
 			if ($kw eq "Call" || $kw eq "Rufzeichen") {
 				$validkeyword = 1;
-				if ($line =~ /^(\S+)/) {
+				if ($line =~ /^(-+)/ || $line =~ /^swl|SWL/ ||$line =~ /^([a-zA-Z0-9]{4,})/) {
 					$call = uc($1);
-					$call = "---" if ($call =~ /^[A-Z]+$/ || $call =~ /^-+$/);
+					if ($quest == 0)
+					{
+						$call = "---" if ($call =~ /^[A-Z\xc0-\xfc]+$/ || $call =~ /^-+$/);
+					}
+					else
+					{ # bei Fragezeichen nicht leichtfertig --- vergeben
+						if ($call =~ /^-+$/)
+						{
+							$call = "---";
+						}
+						else
+						{
+							$call = "" if ($call =~ /^[A-Z\xc0-\xfc]+$/ || $call =~ /^\d+&/);
+						}
+					}
 					$line =~ s/^\S+//;
 				}
 				elsif ($quest == 0) {
@@ -587,6 +601,7 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 	my $aktJahr;	# Teilnahme im aktuellen Jahr
 	my $matcherrortext;	# Fehlertext bei Pattern nicht matched
 	my $TlnIstAusrichter;	# Teilnehmer ist auch Ausrichter
+	my $FirstLineRead;		# Workaround: erste Zeile (in $_) wurde bei redo doch ueberschrieben
 	
 	#Auswertung
 	if ($general->{Jahr} !~ /^\d{4}$/)
@@ -661,6 +676,7 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 	{
 		s/\r//;
 		$HelferInKopf = 0;
+		$FirstLineRead = $_ if $AddedVerant == 0;	# workaround
 		if ($AddedVerant == 1)
 		{
 			#print $_;
@@ -670,7 +686,7 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 			next if ($_ eq "");		# und leere Zeilen 
 			next if /^\s+$/;			# und Zeilen, die nur aus Leerzeichen bestehen
 			$line++;
-			if (/^<(\/?)([^>]+)>$/)
+			if (/^<(\/?)([^>]+)>\s*$/)
 			{
 				if ($2 eq "Ignorier" || $2 eq "Ignoriere")
 				{
@@ -997,6 +1013,7 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 		if ($AddedVerant == 0)
 		{
 			$AddedVerant = 1;
+			$_ = $FirstLineRead;	# workaround, weil $_ zwischenzeitlich ueberschrieben wurde
 			redo; # Die Schleife noch einmal durchlaufen, diesmal mit der Auswertung des ersten
 			      # Datensatzes. Durch das 'redo' wird aus INFILE nichts neues gelesen
 		}
