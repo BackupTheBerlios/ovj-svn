@@ -488,7 +488,8 @@ sub SucheTlnInPM {
 sub read_pm_file {
 	my $filename = shift;
 	my $anonarray = [];	# anonymes Array
-	my ($pmname,$pmvorname,$pmcall,$pmdok,$pmgebjahr,$pmpm,$pmdatum);
+	#my ($pmname,$pmvorname,$pmcall,$pmdok,$pmgebjahr,$pmpm,$pmdatum);
+	my $pmfelder;
 
 	my $infile;
 	open $infile, '<', $filename
@@ -499,8 +500,17 @@ sub read_pm_file {
 		next unless (/^\"/);	# Zeile muss mit Anfuehrungszeichen beginnen
 		s/\r//;
 		tr/\"//d;				# entferne alle Anführungszeichen
-		($pmname,$pmvorname,$pmcall,$pmdok,undef,undef,$pmgebjahr,undef,$pmpm,undef,$pmdatum,undef) = split(/,/);
-		$anonarray = [$pmname,$pmvorname,$pmcall,$pmdok,$pmgebjahr,$pmpm,$pmdatum];
+		#($pmname,$pmvorname,$pmcall,$pmdok,undef,undef,$pmgebjahr,undef,$pmpm,undef,$pmdatum,undef) = split(/,/);
+		#$anonarray = [$pmname,$pmvorname,$pmcall,$pmdok,$pmgebjahr,$pmpm,$pmdatum];
+		$pmfelder = split(/,/);
+		if ($pmfelder == 12)	# altes Format vor 2008
+		{
+			$anonarray = [$_[0],$_[1],$_[2],$_[3],$_[6],$_[8],$_[10]];	
+		}
+		if ($pmfelder == 14)	# altes Format ab 2009
+		{
+			$anonarray = [$_[0],$_[1],$_[2],$_[3],$_[8],$_[10],$_[12]];	
+		}
 		push @pm, $anonarray;
 	}
 	close $infile or die "close: $!";
@@ -1119,7 +1129,7 @@ sub export {
 	printf AOUTFILE "Call                            ".$general->{"Call"}."\n";
 	printf AOUTFILE "DOK                             ".$general->{"DOK"}."\n";
 	printf AOUTFILE "Telefon                         ".$general->{"Telefon"}."\n";
-	printf AOUTFILE "Home-BBS                        ".$general->{"Home-BBS"}."\n";
+	#printf AOUTFILE "Home-BBS                        ".$general->{"Home-BBS"}."\n";
 	printf AOUTFILE "E-Mail                          ".$general->{"E-Mail"}."\n";
 	printf AOUTFILE "Auswertung mit                  ".ovjinfo()."\n";
 	printf AOUTFILE ("am                              %i.%i.%i\n",$mday,$mon+1,$myear+1900);
@@ -1152,8 +1162,8 @@ sub export {
 	printf HOUTFILE "<td><b>".$general->{"DOK"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Telefon</td>\n";
 	printf HOUTFILE "<td><b>".NoEmptyHTML($general->{"Telefon"})."</b></td></tr>\n";
-	printf HOUTFILE "<tr><td>Home-BBS</td>\n";
-	printf HOUTFILE "<td><b>".NoEmptyHTML($general->{"Home-BBS"})."</b></td></tr>\n";
+	#printf HOUTFILE "<tr><td>Home-BBS</td>\n";
+	#printf HOUTFILE "<td><b>".NoEmptyHTML($general->{"Home-BBS"})."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>E-Mail</td>\n";
 	printf HOUTFILE "<td><b>".NoEmptyHTML($general->{"E-Mail"})."</b></td></tr>\n";
 	printf HOUTFILE "</tbody></table><br><br>\n";
