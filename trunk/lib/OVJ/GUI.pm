@@ -42,6 +42,8 @@ use Tk::DialogBox;
 use Tk::NoteBook;
 require Tk::FBox if ($^O !~ /MSwin32/);
 
+use File::Basename;
+
 use OVJ 0.98;
 use OVJ::Browser 0.1;
 
@@ -278,9 +280,6 @@ sub make_general {
 	$fr0->Label(-text => 'Telefon', -anchor => 'w')->grid(
 	$gui_general{Telefon} = $fr0->Entry(),
 	'x',
-	$fr0->Label(-text => 'Home-BBS', -anchor => 'w'),
-	$gui_general{"Home-BBS"} = $fr0->Entry(),
-	'x',
 	$fr0->Label(-text => 'E-Mail', -anchor => 'w'),
 	$gui_general{"E-Mail"} = $fr0->Entry(),
 	-sticky => 'we');
@@ -290,9 +289,9 @@ sub make_general {
 	'x',
 	$fr0->Button(-text => 'PM akt. Jahr', -command => sub{do_select_pmfile(1)} ),
 	$gui_general{PMaktJahr} = $fr0->Entry(-width => 15),
-	'x',
-	$fr0->Button(-text => 'Spitznamen', -command => sub{do_get_nickfile()} ),
-	$gui_general{Spitznamen} = $fr0->Entry(-width => 15),
+#	'x',
+#	$fr0->Button(-text => 'Spitznamen', -command => sub{do_get_nickfile()} ),
+#	$gui_general{Spitznamen} = $fr0->Entry(-width => 15),
 	-sticky => 'we');
 
 	$gui_ExcludeTln = $fr0->Checkbutton(
@@ -552,7 +551,7 @@ sub get_name_catalogue {
 		my $i = 0;
 		map {
 			$record{$_} = $input->{$_[$i++]} || ''
-		} qw/Name Vorname Call DOK GebJahr Telefon Home-BBS E-Mail/;
+		} qw/Name Vorname Call DOK GebJahr Telefon E-Mail/;
 		$record{CALL} = $record{Call}; # Vereinfachung bei Verwendern
 		my $key = "$record{Name}, $record{Vorname}, $record{Call}";
 		if ($key eq ', , ') {
@@ -561,7 +560,7 @@ sub get_name_catalogue {
 		elsif (exists $name_catalogue{$key}) {
 			map {
 				$name_catalogue{$key}->{$_} ||= $record{$_};
-			} qw/DOK GebJahr Telefon Home-BBS E-Mail/;
+			} qw/DOK GebJahr Telefon E-Mail/;
 		}
 		else {
 			$name_catalogue{$key} = \%record;
@@ -569,7 +568,7 @@ sub get_name_catalogue {
 	};
 		
 	&$catalogue_add($project->{General}, 
-	               qw/Name Vorname Call DOK - Telefon Home-BBS E-Mail/ );
+	               qw/Name Vorname Call DOK - Telefon E-Mail/ );
 	foreach (@{$project->{General}{ovfj_link}}) {
 		&$catalogue_add($project->{$_},
 		               qw/Verantw_Name Verantw_Vorname Verantw_CALL
@@ -584,7 +583,7 @@ sub select_name_ovj {
 	my %general_tmp = get_gui_general();
 	map {
 		$general_tmp{$_} = $record->{$_}
-	} qw/Name Vorname Call DOK Telefon Home-BBS E-Mail/;
+	} qw/Name Vorname Call DOK Telefon E-Mail/;
 	modify_gui_general(%general_tmp);
 }
 
@@ -660,11 +659,16 @@ sub do_pattern_dialog {
 	# http://www.annocpan.org/~NI-S/Tk-804.027/pod/DialogBox.pod
 	$dlg->protocol( WM_DELETE_WINDOW => sub { 
 		$dlg->{selected_button} = 'Abbrechen' } );
+	#Seltsames Verhalten der Scrollbox: sobald die Anzahl Pattern-Eintraege um genau
+	#3 hoeher ist, als die Zahl im Scrolled-Control (-height => ..) koennen die
+	#untersten Zeilen nicht ausgewaehlt werden und es flackert beim Versuch
+	#Der nachfolgende Code versucht dies zu vermeiden
+	my @temp = split('\n',$orig_patterns);	# ermittle die Anzahl der Zeilen
 	my $textbox = $dlg->add('Scrolled', 'Text', 
 		-wrap => 'none',
 		-scrollbars => 'osoe',
 		-width => 80, 
-		-height => 6)
+		-height => (scalar(@temp) < 15 ? scalar(@temp): 11))	# siehe Kommentar oben
 	  ->pack(-fill => 'both', -expand => 1);
 	$textbox->Contents($orig_patterns);
 	while (1) {
@@ -844,16 +848,15 @@ sub modify_ovfj {
 }
 
 sub fill_ovfj_tabs {
-	my $ovfjrepfilename = $_[0];
+	my $ovfjrepfilename = build_repfilename($_[0]);
 	my $general = $_[1];
 	# GUI schon initialisiert ?
 	if (defined $gui_ovfj{AusrichtDOK}) { 
-		$ovfjrepfilename .= "_report_ovj.txt";
-		$ovfjrepfilename =~ s/^OVFJ //;
+		#$ovfjrepfilename .= "_report_ovj.txt";
+		#$ovfjrepfilename =~ s/^OVFJ //;
 		#print $ovfjrepfilename."\n"; # FIXME: entfernen
 		$gui_ovfj_view_report->configure(-state => 'normal');
-		$gui_ovfj_view_report->Contents(
-			$ovfjrepfilename ? OVJ::read_ovfj_repfile($ovfjrepfilename) : '' ); # FIXME: sinnlose Abfrage, ersetzen oder loeschen
+		$gui_ovfj_view_report->Contents(OVJ::read_ovfj_repfile($ovfjrepfilename));
 		$gui_ovfj_view_report->configure(-state => 'disabled');
 		
 		$gui_ovfj_view_output->configure(-state => 'normal');
@@ -861,6 +864,13 @@ sub fill_ovfj_tabs {
 		$gui_ovfj_view_output->configure(-state => 'disabled');
 	}
 	return 1;
+}
+
+sub build_repfilename {
+	my $ovfjrepfilename = $_[0]."_".$project->{$_[0]}{OVFJDatei};
+	$ovfjrepfilename =~ s/\.[^.]*$//;	# evtl. vorhandene Dateierweiterung loeschen
+	$ovfjrepfilename .= "_report.txt";	
+	return $ovfjrepfilename;
 }
 
 sub get_ovfj_string {
@@ -901,14 +911,14 @@ sub ovfj_modified {
 
 
 #Auswahl der Spitznamen Datei per Button
-sub do_get_nickfile {
-	my $types = [['Text Files','.txt'],['All Files','*',]];
-	my $selfile = $mw->getOpenFile(-initialdir => '.', -filetypes => $types, -title => "Spitznamen Datei auswählen");
-	return if (!defined($selfile) || $selfile eq "");
-	$selfile =~ s/^.*\///;
-	$gui_general{Spitznamen}->delete(0,"end");
-	$gui_general{Spitznamen}->insert(0,$selfile);
-}
+#sub do_get_nickfile {
+#	my $types = [['Text Files','.txt'],['All Files','*',]];
+#	my $selfile = $mw->getOpenFile(-initialdir => '.', -filetypes => $types, -title => "Spitznamen Datei auswählen");
+#	return if (!defined($selfile) || $selfile eq "");
+#	$selfile =~ s/^.*\///;
+#	$gui_general{Spitznamen}->delete(0,"end");
+#	$gui_general{Spitznamen}->insert(0,$selfile);
+#}
 
 #Auswahl der PMVorjahr (0) oder aktuellen (else) PM Datei per Button
 sub do_select_pmfile {
@@ -951,8 +961,9 @@ sub About {
 	                -type    => 'Ok',
 	                -message => <<"END_ABOUT" );
 OV Jahresauswertung
-(C) 2007 Matthias Kühlewein, DL3SDO
-         Kai Pastor, DG0YT
+(C) 2007-2010 
+Matthias Kühlewein, DL3SDO
+Kai Pastor, DG0YT
 
 Download, Neuigkeiten,
 Fehlermeldungen, Änderungswünsche:
@@ -1205,6 +1216,8 @@ sub do_select_fjfile {
 
 	$fjdir =~ tr/\\/\//;
 	$selfile =~ s/^$fjdir\/([^\/]+)$/$1/;
+	my($filename, $directories, $suffix) = fileparse($selfile);
+	$selfile = $filename.$suffix;	# vermeide absolute Pfade!
 	my %ovfj = OVJ::import_fjfile($selfile)
 	 or return;
 	modify_ovfj(%ovfj);
@@ -1345,8 +1358,11 @@ sub do_eval_ovfj {
 	foreach my $str (@_)
 	{
 		my $ovfjname = $str;
-		my $ovfjrepfilename = $str . "_report_ovj.txt";
-		$ovfjrepfilename =~ s/^OVFJ //;
+#		my $ovfjrepfilename = $str . "_report_ovj.txt";
+#		my $ovfjrepfilename = $str."_".$project->{$ovfjname}{OVFJDatei};
+#		$ovfjrepfilename =~ s/\.[^.]*$//;	# evtl. vorhandene Dateierweiterung loeschen
+#		$ovfjrepfilename .= "_report.txt";
+		my $ovfjrepfilename = build_repfilename($ovfjname);
 		next if ($ovfjname !~ /\S+/);
 #		my %ovfj = OVJ::read_ovfjfile($ovfjname)
 #		 or next;
