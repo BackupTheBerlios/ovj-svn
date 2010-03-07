@@ -10,7 +10,6 @@
 <body>
 <b><a href="index.htm">Startseite</a></b><br><br>
 <h1>Auswertungsmuster</h1>
-<br>
 Um eine spaltenweise aufbereitete Ergebnisliste auswerten zu können,
 muss dem Programm der Aufbau der Liste mitgeteilt werden.<br>
 Dazu dient die Zeile Muster im Bereich des jeweiligen OV Wettbewerbs.<br>
@@ -37,7 +36,11 @@ Ein Fragezeichen direkt im Anschluss an ein Schlüsselwort bedeutet, dass der dem
 entsprechende Inhalt in der Ergebniste vorhanden sein kann, oder nicht.<br>
 <br>Ein Leerzeichen im Muster steht in der Ergebnisliste für <b>ein oder mehrere</b> Leerzeichen (Jeder Tabulator wird
 durch ein Leerzeichen ersetzt).<br>
-Sonstige Zeichen (z.B. das Komma) oder Zeichenketten müssen exakt so in der Ergebnisliste vorhanden sein.<br>
+Sonstige Zeichen oder Zeichenketten müssen exakt so in der Ergebnisliste vorhanden sein.<br>
+<br>Das Muster muss nicht alle Felder umfassen. Oft stehen rechts Felder wie Zeit oder Senderanzahl. Es reicht daher, 
+das Muster nur bis zum letzten relevanten Feld zu spezifizieren.<br>
+Die Zeile <i>3 Kühlewein, Matthias&nbsp;&nbsp;&nbsp;DL3SDO&nbsp;&nbsp;&nbsp;P12&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;62:09</i><br>
+kann daher mit <i>Platz Nachname, Vorname Call Dok</i> erfasst werden.<br>
 <br>Die nachfolgende Tabelle beschreibt alle Schlüsselwörter und ihre Bedeutung. Ferner wird angegeben, bei
 welchen Daten das Muster erfolgreich trifft und welche Daten dann zurückgegeben werden.<br>
 <h3>Schlüsselwörter</h3>
@@ -68,7 +71,7 @@ Platz
 Plazierung des Teilnehmers
 </td>
 <td>
-mindestens eine Zahl
+mindestens eine Zahl, akzeptiert einen direkt nachfolgenden Punkt
 </td>
 <td>
 alle Zahlen
@@ -99,10 +102,11 @@ Geburtsjahr
 Geburtsjahr des Teilnehmers
 </td>
 <td>
-genau 4 Zahlen
+genau 4 Zahlen<br>
+Dummywerte wie 9999 werden ignoriert
 </td>
 <td>
-genau 4 Zahlen
+genau 4 Zahlen, zwischen 1900 und 2099
 </td>
 </tr>
 
@@ -114,7 +118,7 @@ Zeit
 Laufzeit
 </td>
 <td>
-Auswahl aus [.:[0-9]]
+Auswahl aus [aAlL.:[0-9]]
 </td>
 <td>
 nichts (*)
@@ -129,7 +133,9 @@ Dok
 DOK des Teilnehmers
 </td>
 <td>
-alles außer Leerzeichen
+Buchstabe gefolgt von Zahl gefolgt von Zahl<br>
+OE oder oe<br>
+ein oder mehrere - Zeichen
 </td>
 <td>
 DOK (in Großbuchstaben) wenn Buchstabe gefolgt von Zahl gefolgt von Zahl
@@ -146,7 +152,9 @@ Call
 Rufzeichen
 </td>
 <td>
-alles außer Leerzeichen
+mind. 4 Buchstaben/Zahlen<br>
+SWL oder swl<br>
+ein oder mehrere - Zeichen
 </td>
 <td>
 Rufzeichen (in Großbuchstaben)
@@ -180,8 +188,9 @@ Nachname
 Nachname
 </td>
 <td>
-Auswahl aus [-[a-z][A-Z]äöüÄÖÜß]<br>
-bzw. alle Zeichen, wenn von Anführungszeichen umschlossen
+Auswahl aus [-[a-z][A-Z][À-ü]]<br>
+bzw. alle Zeichen, wenn von Anführungszeichen umschlossen<br>
+akzeptiert ein direkt nachfolgendes Komma
 </td>
 <td>
 alle Zeichen der Auswahl
@@ -196,7 +205,7 @@ Vorname
 Vorname
 </td>
 <td>
-Auswahl aus [-[a-z][A-Z]äöüÄÖÜß]<br>
+Auswahl aus [-[a-z][A-Z][À-ü]]<br>
 bzw. alle Zeichen, wenn von Anführungszeichen umschlossen
 </td>
 <td>

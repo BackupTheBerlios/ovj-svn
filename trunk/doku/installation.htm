@@ -17,6 +17,16 @@ lauffähig sein, für die ein aktueller Perl Interpreter verfügbar ist, oder auf d
 Die Software ist in der Programmiersprache <a href="http://www.perl.org/" target="_blank">Perl</a> geschrieben.
 Da diese standardmaessig auf Windows-Systemen nicht vorhanden ist, verwende ich das Perl-Modul <a href="http://search.cpan.org/search?query=par&amp;mode=all" target="_blank">PAR</a>
  , um die benötigten Dateien des Perl-Interpreters mit dem Programmcode zusammen in eine ausführbare exe-Datei zu verpacken.
+ <!--
+ Installation von PAR:
+ Entpacken von 'PAR-0.952-MSWin32-x86-multi-thread-5.8.8.zip'
+ nach c:\perl
+ Dateien im 'script' Verzeichnis ins 'bin' Verzeichnis verschieben und dann die Verzeichnisse 
+ 'script', 'man1' und 'man3' löschen.
+ Folgende Module über den Perl Packet Manager 'ppm' installieren:
+ 'install Module-ScanDeps'
+ 'install Getopt-ArgvFile'
+ -->
 <br>(Ich erzeuge die ausführbare Datei mit der Anweisung 'pp --gui --lib lib -o OVJ.exe OVJ.pl').
 <br>Alternativ kann natürlich auch ein Perl-Interpreter installiert werden.
 <h3>Verwendung mit Installation des Perl-Interpreters</h3>
