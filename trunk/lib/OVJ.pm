@@ -75,6 +75,8 @@ use vars qw(
 
 my $patternfilename = "OVFJ_Muster.txt";
 my $overridefilename = "Override.txt";
+my $spitznamenfilename = "Spitznamen.txt";
+my $dokfilename = "doks.txt";
 
 $configdir = "config";		# Pfad für die Konfigurationsdaten
 $inputdir  = "input";		# Pfad für die Eingangsdaten
@@ -85,6 +87,8 @@ my @meldung_callback;
 
 my @questions;
 my $questionsfilename = "Fragen.txt";
+
+my %doks;					# Hash fuer Zuordnung DOK-Klarnamen zu den DOK-Kennern
 
 #Vergleiche Zeile aus Auswertungsdatei mit Pattern
 # FIXME: Rewrite 
@@ -115,9 +119,9 @@ sub MatchPat {
 			$quest = $2 ? 1 : 0;
 			if ($kw eq "Platz") {
 				$validkeyword = 1;
-				if ($line =~ /^(\d+)\b/) {
+				if ($line =~ /^(\d+)\.?\s/) {
 					$platz = $1;
-					$line =~ s/^\d+\b//;
+					$line =~ s/^\d+\.?//;
 				}
 				elsif ($quest == 0) {
 					return (0,$kw); # Fehlschlag
@@ -136,6 +140,7 @@ sub MatchPat {
 				$validkeyword = 1;
 				if ($line =~ /^(\d{4})\b/) {
 					$gebjahr = $1;
+					$gebjahr = "" if ($gebjahr !~ /^19|20/);	# fuer 9999 Dummys
 					$line =~ s/^\d+\b//;
 				}
 				elsif ($quest == 0) {
@@ -153,7 +158,7 @@ sub MatchPat {
 			}
 			if ($kw eq "Dok") {
 				$validkeyword = 1;
-				if ($line =~ /^(-+)/ || $line =~ /^([a-zA-Z]\d\d)/) {
+				if ($line =~ /^(-+)/ || $line =~ /^(OE)/i || $line =~ /^([A-Z]\d\d)/i) {
 					$dok = uc($1);
 					$dok = "---" if ($dok !~ /^[A-Z]\d\d$/);
 					$line =~ s/^\S+//;
@@ -164,7 +169,7 @@ sub MatchPat {
 			}
 			if ($kw eq "Call" || $kw eq "Rufzeichen") {
 				$validkeyword = 1;
-				if ($line =~ /^(-+)/ || $line =~ /^swl|SWL/ ||$line =~ /^([a-zA-Z0-9]{4,})/) {
+				if ($line =~ /^(-+)/ || $line =~ /^SWL/i ||$line =~ /^([A-Z0-9]{4,})/i) {
 					$call = uc($1);
 					if ($quest == 0)
 					{
@@ -198,13 +203,13 @@ sub MatchPat {
 			}
 			if ($kw eq "Nachname") {
 				$validkeyword = 1;
-				if ($line =~ /^\"([^"]+)\"/) {
+				if ($line =~ /^\"([^"]+)\"\,?/) {
 					$nachname = $1;
-					$line =~ s/^\"[^"]+\"//;
+					$line =~ s/^\"[^"]+\"\,?//;
 				}
-				elsif ($line =~ /^([-a-zA-Z\xc0-\xfc]+)/) {
+				elsif ($line =~ /^([-a-zA-Z\xc0-\xfc]+)\,?/) {
 					$nachname = $1;
-					$line =~ s/^[-a-zA-Z\xc0-\xfc]+//;
+					$line =~ s/^[-a-zA-Z\xc0-\xfc]+\,?//;
 				}
 				elsif ($quest == 0) {
 					return (0,$kw); # Fehlschlag
@@ -563,6 +568,31 @@ sub get_overrides {
 	close $infile || die "close: $!";
 	return $overrides;
 }
+
+#Lesen der DOK Datei (falls vorhanden)
+#Format: Name (DOK)
+sub get_doks {
+	my $filename = shift
+	 or return meldung(HINWEIS, "Keine DOK Datei spezifiziert");
+
+	return unless (-e $filename);
+
+	%doks = undef;
+	open (my $infile , '<', $filename)
+	 or return meldung(FEHLER, "Kann DOK Datei '$filename' nicht lesen: $!");
+	while (<$infile>) {
+		chomp;
+		next if (/^#/);		# Kommentarzeilen ueberspringen
+		next if (/^\W+/);	# Zeilen, die nicht mit einem Buchstaben beginnen ueberspringen
+		next if ($_ eq "");	# Leerzeilen ueberspringen
+		if (/^(.+?)\s*\(([A-Z]\d\d)\)/i)
+		{
+			$doks{uc($2)} = $1;
+		}
+	}
+	close $infile || die "close: $!";
+	return;
+}
 	
 #Auswertung der aktuellen OVFJ
 sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der auesseren Schleife
@@ -628,7 +658,7 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 		return 1;	# Fehler
 	}
 
-	my $nicknames = get_nicknames($general->{Spitznamen});  	# Spitznamen einlesen
+	my $nicknames = get_nicknames($spitznamenfilename);  	# Spitznamen einlesen
 	my $overrides = get_overrides($overridefilename);		# Lade die Override-Datei (falls vorhanden)
 	my $reportpath = get_path($genfilename, $reportdir);
 	unless (-d $reportpath)
@@ -1129,7 +1159,6 @@ sub export {
 	printf AOUTFILE "Call                            ".$general->{"Call"}."\n";
 	printf AOUTFILE "DOK                             ".$general->{"DOK"}."\n";
 	printf AOUTFILE "Telefon                         ".$general->{"Telefon"}."\n";
-	#printf AOUTFILE "Home-BBS                        ".$general->{"Home-BBS"}."\n";
 	printf AOUTFILE "E-Mail                          ".$general->{"E-Mail"}."\n";
 	printf AOUTFILE "Auswertung mit                  ".ovjinfo()."\n";
 	printf AOUTFILE ("am                              %i.%i.%i\n",$mday,$mon+1,$myear+1900);
@@ -1162,8 +1191,6 @@ sub export {
 	printf HOUTFILE "<td><b>".$general->{"DOK"}."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>Telefon</td>\n";
 	printf HOUTFILE "<td><b>".NoEmptyHTML($general->{"Telefon"})."</b></td></tr>\n";
-	#printf HOUTFILE "<tr><td>Home-BBS</td>\n";
-	#printf HOUTFILE "<td><b>".NoEmptyHTML($general->{"Home-BBS"})."</b></td></tr>\n";
 	printf HOUTFILE "<tr><td>E-Mail</td>\n";
 	printf HOUTFILE "<td><b>".NoEmptyHTML($general->{"E-Mail"})."</b></td></tr>\n";
 	printf HOUTFILE "</tbody></table><br><br>\n";
@@ -1565,8 +1592,10 @@ sub import_fjfile {
 	my %ovfj = ( OVFJDatei => $filename );
 	my $path = ($filename =~ m:/: ? '' : (get_path($genfilename, $inputdir).'/'));
 	$path.= $filename;
+	get_doks($dokfilename);
 	open my $infile, '<', $path
 	 or return meldung(FEHLER, "Kann OVFJ Datei '$filename' nicht lesen: $!");
+	 
 	my $tp;
 	while (<$infile>) {
 		s/\r//;
@@ -1612,7 +1641,7 @@ sub import_fjfile {
 			$ovfj{TlnManuell} = $1;
 			next;
 		}
-		if (/^Band:\s*(\d{1,2})/) {
+		if (/^Band:\s*([0-9+]{1,4})/) {
 			$ovfj{Band} = $1;
 			next;
 		}
@@ -1620,6 +1649,30 @@ sub import_fjfile {
 	}
 	close $infile
 	 or die "close: $!";
+	#neu: Falls Felder nicht aus OVFJ Datei gesetzt wurden, analysiere Dateinamen
+	#     und setzte gegebenenfalls
+	# Empfohlene Dateinamenkonvention: YYMMDD_DOK_QRG.txt
+	# z.B. 090301_P60_80m.txt
+	if ($filename =~ /^(\d{6,8})/ && (!exists $ovfj{Datum} ))
+	{
+		$tp = $1;
+		$tp =~ /(\d{2,4})(\d{2})(\d{2})$/;
+		$ovfj{Datum} = $3.".".$2.(length($1)==2?".20":".").$1;
+	}
+	if ($filename =~ /^\d{6,8}_([A-Z]\d\d)/i && (!exists $ovfj{AusrichtDOK} ))
+	{
+		$ovfj{AusrichtDOK} = uc($1);
+	}
+	if ($filename =~ /^\d{6,8}_[A-Z]\d\d_([0-9+]{1,4})/i && (!exists $ovfj{Band}))
+	{
+		$ovfj{Band} = $1;
+	}
+	# das Nachfolgende greift bei Setzung ueber Dateinamen und falls DOK gesetzt aber keine Organisation
+	# angegeben wurde
+	if (exists $ovfj{AusrichtDOK} && exists $doks{$ovfj{AusrichtDOK}} && (!exists $ovfj{AusrichtOV} ))
+	{
+		$ovfj{AusrichtOV} = $doks{$ovfj{AusrichtDOK}};
+	}
 	return %ovfj;
 }
 
