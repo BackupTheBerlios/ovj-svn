@@ -34,6 +34,7 @@ BEGIN { print STDERR OVJ::ovjinfo() . "\n" }
 
 use Config::IniFiles;
 use OVJ::GUI;
+use Cwd;
 
 my $inifilename = "ovj.ini";
 my $inifile = Config::IniFiles->new();
@@ -47,6 +48,8 @@ if ($inifile->val('LastSession','ProjectFile')) {
 OVJ::GUI::init(%config);
 OVJ::GUI::run();
 
+my $dir = getcwd;
+$OVJ::genfilename =~ s/^$dir\///;		# Pfadname nur relativ zum OVJ Verzeichnis speichern
 $inifile->setval('LastSession','ProjectFile', $OVJ::genfilename)
  or $inifile->newval('LastSession','ProjectFile', $OVJ::genfilename);
 $inifile->RewriteConfig()		# Speichern der Inidaten
