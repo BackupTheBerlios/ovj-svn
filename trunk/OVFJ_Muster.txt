@@ -1,6 +1,10 @@
 Platz Vorname Nachname Call Zeit Sender Dok // z.B. P31
-Platz Nachname, Vorname Call Dok Sender Zeit // z.B. Akafunk
-Platz Egal Nachname, Vorname Call Dok Zeit Sender // z.B. Oberbayern mit Wertungsklasse
-Platz Nachname, Vorname Call Dok Zeit Sender // z.B. Oberbayern
-Platz. Nachname, Vorname Call Sender Zeit
+Platz Nachname Vorname Call Dok Sender Zeit // z.B. Akafunk
+Platz Egal Nachname Vorname Call Dok Zeit Sender // z.B. Oberbayern mit Wertungsklasse
+Platz Nachname Vorname Call Dok Zeit Sender // z.B. Oberbayern
+Platz Nachname Vorname Call Dok Gebjahr Zeit Sender // z.B. Oberbayern
 Platz Vorname Nachname Zeit Sender
+Platz Vorname Nachname Call Dok Zeit Sender
+Platz Nachname Vorname Call Dok
+Platz Vorname Nachname Call Dok
+Vorname Nachname Call Zeit Sender
