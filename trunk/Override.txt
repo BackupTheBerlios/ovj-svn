@@ -13,7 +13,7 @@
 #zulässig sind --- wenn Rufzeichen oder DOK explizit leer sein sollen !
 #
 Föderl,Annemarie,,C26,,IstInPMVJ
-Roethe,Brigitte,,---,,IstInPMVJ
+#Roethe,Brigitte,,---,,IstInPMVJ #bis einschliesslich 2007
 Timm,Ulrich,,---,,IstInPMVJ
-Jurtz,Klaus-Dieter,DO1ZI,,,
+Jurtz,Klaus-Dieter,DM1KD,P12,,IstInPMVJ
 Feiler,Cornelia,,---,,IstInPMVJ
