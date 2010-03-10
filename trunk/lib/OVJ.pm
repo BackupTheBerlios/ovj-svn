@@ -77,6 +77,7 @@ my $patternfilename = "OVFJ_Muster.txt";
 my $overridefilename = "Override.txt";
 my $spitznamenfilename = "Spitznamen.txt";
 my $dokfilename = "doks.txt";
+my $aliasfilename = "alias.txt";
 
 $configdir = "config";		# Pfad für die Konfigurationsdaten
 $inputdir  = "input";		# Pfad für die Eingangsdaten
@@ -89,6 +90,7 @@ my @questions;
 my $questionsfilename = "Fragen.txt";
 
 my %doks;					# Hash fuer Zuordnung DOK-Klarnamen zu den DOK-Kennern
+my %alias;					# Hash fuer Aliasnamen
 
 #Vergleiche Zeile aus Auswertungsdatei mit Pattern
 # FIXME: Rewrite 
@@ -522,6 +524,43 @@ sub read_pm_file {
 	return @pm;
 }
 
+
+#Lesen der Alias Datei
+#diese Datei wird mittelfristig die Spitznamen Datei ersetzen!
+sub get_aliasnames {
+	my $filename = shift
+	 or return meldung(HINWEIS, "Keine Alias-Datei spezifiziert");
+	%alias = undef;
+	open (my $infile , '<', $filename)
+	 or return meldung(FEHLER, "Kann Alias Datei '$filename' nicht lesen: $!");
+	while (<$infile>) {
+		chomp;
+		if (/^\"([^"]+)\"\s*,\s*\"([^"]+)\"\s*=>\"([^"]+)\"\s*,\s*\"([^"]+)\"/)
+		{
+#			print $1.",".$2."=>".$3.",".$4."\n";
+			$alias{$1.$2} = [$3,$4];		# Hash von anonymen Arrays
+		}
+	}
+	close $infile || die "close: $!";
+#	print $alias{"DidiBarth"}->[0];
+	return;
+}
+
+#Zu Vor- und Nachname nachschauen, ob Alias existiert und ggf.
+#ersetzen
+sub lookup_alias {
+	my ($vorname,$nachname) = @_;
+	if (exists $alias{$vorname,$nachname})
+	{
+		return ($alias{$vorname,$nachname}->[0],$alias{$vorname,$nachname}->[1]);
+	}
+	else
+	{
+		return ($vorname,$nachname);
+	}
+}
+
+
 #Lesen der Spitznamen Datei
 sub get_nicknames {
 	my $filename = shift
@@ -659,6 +698,7 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 	}
 
 	my $nicknames = get_nicknames($spitznamenfilename);  	# Spitznamen einlesen
+	get_aliasnames($aliasfilename);							# Aliasnamen einlesen
 	my $overrides = get_overrides($overridefilename);		# Lade die Override-Datei (falls vorhanden)
 	my $reportpath = get_path($genfilename, $reportdir);
 	unless (-d $reportpath)
