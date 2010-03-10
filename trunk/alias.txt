@@ -1,0 +1,15 @@
+#Alias-Datei
+#Oft werden ja Peilsportler unter verschiedenen Vornamen geführt,
+#z.B. Didi,Uli,Nick etc.
+#in dieser Datei können Alternativen angegeben werden, um den offiziellen Listen
+#zu entsprechen. Obwohl die Funktion ähnlich der der Spitznamen Datei ist
+#verwendet diese Datei die Kombination aus Vor- und Nachnamen, um nicht auf
+#'gut Glueck' zu ersetzen sondern gezielt.
+#Format:
+#"Vorname","Nachname"=>"Vorname","Nachname"
+
+"Nick","Roethe"=>"Nickolas","Roethe"
+"Didi","Barth"=>"Wolf-Dietrich","Barth"
+"Uli","Timm"=>"Ulrich","Timm"
+"Peter","Walz"=>"Petra","Walz"
+"Winne","Walz"=>"Winfried","Walz"
