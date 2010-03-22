@@ -1,7 +1,87 @@
 Frage:
+Pastor, Kai in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Pastor,Kai,DG0YT,K07,1977,FM,20071201
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Pastor, Kai in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Pastor,Kai,DG0YT,K07,1977,FM,20081129
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Kaiser, Markus in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Kaiser,Markus,SWL,B27,1966,FM,20071201
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Kaiser, Markus in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Kaiser,Markus,SWL,B27,1966,FM,20081129
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Roethe, Nick in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Roethe,Nicholas,DF1FO,F13,1953,FM,20071224
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Roethe, Nick in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Roethe,Nicholas,DF1FO,P12,1953,FM,20081129
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Roethe, Brigitte in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Roethe,Brigitte,SWL,P12,1960,FM,20071224
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Roethe, Brigitte in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Roethe,Brigitte,SWL,P12,1960,FM,20080921
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Kaiser, Henrike in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Kaiser,Henrike,SWL,B27,1972,FM,20071231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Kaiser, Henrike in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Kaiser,Henrike,SWL,B27,1972,FM,20081129
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
 Barth, Didi in PMVorjahr gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in PMVorjahr Datei:
-Barth,Wolf-Dietrich,DK7TD,P60,1967,,20061015
+Barth,Wolf-Dietrich,DK7TD,P60,1967,FM,20081129
 
 Ist das der Teilnehmer?
 Antwort: Ja
@@ -9,23 +89,7 @@ Antwort: Ja
 Frage:
 Barth, Didi in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in akt. PM Daten Datei:
-Barth,Wolf-Dietrich,DK7TD,P60,1967,FM,20071028
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Eipper, Ernst in PMVorjahr gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in PMVorjahr Datei:
-Eipper,Ernst,DH1EE,P18,1961,FM,20060827
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Eipper, Ernst in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Eipper,Ernst,DH1EE,P18,1961,FM,20070923
+Barth,Wolf-Dietrich,DK7TD,P60,M40,1967,FM
 
 Ist das der Teilnehmer?
 Antwort: Ja
@@ -33,7 +97,7 @@ Antwort: Ja
 Frage:
 Eipper, Jens in PMVorjahr gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in PMVorjahr Datei:
-Eipper,Jens,SWL,P18,1992,FM,20060827
+Eipper,Jens,SWL,P18,1992,FM,20080524
 
 Ist das der Teilnehmer?
 Antwort: Ja
@@ -41,207 +105,7 @@ Antwort: Ja
 Frage:
 Eipper, Jens in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in akt. PM Daten Datei:
-Eipper,Jens,SWL,P18,1992,FM,20070923
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Eipper, Carmen in PMVorjahr gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in PMVorjahr Datei:
-Eipper,Carmen,DH3SC,P18,1963,FM,20060827
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Eipper, Carmen in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Eipper,Carmen,DH3SC,P18,1963,FM,20070923
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Ebert, Anke in PMVorjahr gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in PMVorjahr Datei:
-Ebert,Anke,DL9OCA,P60,1963,,20061015
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Ebert, Anke in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Ebert,Anke,DL9OCA,P60,1963,FM,20071028
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Gödan, Ulrich in PMVorjahr gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in PMVorjahr Datei:
-Gödan,Ulrich,DB2TX,P12,1951,,20060525
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Gödan, Ulrich in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Gödan,Ulrich,DB2TX,P12,1951,,20070729
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Schoor, Uli in PMVorjahr gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in PMVorjahr Datei:
-Schoor,Uli,DF6TZ,P06,1947,FM,20060827
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Schoor, Uli in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Schoor,Uli,DF6TZ,P06,1947,FM,20070729
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Dettling, Brunhilde in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Dettling,Brunhilde,DD9GC,P12,,,20070729
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Tüner, Axel in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Tüner,Axel,DF9VI,P60,,,20070923
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Tüner, Karola in PMVorjahr gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in PMVorjahr Datei:
-Tüner,Karola,DF2SDX,P60,1963,,20060924
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Tüner, Karola in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Tüner,Karola,DF2SDX,P60,1963,,20070916
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Schneider, Sinclair in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Schneider,Sinclair,DO5SI,P60,1992,,20070923
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Kittel, Eric in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Kittel,Eric,DO2EKI,P12,1992,,20070916
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Walz, Susanne in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Walz,Susanne,DG4SFF,P12,,,20070729
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Dettling, Harald in PMVorjahr gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in PMVorjahr Datei:
-Dettling,Harald,DC1GB,P12,1970,,19990912
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Dettling, Harald in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Dettling,Harald,DC1GB,P12,1970,,20070729
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Barth, Wolf-Dietrich in PMVorjahr gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in PMVorjahr Datei:
-Barth,Wolf-Dietrich,DK7TD,P60,1967,,20061015
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Barth, Wolf-Dietrich in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Barth,Wolf-Dietrich,DK7TD,P60,1967,FM,20071028
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Böhringer, Wolfgang in PMVorjahr gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in PMVorjahr Datei:
-Böhringer,Wolfgang,DL9TE,A48,1958,FM,20061022
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Böhringer, Wolfgang in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Böhringer,Wolfgang,DL9TE,A48,1958,FM,20071201
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Gartner, Bernhard in PMVorjahr gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in PMVorjahr Datei:
-Gartner,Bernhard,DF7SF,P11,1950,FM,20060827
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Gartner, Bernhard in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Gartner,Bernhard,DF7SF,P11,1950,FM,20071201
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Pichler, Jens in PMVorjahr gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in PMVorjahr Datei:
-Pichler,Jens,DH2SP,P51,1982,FM,20060903
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Pichler, Jens in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Pichler,Jens,DH2SP,P51,1982,FM,20071028
+Eipper,Jens,SWL,P18,M19,1992,FM
 
 Ist das der Teilnehmer?
 Antwort: Ja
@@ -249,7 +113,7 @@ Antwort: Ja
 Frage:
 Kühlewein, Matthias in PMVorjahr gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in PMVorjahr Datei:
-Kühlewein,Matthias,DL3SDO,P12,1970,FM,20061015
+Kühlewein,Matthias,DL3SDO,P12,1970,FM,20081012
 
 Ist das der Teilnehmer?
 Antwort: Ja
@@ -257,47 +121,263 @@ Antwort: Ja
 Frage:
 Kühlewein, Matthias in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in akt. PM Daten Datei:
-Kühlewein,Matthias,DL3SDO,P12,1970,FM,20070930
+Kühlewein,Matthias,DL3SDO,P12,M40,1970,FM
 
 Ist das der Teilnehmer?
 Antwort: Ja
 
 Frage:
-Kuhn, Martin in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Ging, Jürgen in PMVorjahr gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in PMVorjahr Datei:
-Kuhn,Martin,DL3SFB,P06,1973,FM,20061014
+Ging,Jürgen,DL1YP,A48,1964,FM,20080629
 
 Ist das der Teilnehmer?
 Antwort: Ja
 
 Frage:
-Kuhn, Martin in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Ging, Jürgen in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in akt. PM Daten Datei:
-Kuhn,Martin,DL3SFB,P06,1973,FM,20070923
+Ging,Jürgen,DL1YP,A48,M40,1964,FM
 
 Ist das der Teilnehmer?
 Antwort: Ja
 
 Frage:
-Steden, Jan in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in akt. PM Daten Datei:
-Steden,Jan,SWL,L18,2002,,20070930
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Steden, Andre in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Eipper, Carmen in PMVorjahr gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in PMVorjahr Datei:
-Steden,Andre,DG2EH,L18,1969,FM,20061029
+Eipper,Carmen,DH3SC,P18,1963,FM,20081012
 
 Ist das der Teilnehmer?
 Antwort: Ja
 
 Frage:
-Steden, Andre in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Eipper, Carmen in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in akt. PM Daten Datei:
-Steden,Andre,DG2EH,L18,1969,FM,20070930
+Eipper,Carmen,DH3SC,P18,D35,1963,FM
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Eipper, Ernst in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Eipper,Ernst,DH1EE,P18,1961,FM,20081012
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Eipper, Ernst in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Eipper,Ernst,DH1EE,P18,M40,1961,FM
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Tüner, Axel in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Tüner,Axel,DF9VI,P60,1954,,20080921
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Tüner, Axel in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Tüner,Axel,DF9VI,P60,M50,1954,
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Dettling, Harald in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Dettling,Harald,DC1GB,P12,1970,,20080921
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Dettling, Harald in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Dettling,Harald,DC1GB,P12,M40,1970,
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Walz, Susanne in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Walz,Susanne,DG4SFF,P12,1974,,20080921
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Walz, Susanne in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Walz,Susanne,DG4SFF,P12,D35,1974,
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Böhringer, Axel in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Böhringer,Axel,SWL,A48,1991,FM,20081012
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Böhringer, Axel in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Böhringer,Axel,SWL,A48,M19,1991,FM
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Barth, Wolf-Dietrich in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Barth,Wolf-Dietrich,DK7TD,P60,1967,FM,20081129
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Barth, Wolf-Dietrich in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Barth,Wolf-Dietrich,DK7TD,P60,M40,1967,FM
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Böhringer, Wolfgang in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Böhringer,Wolfgang,DL9TE,A48,1958,FM,20081129
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Böhringer, Wolfgang in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Böhringer,Wolfgang,DL9TE,A48,M50,1958,FM
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Jurtz, Klaus-Dieter in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Jurtz,Klaus-Dieter,DO1ZI,P18,1957,FM,20080921
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Jurtz, Klaus-Dieter in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Jurtz,Klaus-Dieter,DM1KD,P18,M50,1957,FM
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Ebert, Anke in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Ebert,Anke,DL9OCA,P60,1963,FM,20081129
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Ebert, Anke in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Ebert,Anke,DL9OCA,P60,D35,1963,FM
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Pichler, Jens in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Pichler,Jens,DH2SP,P51,1982,FM,20080914
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Pichler, Jens in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Pichler,Jens,DH2SP,P51,M21,1982,FM
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Prantner, Marcus in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Prantner,Marcus,DF6MP,P07,1983,,20010923
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Prantner, Marcus in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Prantner,Marcus,DF6MP,P07,M21,1983,
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Prantner, Claus in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Prantner,Claus,DK6TE,P07,1952,,20080921
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Prantner, Claus in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Prantner,Claus,DK6TE,P07,M50,1952,
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Roethe, Brigitte in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Roethe,Brigitte,SWL,P12,1960,FM,20080921
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Roethe, Brigitte in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Roethe,Brigitte,SWL,P12,D50,1960,FM
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Wojner, Peter in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Wojner,Peter,DL2PW,P26,1971,,20080921
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Wojner, Peter in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Wojner,Peter,DL2PW,P26,M21,1971,
 
 Ist das der Teilnehmer?
 Antwort: Ja
@@ -305,7 +385,7 @@ Antwort: Ja
 Frage:
 Berger, Michael in PMVorjahr gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in PMVorjahr Datei:
-Berger,Michael,DF7SA,P02,1950,FM,20061015
+Berger,Michael,DF7SA,P02,1950,FM,20081129
 
 Ist das der Teilnehmer?
 Antwort: Ja
@@ -313,39 +393,263 @@ Antwort: Ja
 Frage:
 Berger, Michael in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in akt. PM Daten Datei:
-Berger,Michael,DF7SA,P02,1950,FM,20071201
+Berger,Michael,DF7SA,P02,M60,1950,FM
 
 Ist das der Teilnehmer?
 Antwort: Ja
 
 Frage:
-Barth, Wolf-Dieter in PMVorjahr gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in PMVorjahr Datei:
-Barth,Wolf-Dietrich,DK7TD,P60,1967,,20061015
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Barth, Wolf-Dieter in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Barth, Didi in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in akt. PM Daten Datei:
-Barth,Wolf-Dietrich,DK7TD,P60,1967,FM,20071028
+Barth,Wolf-Dietrich,DK7TD,P60,1967,FM,20091205
 
 Ist das der Teilnehmer?
 Antwort: Ja
 
 Frage:
-Eipper, Bernd in PMVorjahr gefunden, aber DOK: --- stimmt nicht
-Möglicher Teilnehmer in PMVorjahr Datei:
-Eipper,Bernd,SWL,P18,1986,,20040520
-
-Ist das der Teilnehmer?
-Antwort: Ja
-
-Frage:
-Eipper, Bernd in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Eipper, Jens in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in akt. PM Daten Datei:
-Eipper,Bernd,SWL,P18,1986,,20040520
+Eipper,Jens,SWL,P18,1992,FM,20090802
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Kühlewein, Matthias in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Kühlewein,Matthias,DL3SDO,P12,1970,FM,20091231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Ging, Jürgen in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Ging,Jürgen,DL1YP,A48,1964,FM,20090809
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Eipper, Carmen in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Eipper,Carmen,DH3SC,P18,1963,FM,20091231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Eipper, Ernst in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Eipper,Ernst,DH1EE,P18,1961,FM,20091231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Tüner, Axel in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Tüner,Axel,DF9VI,P60,1954,,20090614
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Dettling, Harald in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Dettling,Harald,DC1GB,P12,1970,,20090809
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Walz, Susanne in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Walz,Susanne,DG4SFF,P12,1974,,20090809
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Böhringer, Axel in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Böhringer,Axel,SWL,A48,1991,FM,20091231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Barth, Wolf-Dietrich in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Barth,Wolf-Dietrich,DK7TD,P60,1967,FM,20091205
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Böhringer, Wolfgang in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Böhringer,Wolfgang,DL9TE,A48,1958,FM,20091231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Jurtz, Klaus-Dieter in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Jurtz,Klaus-Dieter,DM1KD,P18,1957,FM,20090809
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Ebert, Anke in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Ebert,Anke,DL9OCA,P60,1963,FM,20091205
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Pichler, Jens in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Pichler,Jens,DH2SP,P51,1982,FM,20091004
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Prantner, Marcus in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Prantner,Marcus,DF6MP,P07,1983,,20090614
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Prantner, Claus in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Prantner,Claus,DK6TE,P07,1952,,20090614
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Roethe, Brigitte in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Roethe,Brigitte,SWL,P12,1960,FM,20091231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Wojner, Peter in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Wojner,Peter,DL2PW,P26,1971,,20081231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Berger, Michael in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Berger,Michael,DF7SA,P02,1950,FM,20091231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Steden, Jan in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Steden,Jan,SWL,L18,2002,,20071231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Steden, Jan in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Steden,Jan,SWL,L18,2002,,20071231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Gartner, Bernhard in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Gartner,Bernhard,DF7SF,P11,1950,FM,20081129
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Gartner, Bernhard in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Gartner,Bernhard,DF7SF,P11,1950,FM,20091011
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Kuhn, Martin in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Kuhn,Martin,DL3SFB,P06,1973,FM,20080921
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Kuhn, Martin in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Kuhn,Martin,DL3SFB,P06,1973,FM,20090809
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Grob, Harald in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Grob,Harald,DB1MUC,C25,1960,,20090926
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Grob, Anne in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Grob,Anne,DN1MUC,C25,1999,,20090926
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Weißfuß, Wolfgang in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Weißfuß,Wolfgang,DL1GWW,P29,1956,FM,20080921
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Weißfuß, Wolfgang in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Weißfuß,Wolfgang,DL1GWW,P29,1956,FM,20090809
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Schoor, Uli in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Schoor,Uli,DF6TZ,P06,1947,FM,20080921
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Schoor, Uli in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Schoor,Uli,DF6TZ,P06,1947,FM,20090607
 
 Ist das der Teilnehmer?
 Antwort: Ja
@@ -353,7 +657,7 @@ Antwort: Ja
 Frage:
 Stadler, Ewald in PMVorjahr gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in PMVorjahr Datei:
-Stadler,Ewald,DJ2UE,P18,1936,FM,20060611
+Stadler,Ewald,DJ2UE,P18,1936,FM,20080921
 
 Ist das der Teilnehmer?
 Antwort: Ja
@@ -361,7 +665,7 @@ Antwort: Ja
 Frage:
 Stadler, Ewald in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in akt. PM Daten Datei:
-Stadler,Ewald,DJ2UE,P18,1936,FM,20070506
+Stadler,Ewald,DJ2UE,P18,1936,FM,20090614
 
 Ist das der Teilnehmer?
 Antwort: Ja
@@ -369,7 +673,7 @@ Antwort: Ja
 Frage:
 Stadler, Helga in PMVorjahr gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in PMVorjahr Datei:
-Stadler,Helga,DK7SC,P18,1938,FM,20060611
+Stadler,Helga,DK7SC,P18,1938,FM,20080921
 
 Ist das der Teilnehmer?
 Antwort: Ja
@@ -377,15 +681,87 @@ Antwort: Ja
 Frage:
 Stadler, Helga in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in akt. PM Daten Datei:
-Stadler,Helga,DK7SC,P18,1938,FM,20061231
+Stadler,Helga,DK7SC,P18,1938,FM,20090614
 
 Ist das der Teilnehmer?
 Antwort: Ja
 
 Frage:
-Roethe, Nickolas in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Roethe, Nicholas in PMVorjahr gefunden, aber DOK: --- stimmt nicht
 Möglicher Teilnehmer in PMVorjahr Datei:
-Roethe,Nickolas,DF1FO,F13,1953,FM,20061015
+Roethe,Nicholas,DF1FO,P12,1953,FM,20081129
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Roethe, Nicholas in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Roethe,Nicholas,DF1FO,P12,1953,FM,20091231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Zenz-Weißfuß, Claudia in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Zenz-Weißfuß,Claudia,SWL,P29,1964,,20060625
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Zenz-Weißfuß, Claudia in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Zenz-Weißfuß,Claudia,SWL,P29,1964,,20060625
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Lessig, Odette in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Lessig,Odette,DO1GLO,P21,1982,,20080629
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Lessig, Odette in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Lessig,Odette,DO1GLO,P21,1982,,20090809
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Dettling, Brunhilde in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Dettling,Brunhilde,DD9GC,P12,,,20080921
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Dettling, Brunhilde in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Dettling,Brunhilde,DD9GC,P12,,,20081231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Sawatzki, Anette in PMVorjahr gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in PMVorjahr Datei:
+Sawatzki,Anette,DL7GAS,Z18,1953,,20071231
+
+Ist das der Teilnehmer?
+Antwort: Ja
+
+Frage:
+Sawatzki, Anette in akt. PM Daten gefunden, aber DOK: --- stimmt nicht
+Möglicher Teilnehmer in akt. PM Daten Datei:
+Sawatzki,Anette,DL7GAS,Z18,1953,,20071231
 
 Ist das der Teilnehmer?
 Antwort: Ja
