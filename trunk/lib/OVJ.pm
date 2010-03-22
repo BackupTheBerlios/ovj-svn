@@ -537,15 +537,10 @@ sub get_aliasnames {
 		chomp;
 		if (/^\"([^"]+)\"\s*,\s*\"([^"]+)\"\s*=>\"([^"]+)\"\s*,\s*\"([^"]+)\"/)
 		{
-#			print $1.",".$2."=>".$3.",".$4."\n";
 			$alias{$1.$2} = [$3,$4];		# Hash von anonymen Arrays
 		}
 	}
 	close $infile || die "close: $!";
-#	print $alias{"DidiBarth"}->[0];
-my ($vorname,$nachname)=("Didi","Barth");
-lookup_alias(\$vorname,\$nachname);
-print $vorname.$nachname;
 	return;
 }
 
