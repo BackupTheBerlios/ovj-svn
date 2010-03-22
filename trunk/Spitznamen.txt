@@ -7,7 +7,6 @@
 #Format:
 #"Vorname"="Vorname"="Vorname" etc.
 
-"Nick"="Nickolas"
-"Didi"="Wolf-Dietrich"
+"Nick"="Nicholas"
+#"Didi"="Wolf-Dieter"="Wolf-Dietrich"
 "Ulrich"="Uli"
-
