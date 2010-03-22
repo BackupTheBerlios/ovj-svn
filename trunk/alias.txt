@@ -8,8 +8,10 @@
 #Format:
 #"Vorname","Nachname"=>"Vorname","Nachname"
 
-"Nick","Roethe"=>"Nickolas","Roethe"
+"Nick","Roethe"=>"Nicholas","Roethe"
 "Didi","Barth"=>"Wolf-Dietrich","Barth"
 "Uli","Timm"=>"Ulrich","Timm"
 "Peter","Walz"=>"Petra","Walz"
 "Winne","Walz"=>"Winfried","Walz"
+"Uschi","Ging"=>"Ursula","Ging"
+"Claudia","Zenz"=>"Claudia","Zenz-Weiﬂfuﬂ"
