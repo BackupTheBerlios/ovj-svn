@@ -543,20 +543,38 @@ sub get_aliasnames {
 	}
 	close $infile || die "close: $!";
 #	print $alias{"DidiBarth"}->[0];
+my ($vorname,$nachname)=("Didi","Barth");
+lookup_alias(\$vorname,\$nachname);
+print $vorname.$nachname;
 	return;
 }
 
 #Zu Vor- und Nachname nachschauen, ob Alias existiert und ggf.
 #ersetzen
 sub lookup_alias {
-	my ($vorname,$nachname) = @_;
-	if (exists $alias{$vorname,$nachname})
+	my ($refvorname,$refnachname) = @_;
+
+	if (ref $refvorname && ref $refnachname)
 	{
-		return ($alias{$vorname,$nachname}->[0],$alias{$vorname,$nachname}->[1]);
+		if (exists $alias{$$refvorname.$$refnachname})
+		{
+			my ($oldvorname,$oldnachname) = ($$refvorname,$$refnachname);
+			my $namepair = $alias{$$refvorname.$$refnachname};
+			$$refvorname = $namepair->[0];
+			$$refnachname = $namepair->[1];
+			if (@_ > 2)
+			{
+				local *FH = $_[2];
+				my $meld = "Aliasdatei: ".$oldvorname." ".$oldnachname." durch ".$$refvorname." ".$$refnachname." ersetzt";
+				printf FH $meld."\n";
+				$meld =~ tr/\n//d;							# entferne alle CRs
+				meldung(HINWEIS, $meld);
+			}
+		}
 	}
-	else
+	else 
 	{
-		return ($vorname,$nachname);
+		carp "Pass names to loopup_alias as references";
 	}
 }
 
@@ -839,6 +857,7 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 					$ev_dok = "---" if ($ev_dok eq "");
 					($patmatched,$platz) = (1,0);
 					$HelferInKopf = 1;
+					lookup_alias(\$ev_vorname,\$ev_nachname,*OUTFILE);
 					#print "Vorname: <".$ev_vorname."> Nachname: <".$ev_nachname."> Call: <".$ev_call."> DOK: <".$ev_dok."> Gebjahr: <".$ev_gebjahr.">\n";
 				}
 			}
@@ -849,6 +868,7 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 			if ($HelferInKopf == 0)
 			{
 				($patmatched,$platz,$ev_nachname,$ev_vorname,$ev_gebjahr,$ev_call,$ev_dok) = MatchPat($_, $ovfj->{Auswertungsmuster});
+				lookup_alias(\$ev_vorname,\$ev_nachname,*OUTFILE) if ($patmatched);
 				$str2 = "\nTeilnehmer: ";
 				$str2 = "\nHelfer: " if ($Helfermode == 1);
 				$matcherrortext = $platz if ($patmatched == 0);	# Fehlertext steht in zweitem Rückgabewert
@@ -869,6 +889,7 @@ sub eval_ovfj {   # Rueckgabe: 0 = ok, 1 = Fehler, 2 = Fehler mit Abbruch der au
 		}
 		if ($patmatched)
 		{
+			lookup_alias(\$ev_vorname,\$ev_nachname,*OUTFILE);
 			$str2 .= $ev_nachname.", ".$ev_vorname.", ".$ev_gebjahr.", ".$ev_call.", ".$ev_dok;
 			RepMeldFile(*OUTFILE,$str2);
 			$override_call = 0;
